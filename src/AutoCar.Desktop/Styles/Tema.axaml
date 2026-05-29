@@ -1,0 +1,281 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ===================================================================
+         Tema AutoCar ERP — Precision & Density / Compacto Enterprise
+         Paleta + tipografia + estilos de componente. Consumir via DynamicResource.
+         =================================================================== -->
+
+    <Styles.Resources>
+        <ResourceDictionary>
+            <!-- ===== FONTES ===== -->
+            <FontFamily x:Key="FonteInterface">Segoe UI</FontFamily>
+            <FontFamily x:Key="FonteMono">Consolas</FontFamily>
+
+            <!-- ===== FUNDOS ===== -->
+            <Color x:Key="ColorFundo">#F0F2F5</Color>
+            <Color x:Key="ColorFundoCard">#FFFFFF</Color>
+            <Color x:Key="ColorFundoSidebar">#1E293B</Color>
+            <Color x:Key="ColorFundoSidebarHover">#334155</Color>
+            <Color x:Key="ColorFundoSidebarAtivo">#3B82F6</Color>
+            <Color x:Key="ColorFundoInput">#FFFFFF</Color>
+            <Color x:Key="ColorFundoDesabilitado">#F1F5F9</Color>
+            <Color x:Key="ColorFundoHover">#F8FAFC</Color>
+            <Color x:Key="ColorFundoSelecionado">#EFF6FF</Color>
+            <Color x:Key="ColorFundoHeader">#F8FAFC</Color>
+
+            <!-- ===== BORDAS ===== -->
+            <Color x:Key="ColorBorda">#CBD5E1</Color>
+            <Color x:Key="ColorBordaSuave">#E2E8F0</Color>
+            <Color x:Key="ColorBordaFoco">#3B82F6</Color>
+            <Color x:Key="ColorBordaErro">#EF4444</Color>
+
+            <!-- ===== TEXTO ===== -->
+            <Color x:Key="ColorTexto">#1E293B</Color>
+            <Color x:Key="ColorTextoSecundario">#64748B</Color>
+            <Color x:Key="ColorTextoMudo">#94A3B8</Color>
+            <Color x:Key="ColorTextoInverso">#FFFFFF</Color>
+            <Color x:Key="ColorTextoSidebar">#CBD5E1</Color>
+
+            <!-- ===== AÇÃO ===== -->
+            <Color x:Key="ColorPrimario">#3B82F6</Color>
+            <Color x:Key="ColorPrimarioHover">#2563EB</Color>
+            <Color x:Key="ColorPrimarioPressed">#1D4ED8</Color>
+
+            <!-- ===== SEMÂNTICO ===== -->
+            <Color x:Key="ColorSucesso">#22C55E</Color>
+            <Color x:Key="ColorAlerta">#F59E0B</Color>
+            <Color x:Key="ColorErro">#EF4444</Color>
+
+            <!-- ===== BRUSHES ===== -->
+            <SolidColorBrush x:Key="BrushFundo" Color="{StaticResource ColorFundo}" />
+            <SolidColorBrush x:Key="BrushFundoCard" Color="{StaticResource ColorFundoCard}" />
+            <SolidColorBrush x:Key="BrushFundoSidebar" Color="{StaticResource ColorFundoSidebar}" />
+            <SolidColorBrush x:Key="BrushFundoSidebarHover" Color="{StaticResource ColorFundoSidebarHover}" />
+            <SolidColorBrush x:Key="BrushFundoSidebarAtivo" Color="{StaticResource ColorFundoSidebarAtivo}" />
+            <SolidColorBrush x:Key="BrushFundoInput" Color="{StaticResource ColorFundoInput}" />
+            <SolidColorBrush x:Key="BrushFundoDesabilitado" Color="{StaticResource ColorFundoDesabilitado}" />
+            <SolidColorBrush x:Key="BrushFundoHover" Color="{StaticResource ColorFundoHover}" />
+            <SolidColorBrush x:Key="BrushFundoHeader" Color="{StaticResource ColorFundoHeader}" />
+
+            <SolidColorBrush x:Key="BrushBorda" Color="{StaticResource ColorBorda}" />
+            <SolidColorBrush x:Key="BrushBordaSuave" Color="{StaticResource ColorBordaSuave}" />
+            <SolidColorBrush x:Key="BrushBordaFoco" Color="{StaticResource ColorBordaFoco}" />
+            <SolidColorBrush x:Key="BrushBordaErro" Color="{StaticResource ColorBordaErro}" />
+
+            <SolidColorBrush x:Key="BrushTexto" Color="{StaticResource ColorTexto}" />
+            <SolidColorBrush x:Key="BrushTextoSecundario" Color="{StaticResource ColorTextoSecundario}" />
+            <SolidColorBrush x:Key="BrushTextoMudo" Color="{StaticResource ColorTextoMudo}" />
+            <SolidColorBrush x:Key="BrushTextoInverso" Color="{StaticResource ColorTextoInverso}" />
+            <SolidColorBrush x:Key="BrushTextoSidebar" Color="{StaticResource ColorTextoSidebar}" />
+
+            <SolidColorBrush x:Key="BrushPrimario" Color="{StaticResource ColorPrimario}" />
+            <SolidColorBrush x:Key="BrushPrimarioHover" Color="{StaticResource ColorPrimarioHover}" />
+            <SolidColorBrush x:Key="BrushErro" Color="{StaticResource ColorErro}" />
+        </ResourceDictionary>
+    </Styles.Resources>
+
+    <!-- ===================================================================
+         COMPONENTES
+         =================================================================== -->
+
+    <!-- TextBox padrão (24px) -->
+    <Style Selector="TextBox">
+        <Setter Property="Height" Value="24" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontFamily" Value="{DynamicResource FonteInterface}" />
+        <Setter Property="Padding" Value="5,0" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Background" Value="{DynamicResource BrushFundoInput}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BrushBorda}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="2" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushTexto}" />
+        <Setter Property="CaretBrush" Value="{DynamicResource BrushTexto}" />
+        <Setter Property="SelectionBrush" Value="{DynamicResource BrushPrimario}" />
+    </Style>
+
+    <!-- Cor do texto digitado sempre escura, em todos os estados.
+         O FluentTheme troca o Foreground do TextBox no foco/hover, o que
+         deixava o texto branco sobre branco — fixamos no próprio TextBox
+         (o TextPresenter herda essa cor). -->
+    <Style Selector="TextBox:pointerover">
+        <Setter Property="Foreground" Value="{DynamicResource BrushTexto}" />
+    </Style>
+    <Style Selector="TextBox:focus">
+        <Setter Property="Foreground" Value="{DynamicResource BrushTexto}" />
+    </Style>
+    <Style Selector="TextBox:focus-within">
+        <Setter Property="Foreground" Value="{DynamicResource BrushTexto}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BrushBordaFoco}" />
+    </Style>
+
+    <!-- Forçar fundo branco do Border interno em todos os estados.
+         O FluentTheme troca o Background do PART_BorderElement no foco/hover,
+         o que deixava o campo preto ao focar — fixamos aqui. -->
+    <Style Selector="TextBox /template/ Border#PART_BorderElement">
+        <Setter Property="Background" Value="{DynamicResource BrushFundoInput}" />
+    </Style>
+    <Style Selector="TextBox:pointerover /template/ Border#PART_BorderElement">
+        <Setter Property="Background" Value="{DynamicResource BrushFundoInput}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BrushBordaFoco}" />
+    </Style>
+    <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+        <Setter Property="Background" Value="{DynamicResource BrushFundoInput}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BrushBordaFoco}" />
+    </Style>
+    <Style Selector="TextBox:focus-within /template/ Border#PART_BorderElement">
+        <Setter Property="Background" Value="{DynamicResource BrushFundoInput}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BrushBordaFoco}" />
+    </Style>
+
+    <Style Selector="TextBox:disabled">
+        <Setter Property="Opacity" Value="1" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushTexto}" />
+    </Style>
+    <Style Selector="TextBox:disabled /template/ Border#PART_BorderElement">
+        <Setter Property="Background" Value="{DynamicResource BrushFundoDesabilitado}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BrushBorda}" />
+    </Style>
+
+    <!-- TextBox de login (28px — tela de baixa densidade, respiro maior) -->
+    <Style Selector="TextBox.login">
+        <Setter Property="Height" Value="28" />
+        <Setter Property="Padding" Value="8,0" />
+    </Style>
+
+    <!-- Botão primário (26px) -->
+    <Style Selector="Button.primario">
+        <Setter Property="Height" Value="26" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="FontFamily" Value="{DynamicResource FonteInterface}" />
+        <Setter Property="Padding" Value="12,0" />
+        <Setter Property="Background" Value="{DynamicResource BrushPrimario}" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushTextoInverso}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="2" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="Button.primario:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource BrushPrimarioHover}" />
+    </Style>
+
+    <Style Selector="Button.primario:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource ColorPrimarioPressed}" />
+    </Style>
+
+    <Style Selector="Button.primario:disabled /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource BrushBorda}" />
+        <Setter Property="Opacity" Value="0.6" />
+    </Style>
+
+    <!-- Botão primário grande (login, 32px largura total) -->
+    <Style Selector="Button.primario.grande">
+        <Setter Property="Height" Value="32" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+    </Style>
+
+    <!-- Botão secundário -->
+    <Style Selector="Button.secundario">
+        <Setter Property="Height" Value="26" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontFamily" Value="{DynamicResource FonteInterface}" />
+        <Setter Property="Padding" Value="12,0" />
+        <Setter Property="Background" Value="{DynamicResource BrushFundoCard}" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushTexto}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BrushBorda}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="2" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="Button.secundario:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource BrushFundoHover}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BrushBordaFoco}" />
+    </Style>
+
+    <!-- ===================================================================
+         SHELL ESTILO ERP CLÁSSICO (menu de texto + toolbar de ícones)
+         =================================================================== -->
+
+    <!-- Menu superior de texto -->
+    <Style Selector="Menu.topo">
+        <Setter Property="Background" Value="{DynamicResource BrushFundoCard}" />
+        <Setter Property="Padding" Value="4,2" />
+        <Setter Property="FontFamily" Value="{DynamicResource FonteInterface}" />
+    </Style>
+    <Style Selector="Menu.topo > MenuItem">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Padding" Value="10,4" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushTexto}" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <Style Selector="Menu.topo MenuItem:selected /template/ Border#PART_LayoutRoot">
+        <Setter Property="Background" Value="{DynamicResource BrushFundoHover}" />
+    </Style>
+
+    <!-- Botão da toolbar de ícones (ícone grande + legenda em até 2 linhas) -->
+    <Style Selector="Button.toolbaritem">
+        <Setter Property="Width" Value="76" />
+        <Setter Property="Height" Value="64" />
+        <Setter Property="Padding" Value="4" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="CornerRadius" Value="3" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Top" />
+    </Style>
+    <Style Selector="Button.toolbaritem:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource BrushFundoHover}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BrushBorda}" />
+    </Style>
+
+    <!-- Item de menu da sidebar -->
+    <Style Selector="Button.menuitem">
+        <Setter Property="Height" Value="36" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontFamily" Value="{DynamicResource FonteInterface}" />
+        <Setter Property="Padding" Value="16,0" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushTextoSidebar}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="0" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+
+    <Style Selector="Button.menuitem:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource BrushFundoSidebarHover}" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushTextoInverso}" />
+    </Style>
+
+    <!-- Botão "Sair" da sidebar (texto sutil) -->
+    <Style Selector="Button.sair">
+        <Setter Property="Height" Value="26" />
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="Padding" Value="8,0" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushTextoSidebar}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BrushFundoSidebarHover}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="2" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+
+    <Style Selector="Button.sair:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource BrushFundoSidebarHover}" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushTextoInverso}" />
+    </Style>
+
+</Styles>

@@ -1,0 +1,179 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AutoCar.Desktop.ViewModels"
+        xmlns:i="using:Projektanker.Icons.Avalonia"
+        x:Class="AutoCar.Desktop.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Width="1200" Height="680"
+        MinWidth="1024" MinHeight="600"
+        WindowStartupLocation="CenterScreen"
+        Title="AutoCar ERP"
+        Background="{DynamicResource BrushFundo}">
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+
+        <!-- ===== 1. MENU SUPERIOR DE TEXTO ===== -->
+        <Border Grid.Row="0"
+                Background="{DynamicResource BrushFundoCard}"
+                BorderBrush="{DynamicResource BrushBorda}"
+                BorderThickness="0,0,0,1">
+            <Menu Classes="topo" ItemsSource="{Binding Categorias}">
+                <Menu.ItemTemplate>
+                    <DataTemplate x:DataType="vm:CategoriaMenu">
+                        <MenuItem Header="{Binding Nome}"
+                                  ItemsSource="{Binding Itens}">
+                            <MenuItem.ItemTemplate>
+                                <DataTemplate x:DataType="vm:ItemMenu">
+                                    <MenuItem Header="{Binding Titulo}"
+                                              Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).SelecionarCommand}"
+                                              CommandParameter="{Binding}" />
+                                </DataTemplate>
+                            </MenuItem.ItemTemplate>
+                        </MenuItem>
+                    </DataTemplate>
+                </Menu.ItemTemplate>
+            </Menu>
+        </Border>
+
+        <!-- ===== 2. TOOLBAR DE ÍCONES ===== -->
+        <Border Grid.Row="1"
+                Background="{DynamicResource BrushFundoCard}"
+                BorderBrush="{DynamicResource BrushBorda}"
+                BorderThickness="0,0,0,1"
+                Padding="8,6">
+            <Grid ColumnDefinitions="*,Auto">
+
+                <!-- Atalhos dos módulos -->
+                <ItemsControl Grid.Column="0" ItemsSource="{Binding Itens}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" Spacing="2" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ItemMenu">
+                            <Button Classes="toolbaritem"
+                                    Command="{Binding $parent[ItemsControl].((vm:MainWindowViewModel)DataContext).SelecionarCommand}"
+                                    CommandParameter="{Binding}"
+                                    ToolTip.Tip="{Binding Titulo}">
+                                <StackPanel Spacing="4">
+                                    <Border Width="32" Height="32"
+                                            Background="{DynamicResource BrushPrimario}"
+                                            CornerRadius="3"
+                                            HorizontalAlignment="Center">
+                                        <i:Icon Value="{Binding Icone}"
+                                                FontSize="16"
+                                                Foreground="{DynamicResource BrushTextoInverso}" />
+                                    </Border>
+                                    <!-- Altura fixa (2 linhas) para alinhar todos os ícones na
+                                         mesma base, independente da legenda ocupar 1 ou 2 linhas. -->
+                                    <TextBlock Text="{Binding Titulo}"
+                                               FontSize="9"
+                                               Foreground="{DynamicResource BrushTextoSecundario}"
+                                               HorizontalAlignment="Center"
+                                               TextAlignment="Center"
+                                               TextWrapping="Wrap"
+                                               LineHeight="11"
+                                               Height="22"
+                                               VerticalAlignment="Top"
+                                               MaxWidth="72" />
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- Sair (à direita) -->
+                <Button Grid.Column="1"
+                        Classes="toolbaritem"
+                        Command="{Binding SairCommand}"
+                        ToolTip.Tip="Sair do sistema">
+                    <StackPanel Spacing="4">
+                        <Border Width="32" Height="32"
+                                Background="{DynamicResource BrushErro}"
+                                CornerRadius="3"
+                                HorizontalAlignment="Center">
+                            <i:Icon Value="fa-solid fa-right-from-bracket"
+                                    FontSize="16"
+                                    Foreground="{DynamicResource BrushTextoInverso}" />
+                        </Border>
+                        <TextBlock Text="Sair"
+                                   FontSize="9"
+                                   Foreground="{DynamicResource BrushTextoSecundario}"
+                                   HorizontalAlignment="Center"
+                                   TextAlignment="Center"
+                                   Height="22"
+                                   VerticalAlignment="Top" />
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- ===== 3. ÁREA CENTRAL ===== -->
+        <Panel Grid.Row="2">
+
+            <!-- Tela inicial: marca AutoCar -->
+            <StackPanel IsVisible="{Binding MostrarBoasVindas}"
+                        VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="2">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock Text="Auto" FontSize="64" FontWeight="Bold"
+                               Foreground="{DynamicResource BrushTexto}" />
+                    <TextBlock Text="Car" FontSize="64" FontWeight="Bold"
+                               Foreground="{DynamicResource BrushPrimario}" />
+                </StackPanel>
+                <TextBlock Text="ERP" FontSize="20" FontWeight="Medium"
+                           Foreground="{DynamicResource BrushTextoSecundario}"
+                           HorizontalAlignment="Center" Margin="0,-8,0,0" />
+                <TextBlock Text="Autopeças e Oficina"
+                           FontSize="12"
+                           Foreground="{DynamicResource BrushTextoMudo}"
+                           HorizontalAlignment="Center" Margin="0,8,0,0" />
+            </StackPanel>
+
+            <!-- Módulo aberto: conteúdo (placeholder por enquanto) -->
+            <Border IsVisible="{Binding !MostrarBoasVindas}" Padding="16">
+                <Border Background="{DynamicResource BrushFundoCard}"
+                        BorderBrush="{DynamicResource BrushBorda}"
+                        BorderThickness="1"
+                        CornerRadius="6">
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="6">
+                        <TextBlock Text="{Binding ItemAtivo.Titulo}"
+                                   FontSize="18" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource BrushTextoSecundario}"
+                                   HorizontalAlignment="Center" />
+                        <TextBlock Text="Módulo em construção."
+                                   FontSize="12"
+                                   Foreground="{DynamicResource BrushTextoMudo}"
+                                   HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+            </Border>
+        </Panel>
+
+        <!-- ===== 4. BARRA DE STATUS ===== -->
+        <Border Grid.Row="3"
+                Background="{DynamicResource BrushFundoHeader}"
+                BorderBrush="{DynamicResource BrushBorda}"
+                BorderThickness="0,1,0,0"
+                Height="24">
+            <Grid ColumnDefinitions="Auto,*,Auto" Margin="12,0">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding NomeUsuario}" FontSize="11" FontWeight="Medium"
+                               Foreground="{DynamicResource BrushTexto}" />
+                    <TextBlock Text="·" FontSize="11" Foreground="{DynamicResource BrushTextoMudo}" />
+                    <TextBlock Text="{Binding PerfilUsuarioTexto}" FontSize="11"
+                               Foreground="{DynamicResource BrushTextoSecundario}" />
+                </StackPanel>
+
+                <TextBlock Grid.Column="1" Text="AutoCar ERP" FontSize="11"
+                           Foreground="{DynamicResource BrushTextoMudo}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+                <TextBlock Grid.Column="2" Text="{Binding DataAtual}" FontSize="11"
+                           FontFamily="{DynamicResource FonteMono}"
+                           Foreground="{DynamicResource BrushTextoSecundario}"
+                           VerticalAlignment="Center" />
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

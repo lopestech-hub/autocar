@@ -1,0 +1,78 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AutoCar.Desktop.ViewModels"
+        x:Class="AutoCar.Desktop.Views.LoginWindow"
+        x:DataType="vm:LoginViewModel"
+        Width="380" Height="440"
+        CanResize="False"
+        WindowStartupLocation="CenterScreen"
+        Title="AutoCar ERP"
+        Background="{DynamicResource BrushFundo}">
+
+    <!-- Card central de login -->
+    <Border Background="{DynamicResource BrushFundoCard}"
+            BorderBrush="{DynamicResource BrushBorda}"
+            BorderThickness="1"
+            CornerRadius="6"
+            Margin="32"
+            Padding="28"
+            VerticalAlignment="Center">
+        <StackPanel Spacing="16">
+
+            <!-- Marca -->
+            <StackPanel Spacing="2" HorizontalAlignment="Center" Margin="0,4,0,8">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock Text="Auto" FontSize="24" FontWeight="SemiBold"
+                               Foreground="{DynamicResource BrushTexto}" />
+                    <TextBlock Text="Car" FontSize="24" FontWeight="SemiBold"
+                               Foreground="{DynamicResource BrushPrimario}" />
+                </StackPanel>
+                <TextBlock Text="ERP" FontSize="11" FontWeight="Medium"
+                           Foreground="{DynamicResource BrushTextoSecundario}"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+
+            <!-- Usuário -->
+            <StackPanel Spacing="4">
+                <TextBlock Text="USUÁRIO" FontSize="10" FontWeight="Medium"
+                           Foreground="{DynamicResource BrushTextoSecundario}" />
+                <TextBox Classes="login"
+                         Text="{Binding Login}"
+                         Watermark="seu usuário" />
+            </StackPanel>
+
+            <!-- Senha -->
+            <StackPanel Spacing="4">
+                <TextBlock Text="SENHA" FontSize="10" FontWeight="Medium"
+                           Foreground="{DynamicResource BrushTextoSecundario}" />
+                <TextBox x:Name="CampoSenha"
+                         Classes="login"
+                         Text="{Binding Senha}"
+                         PasswordChar="•"
+                         Watermark="••••••••" />
+            </StackPanel>
+
+            <!-- Botão entrar -->
+            <Button Content="Entrar"
+                    Classes="primario grande"
+                    Command="{Binding EntrarCommand}"
+                    IsEnabled="{Binding !Carregando}"
+                    IsDefault="True"
+                    Margin="0,4,0,0" />
+
+            <!-- Loading -->
+            <ProgressBar IsIndeterminate="True"
+                         IsVisible="{Binding Carregando}"
+                         Height="2" />
+
+            <!-- Mensagem de erro -->
+            <TextBlock Text="{Binding MensagemErro}"
+                       IsVisible="{Binding MensagemErro, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                       Foreground="{DynamicResource BrushErro}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       HorizontalAlignment="Center" />
+
+        </StackPanel>
+    </Border>
+</Window>

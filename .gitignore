@@ -1,0 +1,35 @@
+# ---- .NET / build ----
+bin/
+obj/
+out/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+*.user
+*.suo
+*.userprefs
+.vs/
+artifacts/
+publish/
+*.binlog
+
+# ---- Rider / VS / VSCode ----
+.idea/
+*.sln.DotSettings.user
+.vscode/
+
+# ---- Logs gerados pela aplicação (Serilog) ----
+logs/
+*.log
+
+# ---- Configuração local sensível ----
+# appsettings de produção / overrides locais ficam fora do versionamento.
+# O appsettings.json base (com credenciais de DEV) é versionado de propósito no MVP.
+appsettings.Production.json
+appsettings.*.local.json
+
+# ---- SO / temporários ----
+Thumbs.db
+desktop.ini
+*.tmp
