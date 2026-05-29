@@ -1,3 +1,4 @@
+using System;
 using AutoCar.Domain.Interfaces;
 using AutoCar.Infrastructure.Persistence;
 using AutoCar.Infrastructure.Persistence.Repositories;
@@ -17,8 +18,18 @@ public static class DependencyInjection
             options.UseNpgsql(connectionString));
 
         services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+        services.AddScoped<IClienteRepository, ClienteRepository>();
         services.AddSingleton<IHashSenha, HashSenhaBCrypt>();
         services.AddScoped<DbInitializer>();
+
+        // Consulta de CNPJ via BrasilAPI (HttpClient tipado, timeout curto).
+        services.AddHttpClient<IConsultaCnpj, ConsultaCnpjBrasilApi>(http =>
+        {
+            http.BaseAddress = new Uri("https://brasilapi.com.br/");
+            http.Timeout = TimeSpan.FromSeconds(15);
+            // BrasilAPI (atrás de CDN) rejeita requests sem User-Agent.
+            http.DefaultRequestHeaders.Add("User-Agent", "AutoCar-ERP/1.0");
+        });
 
         return services;
     }

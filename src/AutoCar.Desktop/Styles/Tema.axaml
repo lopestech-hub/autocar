@@ -79,6 +79,23 @@
          COMPONENTES
          =================================================================== -->
 
+    <!-- Label de formulário denso (à esquerda do campo, alinhado à direita) -->
+    <Style Selector="TextBlock.formlabel">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushTextoSecundario}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="Margin" Value="0,0,8,0" />
+    </Style>
+
+    <!-- Título de seção dentro de formulário (ex: "Endereço") -->
+    <Style Selector="TextBlock.formsecao">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushTextoSecundario}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
     <!-- TextBox padrão (24px) -->
     <Style Selector="TextBox">
         <Setter Property="Height" Value="24" />
@@ -110,23 +127,27 @@
         <Setter Property="BorderBrush" Value="{DynamicResource BrushBordaFoco}" />
     </Style>
 
-    <!-- Forçar fundo branco do Border interno em todos os estados.
-         O FluentTheme troca o Background do PART_BorderElement no foco/hover,
-         o que deixava o campo preto ao focar — fixamos aqui. -->
+    <!-- Forçar fundo branco e borda fina (1px) do Border interno em todos os estados.
+         O FluentTheme troca o Background e ENGROSSA a borda para 2px no foco/hover —
+         fixamos fundo branco + BorderThickness 1 aqui. -->
     <Style Selector="TextBox /template/ Border#PART_BorderElement">
         <Setter Property="Background" Value="{DynamicResource BrushFundoInput}" />
+        <Setter Property="BorderThickness" Value="1" />
     </Style>
     <Style Selector="TextBox:pointerover /template/ Border#PART_BorderElement">
         <Setter Property="Background" Value="{DynamicResource BrushFundoInput}" />
         <Setter Property="BorderBrush" Value="{DynamicResource BrushBordaFoco}" />
+        <Setter Property="BorderThickness" Value="1" />
     </Style>
     <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
         <Setter Property="Background" Value="{DynamicResource BrushFundoInput}" />
         <Setter Property="BorderBrush" Value="{DynamicResource BrushBordaFoco}" />
+        <Setter Property="BorderThickness" Value="1" />
     </Style>
     <Style Selector="TextBox:focus-within /template/ Border#PART_BorderElement">
         <Setter Property="Background" Value="{DynamicResource BrushFundoInput}" />
         <Setter Property="BorderBrush" Value="{DynamicResource BrushBordaFoco}" />
+        <Setter Property="BorderThickness" Value="1" />
     </Style>
 
     <Style Selector="TextBox:disabled">
@@ -197,6 +218,12 @@
     <Style Selector="Button.secundario:pointerover /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource BrushFundoHover}" />
         <Setter Property="BorderBrush" Value="{DynamicResource BrushBordaFoco}" />
+        <!-- Forçar texto escuro no hover: o FluentTheme aplica cor clara que sumia no fundo. -->
+        <Setter Property="Foreground" Value="{DynamicResource BrushTexto}" />
+    </Style>
+    <Style Selector="Button.secundario:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource BrushFundoHover}" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushTexto}" />
     </Style>
 
     <!-- ===================================================================

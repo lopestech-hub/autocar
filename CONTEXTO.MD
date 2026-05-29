@@ -27,7 +27,7 @@ Concorrência de estoque tratada com controle otimista (`xmin`) — risco nº 1 
 | Módulo | Pasta (MODULO.md) | Estado |
 |--------|-------------------|--------|
 | Segurança (login, perfis) | [Security](src/AutoCar.Desktop/Views/Security/MODULO.md) | ✅ Fase 1 |
-| Cadastros base (cliente, fornecedor, veículo, mecânico) | _a criar (Fase 2)_ | ⏳ |
+| Cadastros (Cliente ✅; Fornecedor, Produto ⏳) | [Registrations](src/AutoCar.Desktop/Views/Registrations/MODULO.md) | 🔄 Fase 2 |
 | Catálogo automotivo (peças, aplicação por veículo) | _a criar (Fase 2)_ | ⏳ |
 | Estoque (entrada por compra) | _a criar (Fase 3)_ | ⏳ |
 | Vendas / Balcão | _a criar (Fase 3)_ | ⏳ |
@@ -37,9 +37,14 @@ Concorrência de estoque tratada com controle otimista (`xmin`) — risco nº 1 
 
 ## Estado atual
 
-**Fase 1 (Setup) — concluída.** Solution Clean Architecture (8 projetos), DI + Serilog,
-PostgreSQL + migrations aplicadas, login por **usuário** com perfis (BCrypt), logout, e shell ERP
-clássico (menu de texto + toolbar de atalhos com ícones FontAwesome + barra de status).
+**Fase 1 (Setup) — concluída.** Solution Clean Architecture, DI + Serilog, PostgreSQL, login por
+usuário + perfis (BCrypt), logout, shell ERP (menu de texto + toolbar + status bar).
+
+**Fase 2 (Cadastros) — em andamento.** Módulo **Cliente concluído**: cadastro PF/PJ completo (CRUD,
+validação CPF/CNPJ com dígito verificador, **consulta automática de CNPJ via BrasilAPI**, endereço,
+limite de crédito). Listagem densa (busca automática, badges, contador) + formulário denso dois modos.
+Navegação por rota (`INavegador`). 16 testes passando. Próximo cadastro: Fornecedor.
+
 Admin de teste: usuário **`julio`** / senha `123` (trocar).
 
 ## Navegação (shell)
@@ -49,7 +54,7 @@ Layout estilo ERP (sem sidebar): menu de texto no topo + toolbar de atalhos + á
 - **Toolbar de atalhos:** Buscar, Clientes, Fornecedor, Produtos, Orçamento, Pré-venda, Ordens de Serviço.
 - **Menu de texto:** Cadastros (Clientes, Fornecedor, Produtos, Usuários) · Movimentos (Orçamento,
   Pré-venda, OS, Estoque) · Financeiro (Caixa, Contas a Receber, Contas a Pagar, Fiscal).
-- Telas dos módulos ainda são **placeholders** ("em construção") — lógica vem nas próximas fases.
+- **Clientes** já tem tela real (listagem + formulário). Demais módulos ainda são **placeholders**.
 - "Balcão" do plano = **Pré-venda**. "Catálogo" fora da navegação por enquanto (a definir).
 
 ## Perfis de acesso (enum PerfilUsuario)
@@ -72,10 +77,11 @@ Um perfil por usuário. Admin vê tudo.
 
 ## Próximos Passos
 
-1. Iniciar Fase 2: módulo de Cadastros base (Cliente primeiro — já tem atalho/placeholder)
-2. Definir o que fazer com "Catálogo" na navegação
-3. Implementar a busca global de verdade (atalho "Buscar" hoje é placeholder)
-4. Tela de troca de senha no primeiro acesso
+1. Fase 2: próximo cadastro — **Fornecedor** (reaproveitar padrão do Cliente: VO Documento, form denso)
+2. Depois: Produto + catálogo automotivo
+3. Definir o que fazer com "Catálogo" na navegação
+4. Implementar a busca global de verdade (atalho "Buscar" hoje é placeholder)
+5. Tela de troca de senha no primeiro acesso
 
 ## Histórico de Mudanças
 
@@ -85,3 +91,4 @@ Um perfil por usuário. Admin vê tudo.
 | 2026-05-29 | Shell redesenhado para layout ERP (menu de texto + toolbar) com ícones FontAwesome |
 | 2026-05-29 | Login mudado de e-mail para usuário (julio/123); Avalonia 12 → 11 (compat. ícones) |
 | 2026-05-29 | Toolbar reorganizada: Buscar, Clientes, Fornecedor, Produtos, Orçamento, Pré-venda, OS |
+| 2026-05-29 | Fase 2: módulo Cliente (CRUD PF/PJ, validação CPF/CNPJ, consulta CNPJ BrasilAPI, form denso) + navegação por rota |

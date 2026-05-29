@@ -47,13 +47,40 @@ CornerRadius: controles 2px · cards 6px · ícone-marcador 3px.
 
 ## Classes de estilo disponíveis (Styles/Tema.axaml)
 
-- `Button.primario` / `Button.primario.grande`
-- `Button.secundario`
-- `Button.toolbaritem` — atalho da toolbar (ícone grande + legenda, 76×64, conteúdo alinhado ao topo)
+- `Button.primario` / `Button.primario.grande` — botão de ação principal (azul sólido). Use no "+ Novo".
+- `Button.secundario` — botão de ação secundária (branco + borda). Use no "Buscar".
+- `Button.toolbaritem` — atalho da toolbar do shell (ícone grande + legenda, 76×64, alinhado ao topo)
 - `Menu.topo` / `Menu.topo > MenuItem` — menu superior de texto
 - `TextBox.login` — input de 28px da tela de login
 
+> ⚠️ **NÃO existe classe `toolbar`** — só `toolbaritem` (atalho do shell). Botão com `Classes="toolbar"`
+> cai no estilo default do FluentTheme e fica apagado/cinza. Para botões de ação em listagens use
+> `primario`/`secundario`.
+
+> ⚠️ **FluentTheme apaga texto/borda em estados (:pointerover, :focus, :pressed).** Sempre que um
+> estilo mexe no `Background` do `ContentPresenter`/`PART_BorderElement` num estado, **redefinir
+> também `Foreground` e `BorderThickness`** — senão o tema aplica cor clara que some no fundo, ou
+> engrossa a borda para 2px. Já mordeu: texto branco no login, texto sumindo no hover do botão
+> secundário, borda grossa no foco do TextBox.
+
 ## Padrões estabelecidos
+
+### Formulário denso (cadastros) — PADRÃO do projeto
+
+> Estilo escolhido pelo Julio: **denso clássico de ERP Windows Forms** (referência: ERP Bezerra).
+> NÃO usar label-em-cima espaçado. Vale para Cliente, Fornecedor, Produto, etc.
+
+- **Label à ESQUERDA do campo**, alinhado à direita (`TextBlock.formlabel`), largura fixa ~90-110px,
+  texto 12px cinza. Campo logo ao lado. Nunca label em cima.
+- **Vários campos por linha** — usar um único `Grid` com colunas `label,campo,label,campo,...` e
+  `RowSpacing="6"`, aproveitando a largura toda (`HorizontalAlignment="Stretch"`, sem MaxWidth
+  centralizado). Campos longos usam `Grid.ColumnSpan`.
+- **Compacto**: campos 24px, espaçamento vertical 6px entre linhas. Operador vê o cadastro quase
+  todo sem rolar.
+- **Seções** com `TextBlock.formsecao` (ex: "ENDEREÇO"), `ColumnSpan` total, margem `0,8,0,2`.
+- Header: título + badge VISUALIZAÇÃO/EDIÇÃO. Rodapé dois modos (Fechar/Editar ↔ Cancelar/Salvar).
+- Classes novas no Tema: `TextBlock.formlabel` (label à direita) e `TextBlock.formsecao` (título de seção).
+- Referência viva: `Views/Registrations/ClienteFormView.axaml`.
 
 ### Janela de Login (LoginWindow)
 

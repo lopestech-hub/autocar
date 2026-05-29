@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using AutoCar.Application.Modules.Security.DTOs;
+using AutoCar.Desktop.Navegacao;
 using AutoCar.Domain.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -26,7 +27,7 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         // --- Atalhos da toolbar ---
         new ItemMenu("Buscar", "fa-solid fa-magnifying-glass", "", flgToolbar: true, TodosPerfis),
-        new ItemMenu("Clientes", "fa-solid fa-user-group", "Cadastros", flgToolbar: true, new[] { PerfilUsuario.Vendedor, PerfilUsuario.Mecanico }),
+        new ItemMenu("Clientes", "fa-solid fa-user-group", "Cadastros", flgToolbar: true, new[] { PerfilUsuario.Vendedor, PerfilUsuario.Mecanico }, rota: "clientes"),
         new ItemMenu("Fornecedor", "fa-solid fa-truck-field", "Cadastros", flgToolbar: true, new[] { PerfilUsuario.Vendedor }),
         new ItemMenu("Produtos", "fa-solid fa-box", "Cadastros", flgToolbar: true, new[] { PerfilUsuario.Vendedor, PerfilUsuario.Mecanico }),
         new ItemMenu("Orçamento", "fa-solid fa-file-lines", "Movimentos", flgToolbar: true, new[] { PerfilUsuario.Vendedor }),
@@ -46,9 +47,12 @@ public partial class MainWindowViewModel : ViewModelBase
     private static readonly string[] OrdemCategorias =
         { "Cadastros", "Movimentos", "Financeiro" };
 
-    public MainWindowViewModel(UsuarioLogado usuario)
+    private readonly INavegador _navegador;
+
+    public MainWindowViewModel(UsuarioLogado usuario, INavegador navegador)
     {
         Usuario = usuario;
+        _navegador = navegador;
 
         var visiveis = TodosOsItens.Where(i => i.VisivelPara(usuario.Perfil)).ToList();
 
@@ -83,16 +87,34 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private ItemMenu? _itemAtivo;
 
+    /// <summary>ViewModel da tela do módulo aberto. Null quando o módulo ainda não tem tela.</summary>
+    [ObservableProperty]
+    private ViewModelBase? _conteudoAtivo;
+
     /// <summary>Verdadeiro quando nenhum módulo está aberto — mostra a marca central.</summary>
     public bool MostrarBoasVindas => ItemAtivo is null;
 
-    partial void OnItemAtivoChanged(ItemMenu? value) => OnPropertyChanged(nameof(MostrarBoasVindas));
+    /// <summary>Módulo aberto mas sem tela implementada — mostra o placeholder "em construção".</summary>
+    public bool MostrarPlaceholder => ItemAtivo is not null && ConteudoAtivo is null;
+
+    partial void OnItemAtivoChanged(ItemMenu? value)
+    {
+        OnPropertyChanged(nameof(MostrarBoasVindas));
+        OnPropertyChanged(nameof(MostrarPlaceholder));
+    }
+
+    partial void OnConteudoAtivoChanged(ViewModelBase? value) =>
+        OnPropertyChanged(nameof(MostrarPlaceholder));
 
     /// <summary>Disparado ao clicar em Sair. A janela trata fechando e reabrindo o login.</summary>
     public event Action? SairSolicitado;
 
     [RelayCommand]
-    private void Selecionar(ItemMenu item) => ItemAtivo = item;
+    private void Selecionar(ItemMenu item)
+    {
+        ItemAtivo = item;
+        ConteudoAtivo = _navegador.Resolver(item.Rota);
+    }
 
     [RelayCommand]
     private void Sair() => SairSolicitado?.Invoke();

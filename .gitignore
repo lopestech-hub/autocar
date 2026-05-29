@@ -29,6 +29,9 @@ logs/
 appsettings.Production.json
 appsettings.*.local.json
 
+# ---- Controle de revisão da Vera (local, nunca versionar) ----
+.vera-ok
+
 # ---- SO / temporários ----
 Thumbs.db
 desktop.ini

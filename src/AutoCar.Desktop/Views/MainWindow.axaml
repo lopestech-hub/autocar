@@ -130,8 +130,12 @@
                            HorizontalAlignment="Center" Margin="0,8,0,0" />
             </StackPanel>
 
-            <!-- Módulo aberto: conteúdo (placeholder por enquanto) -->
-            <Border IsVisible="{Binding !MostrarBoasVindas}" Padding="16">
+            <!-- Tela do módulo ativo (renderizada via ViewLocator) -->
+            <ContentControl Content="{Binding ConteudoAtivo}"
+                            IsVisible="{Binding ConteudoAtivo, Converter={x:Static ObjectConverters.IsNotNull}}" />
+
+            <!-- Módulo aberto mas sem tela implementada: placeholder -->
+            <Border IsVisible="{Binding MostrarPlaceholder}" Padding="16">
                 <Border Background="{DynamicResource BrushFundoCard}"
                         BorderBrush="{DynamicResource BrushBorda}"
                         BorderThickness="1"

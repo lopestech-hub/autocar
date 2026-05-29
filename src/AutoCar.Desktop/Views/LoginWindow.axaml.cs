@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using AutoCar.Application.Modules.Security.DTOs;
+using AutoCar.Desktop.Navegacao;
 using AutoCar.Desktop.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -25,9 +26,10 @@ public partial class LoginWindow : Window
 
     private void AoConcluirLogin(UsuarioLogado usuario)
     {
+        var navegador = App.Services.GetRequiredService<INavegador>();
         var principal = new MainWindow
         {
-            DataContext = new MainWindowViewModel(usuario),
+            DataContext = new MainWindowViewModel(usuario, navegador),
         };
         principal.Show();
         Close();

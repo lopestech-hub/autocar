@@ -1,7 +1,9 @@
 using System;
 using System.IO;
 using AutoCar.Application;
+using AutoCar.Desktop.Navegacao;
 using AutoCar.Desktop.ViewModels;
+using AutoCar.Desktop.ViewModels.Registrations;
 using AutoCar.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,10 +44,15 @@ public static class Bootstrap
         services.AddApplication();
         services.AddInfrastructure(connectionString);
 
+        // Navegação do shell (resolve rota → ViewModel da tela).
+        services.AddSingleton<INavegador, Navegador>();
+
         // ViewModels resolvidos por DI.
         // MainWindowViewModel não entra aqui: depende do UsuarioLogado, criado em runtime
         // após o login (ver LoginWindow.AoConcluirLogin).
         services.AddTransient<LoginViewModel>();
+        services.AddTransient<ClientesViewModel>();
+        services.AddTransient<ClienteFormViewModel>();
 
         return services.BuildServiceProvider();
     }

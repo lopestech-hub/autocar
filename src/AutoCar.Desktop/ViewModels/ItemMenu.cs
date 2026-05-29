@@ -16,13 +16,15 @@ public sealed class ItemMenu
         string icone,
         string categoria,
         bool flgToolbar,
-        IReadOnlyCollection<PerfilUsuario> perfis)
+        IReadOnlyCollection<PerfilUsuario> perfis,
+        string? rota = null)
     {
         Titulo = titulo;
         Icone = icone;
         Categoria = categoria;
         FlgToolbar = flgToolbar;
         Perfis = perfis;
+        Rota = rota;
     }
 
     /// <summary>Rótulo exibido no menu e na legenda do ícone.</summary>
@@ -36,6 +38,9 @@ public sealed class ItemMenu
 
     /// <summary>Se verdadeiro, aparece como atalho na toolbar de ícones.</summary>
     public bool FlgToolbar { get; }
+
+    /// <summary>Rota da tela do módulo (ex: "clientes"). Null = ainda sem tela (placeholder).</summary>
+    public string? Rota { get; }
 
     /// <summary>Perfis que enxergam este item.</summary>
     public IReadOnlyCollection<PerfilUsuario> Perfis { get; }
