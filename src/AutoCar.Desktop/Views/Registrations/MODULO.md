@@ -2,7 +2,7 @@
 
 ## Propósito
 
-Cadastros base do AutoCar (Cliente, e futuramente Fornecedor, Produto, etc.). Primeiro módulo
+Cadastros base do AutoCar (Cliente, Fornecedor, e futuramente Produto, etc.). Primeiro módulo
 da Fase 2. Estabelece o **padrão de cadastro** do projeto: listagem (Grid único) + formulário
 denso de dois modos, reaproveitado pelos próximos cadastros.
 
@@ -59,7 +59,34 @@ denso de dois modos, reaproveitado pelos próximos cadastros.
 - **Consulta CNPJ via JsonDocument tolerante a tipo** — a BrasilAPI mistura string/número nos campos.
   Gotcha: a CDN exige header `User-Agent`, senão bloqueia o request.
 
+## Fornecedor
+
+### Tabela `fornecedor` (mestre)
+
+- `id_fornecedor` (uuid PK), `cod_fornecedor` (int identity)
+- `sts_tipo_pessoa` (int — enum TipoPessoa: Fisica=1, Juridica=2)
+- `documento` (único, só dígitos — CPF 11 ou CNPJ 14), `razao_social`, `nome_fantasia`
+- `telefone`, `email`
+- Endereço (owned type): `cep`, `logradouro`, `numero`, `complemento`, `bairro`, `cidade`, `uf`
+- `inscricao_estadual` (varchar 20), `contato` (varchar 100 — vendedor/representante)
+- `observacao`, `flg_ativo`, `dat_criacao`, `dat_atualizacao` (UTC), `xmin` (concorrência)
+- Índices: `ix_fornecedor_documento` (único), `ix_fornecedor_cod` (único), `ix_fornecedor_razao_social`
+- Migration: `CadastroFornecedor`.
+
+### Camadas / Telas
+
+Espelham o Cliente (mesma estrutura de Domain/Application/Infrastructure/Desktop, Grid único na
+listagem, form denso de dois modos, consulta CNPJ via BrasilAPI). Rota `"fornecedor"`.
+
+### Diferenças em relação ao Cliente
+
+- **Sem limite de crédito** (não faz sentido para quem a loja compra).
+- **Inscrição Estadual** + **Contato** (vendedor) no lugar do limite de crédito.
+- Form abre como **PJ** por padrão (fornecedor é tipicamente jurídico), enquanto Cliente abre como PF.
+- Reusa integralmente os VOs `Documento` e `Endereco` e o serviço `IConsultaCnpj`.
+
 ## Dependências
 
 - Depende de: `Security` (usuário logado para rastreabilidade futura). Shared (`Result<T>`).
-- Será consumido por: Vendas/Balcão, OS, Contas a Receber (cliente é base dessas operações).
+- Será consumido por: Vendas/Balcão, OS, Contas a Receber (cliente é base dessas operações);
+  Estoque/Compras (entrada de NF) e Contas a Pagar (fornecedor é base dessas operações).

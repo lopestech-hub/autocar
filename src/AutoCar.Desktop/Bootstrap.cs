@@ -53,6 +53,8 @@ public static class Bootstrap
         services.AddTransient<LoginViewModel>();
         services.AddTransient<ClientesViewModel>();
         services.AddTransient<ClienteFormViewModel>();
+        services.AddTransient<FornecedoresViewModel>();
+        services.AddTransient<FornecedorFormViewModel>();
 
         return services.BuildServiceProvider();
     }

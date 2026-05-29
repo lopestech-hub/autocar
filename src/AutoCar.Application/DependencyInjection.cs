@@ -1,6 +1,9 @@
 using AutoCar.Application.Modules.Registrations.Clientes;
 using AutoCar.Application.Modules.Registrations.Clientes.DTOs;
 using AutoCar.Application.Modules.Registrations.Clientes.Validators;
+using AutoCar.Application.Modules.Registrations.Fornecedores;
+using AutoCar.Application.Modules.Registrations.Fornecedores.DTOs;
+using AutoCar.Application.Modules.Registrations.Fornecedores.Validators;
 using AutoCar.Application.Modules.Security;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +20,9 @@ public static class DependencyInjection
         // Cadastros
         services.AddScoped<IClienteService, ClienteService>();
         services.AddScoped<IValidator<SalvarClienteDto>, SalvarClienteValidator>();
+
+        services.AddScoped<IFornecedorService, FornecedorService>();
+        services.AddScoped<IValidator<SalvarFornecedorDto>, SalvarFornecedorValidator>();
 
         return services;
     }

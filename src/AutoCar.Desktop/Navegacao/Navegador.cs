@@ -18,6 +18,7 @@ public sealed class Navegador : INavegador
     public ViewModelBase? Resolver(string? rota) => rota switch
     {
         "clientes" => _sp.GetRequiredService<ClientesViewModel>(),
+        "fornecedor" => _sp.GetRequiredService<FornecedoresViewModel>(),
         _ => null,
     };
 }

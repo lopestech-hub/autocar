@@ -27,7 +27,7 @@ Concorrência de estoque tratada com controle otimista (`xmin`) — risco nº 1 
 | Módulo | Pasta (MODULO.md) | Estado |
 |--------|-------------------|--------|
 | Segurança (login, perfis) | [Security](src/AutoCar.Desktop/Views/Security/MODULO.md) | ✅ Fase 1 |
-| Cadastros (Cliente ✅; Fornecedor, Produto ⏳) | [Registrations](src/AutoCar.Desktop/Views/Registrations/MODULO.md) | 🔄 Fase 2 |
+| Cadastros (Cliente ✅; Fornecedor ✅; Produto ⏳) | [Registrations](src/AutoCar.Desktop/Views/Registrations/MODULO.md) | 🔄 Fase 2 |
 | Catálogo automotivo (peças, aplicação por veículo) | _a criar (Fase 2)_ | ⏳ |
 | Estoque (entrada por compra) | _a criar (Fase 3)_ | ⏳ |
 | Vendas / Balcão | _a criar (Fase 3)_ | ⏳ |
@@ -40,10 +40,11 @@ Concorrência de estoque tratada com controle otimista (`xmin`) — risco nº 1 
 **Fase 1 (Setup) — concluída.** Solution Clean Architecture, DI + Serilog, PostgreSQL, login por
 usuário + perfis (BCrypt), logout, shell ERP (menu de texto + toolbar + status bar).
 
-**Fase 2 (Cadastros) — em andamento.** Módulo **Cliente concluído**: cadastro PF/PJ completo (CRUD,
-validação CPF/CNPJ com dígito verificador, **consulta automática de CNPJ via BrasilAPI**, endereço,
-limite de crédito). Listagem densa (busca automática, badges, contador) + formulário denso dois modos.
-Navegação por rota (`INavegador`). 16 testes passando. Próximo cadastro: Fornecedor.
+**Fase 2 (Cadastros) — em andamento.** Módulos **Cliente** e **Fornecedor concluídos**: cadastro PF/PJ
+completo (CRUD, validação CPF/CNPJ com dígito verificador, **consulta automática de CNPJ via BrasilAPI**,
+endereço). Cliente tem limite de crédito; Fornecedor tem Inscrição Estadual + Contato (vendedor) e abre
+como PJ por padrão. Listagem densa (busca automática, badges, contador) + formulário denso dois modos.
+Navegação por rota (`INavegador`). Testes passando (VO Documento + consulta CNPJ). Próximo cadastro: Produto.
 
 Admin de teste: usuário **`julio`** / senha `123` (trocar).
 
@@ -77,11 +78,10 @@ Um perfil por usuário. Admin vê tudo.
 
 ## Próximos Passos
 
-1. Fase 2: próximo cadastro — **Fornecedor** (reaproveitar padrão do Cliente: VO Documento, form denso)
-2. Depois: Produto + catálogo automotivo
-3. Definir o que fazer com "Catálogo" na navegação
-4. Implementar a busca global de verdade (atalho "Buscar" hoje é placeholder)
-5. Tela de troca de senha no primeiro acesso
+1. Fase 2: próximo cadastro — **Produto** + catálogo automotivo (reaproveitar padrão de cadastro)
+2. Definir o que fazer com "Catálogo" na navegação
+3. Implementar a busca global de verdade (atalho "Buscar" hoje é placeholder)
+4. Tela de troca de senha no primeiro acesso
 
 ## Histórico de Mudanças
 
@@ -92,3 +92,4 @@ Um perfil por usuário. Admin vê tudo.
 | 2026-05-29 | Login mudado de e-mail para usuário (julio/123); Avalonia 12 → 11 (compat. ícones) |
 | 2026-05-29 | Toolbar reorganizada: Buscar, Clientes, Fornecedor, Produtos, Orçamento, Pré-venda, OS |
 | 2026-05-29 | Fase 2: módulo Cliente (CRUD PF/PJ, validação CPF/CNPJ, consulta CNPJ BrasilAPI, form denso) + navegação por rota |
+| 2026-05-29 | Fase 2: módulo Fornecedor (CRUD PF/PJ, Inscrição Estadual + Contato, consulta CNPJ, default PJ) |
