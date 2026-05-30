@@ -18,20 +18,26 @@
                 BorderBrush="{DynamicResource BrushBorda}"
                 BorderThickness="0,0,0,1">
             <Menu Classes="topo" ItemsSource="{Binding Categorias}">
-                <Menu.ItemTemplate>
-                    <DataTemplate x:DataType="vm:CategoriaMenu">
-                        <MenuItem Header="{Binding Nome}"
-                                  ItemsSource="{Binding Itens}">
-                            <MenuItem.ItemTemplate>
-                                <DataTemplate x:DataType="vm:ItemMenu">
-                                    <MenuItem Header="{Binding Titulo}"
-                                              Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).SelecionarCommand}"
-                                              CommandParameter="{Binding}" />
-                                </DataTemplate>
-                            </MenuItem.ItemTemplate>
-                        </MenuItem>
-                    </DataTemplate>
-                </Menu.ItemTemplate>
+                <!-- Categorias (nível raiz) e seus itens são ligados via Styles no MenuItem
+                     container. No Avalonia, ItemTemplate num Menu embrulha o MenuItem num
+                     container sem Header (faixa vazia); setar Header/ItemsSource no próprio
+                     container pelo Selector é a forma que renderiza corretamente. -->
+                <Menu.Styles>
+                    <!-- Categoria: MenuItem de primeiro nível. Foreground fixo para
+                         garantir legibilidade (o FluentTheme às vezes apaga o texto). -->
+                    <Style Selector="Menu.topo > MenuItem" x:DataType="vm:CategoriaMenu">
+                        <Setter Property="Header" Value="{Binding Nome}" />
+                        <Setter Property="ItemsSource" Value="{Binding Itens}" />
+                        <Setter Property="Foreground" Value="#1E293B" />
+                    </Style>
+                    <!-- Itens da categoria: MenuItem de segundo nível -->
+                    <Style Selector="Menu.topo > MenuItem > MenuItem" x:DataType="vm:ItemMenu">
+                        <Setter Property="Header" Value="{Binding Titulo}" />
+                        <Setter Property="Command"
+                                Value="{Binding $parent[Menu].((vm:MainWindowViewModel)DataContext).SelecionarCommand}" />
+                        <Setter Property="CommandParameter" Value="{Binding}" />
+                    </Style>
+                </Menu.Styles>
             </Menu>
         </Border>
 

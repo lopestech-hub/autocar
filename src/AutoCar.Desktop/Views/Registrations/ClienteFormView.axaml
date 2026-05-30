@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:AutoCar.Desktop.ViewModels.Registrations"
              xmlns:i="using:Projektanker.Icons.Avalonia"
+             xmlns:b="using:AutoCar.Desktop.Behaviors"
              x:Class="AutoCar.Desktop.Views.Registrations.ClienteFormView"
              x:DataType="vm:ClienteFormViewModel">
 
@@ -58,7 +59,7 @@
                               ItemsSource="{Binding TiposPessoa}"
                               SelectedItem="{Binding TipoPessoa}"
                               IsEnabled="{Binding !ModoVisualizacao}"
-                              HorizontalAlignment="Stretch" />
+                              HorizontalAlignment="Left" Width="120" />
                     <TextBlock Grid.Row="0" Grid.Column="2" Classes="formlabel" Text="{Binding TituloDocumento}" />
                     <DockPanel Grid.Row="0" Grid.Column="3" LastChildFill="True">
                         <Button DockPanel.Dock="Right"
@@ -76,21 +77,23 @@
                                  Watermark="Somente números" />
                     </DockPanel>
                     <TextBlock Grid.Row="0" Grid.Column="4" Classes="formlabel" Text="Limite Crédito" />
-                    <NumericUpDown Grid.Row="0" Grid.Column="5"
-                                   Value="{Binding LimiteCredito}" FormatString="N2" Minimum="0"
-                                   IsEnabled="{Binding !ModoVisualizacao}"
-                                   HorizontalAlignment="Left" Width="140" />
+                    <TextBox Grid.Row="0" Grid.Column="5"
+                             Text="{Binding LimiteCreditoTexto}" IsEnabled="{Binding !ModoVisualizacao}"
+                             Watermark="0,00"
+                             HorizontalAlignment="Left" Width="120" />
 
                     <!-- Linha 1: Nome/Razão Social (campo longo) -->
                     <TextBlock Grid.Row="1" Grid.Column="0" Classes="formlabel" Text="{Binding TituloRazaoSocial}" />
                     <TextBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5"
-                             Text="{Binding RazaoSocial}" IsEnabled="{Binding !ModoVisualizacao}" />
+                             Text="{Binding RazaoSocial}" IsEnabled="{Binding !ModoVisualizacao}"
+                             b:MaiusculoBehavior.Ativo="True" />
 
                     <!-- Linha 2: Nome Fantasia (só PJ) -->
                     <TextBlock Grid.Row="2" Grid.Column="0" Classes="formlabel" Text="Nome Fantasia"
                                IsVisible="{Binding EhJuridica}" />
                     <TextBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5"
                              Text="{Binding NomeFantasia}" IsEnabled="{Binding !ModoVisualizacao}"
+                             b:MaiusculoBehavior.Ativo="True"
                              IsVisible="{Binding EhJuridica}" />
 
                     <!-- Linha 3: Telefone | E-mail -->
@@ -105,30 +108,35 @@
                     <TextBlock Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="6" Classes="formsecao"
                                Text="ENDEREÇO" Margin="0,8,0,2" />
 
-                    <!-- Linha 5: CEP | Logradouro | Número -->
+                    <!-- Linha 5: CEP | Logradouro | Número (rótulo "Número" na coluna de label 4,
+                         alinhado à direita como os demais; campo na coluna 5) -->
                     <TextBlock Grid.Row="5" Grid.Column="0" Classes="formlabel" Text="CEP" />
                     <TextBox Grid.Row="5" Grid.Column="1"
                              Text="{Binding Cep}" IsEnabled="{Binding !ModoVisualizacao}" />
                     <TextBlock Grid.Row="5" Grid.Column="2" Classes="formlabel" Text="Logradouro" />
-                    <TextBox Grid.Row="5" Grid.Column="3" Grid.ColumnSpan="2"
-                             Text="{Binding Logradouro}" IsEnabled="{Binding !ModoVisualizacao}" />
-                    <StackPanel Grid.Row="5" Grid.Column="5" Orientation="Horizontal" Spacing="8">
-                        <TextBlock Classes="formlabel" Text="Número" />
-                        <TextBox Width="90" Text="{Binding Numero}" IsEnabled="{Binding !ModoVisualizacao}" />
-                    </StackPanel>
+                    <TextBox Grid.Row="5" Grid.Column="3"
+                             Text="{Binding Logradouro}" IsEnabled="{Binding !ModoVisualizacao}"
+                             b:MaiusculoBehavior.Ativo="True" />
+                    <TextBlock Grid.Row="5" Grid.Column="4" Classes="formlabel" Text="Número" />
+                    <TextBox Grid.Row="5" Grid.Column="5"
+                             Text="{Binding Numero}" IsEnabled="{Binding !ModoVisualizacao}"
+                             HorizontalAlignment="Left" Width="90" />
 
                     <!-- Linha 6: Complemento | Bairro -->
                     <TextBlock Grid.Row="6" Grid.Column="0" Classes="formlabel" Text="Complemento" />
                     <TextBox Grid.Row="6" Grid.Column="1"
-                             Text="{Binding Complemento}" IsEnabled="{Binding !ModoVisualizacao}" />
+                             Text="{Binding Complemento}" IsEnabled="{Binding !ModoVisualizacao}"
+                             b:MaiusculoBehavior.Ativo="True" />
                     <TextBlock Grid.Row="6" Grid.Column="2" Classes="formlabel" Text="Bairro" />
                     <TextBox Grid.Row="6" Grid.Column="3" Grid.ColumnSpan="3"
-                             Text="{Binding Bairro}" IsEnabled="{Binding !ModoVisualizacao}" />
+                             Text="{Binding Bairro}" IsEnabled="{Binding !ModoVisualizacao}"
+                             b:MaiusculoBehavior.Ativo="True" />
 
                     <!-- Linha 7: Cidade | UF -->
                     <TextBlock Grid.Row="7" Grid.Column="0" Classes="formlabel" Text="Cidade" />
                     <TextBox Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="3"
-                             Text="{Binding Cidade}" IsEnabled="{Binding !ModoVisualizacao}" />
+                             Text="{Binding Cidade}" IsEnabled="{Binding !ModoVisualizacao}"
+                             b:MaiusculoBehavior.Ativo="True" />
                     <TextBlock Grid.Row="7" Grid.Column="4" Classes="formlabel" Text="UF" />
                     <TextBox Grid.Row="7" Grid.Column="5"
                              Text="{Binding Uf}" MaxLength="2" IsEnabled="{Binding !ModoVisualizacao}"

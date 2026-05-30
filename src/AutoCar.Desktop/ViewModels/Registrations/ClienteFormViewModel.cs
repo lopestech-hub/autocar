@@ -53,6 +53,23 @@ public partial class ClienteFormViewModel : ViewModelBase
     [ObservableProperty] private string? _observacao;
     [ObservableProperty] private decimal _limiteCredito;
 
+    /// <summary>
+    /// Limite de crédito como texto editável (a View usa um TextBox — o NumericUpDown
+    /// do Fluent dava problema de estilo). Faz parse tolerante (vírgula ou ponto) e
+    /// formata em moeda BR ao exibir. A fonte da verdade continua sendo LimiteCredito (decimal).
+    /// </summary>
+    public string LimiteCreditoTexto
+    {
+        get => LimiteCredito.ToString("N2", new System.Globalization.CultureInfo("pt-BR"));
+        set
+        {
+            var limpo = (value ?? string.Empty).Trim().Replace(".", "").Replace(",", ".");
+            LimiteCredito = decimal.TryParse(limpo, System.Globalization.NumberStyles.Any,
+                System.Globalization.CultureInfo.InvariantCulture, out var v) && v >= 0 ? v : 0;
+            OnPropertyChanged();
+        }
+    }
+
     [ObservableProperty] private bool _modoVisualizacao = true;
     [ObservableProperty] private bool _carregando;
     [ObservableProperty] private string? _mensagemErro;
@@ -79,6 +96,9 @@ public partial class ClienteFormViewModel : ViewModelBase
 
     partial void OnModoVisualizacaoChanged(bool value) => OnPropertyChanged(nameof(PodeConsultarCnpj));
     partial void OnCarregandoChanged(bool value) => OnPropertyChanged(nameof(PodeConsultarCnpj));
+
+    // Quando o decimal muda (carregar/novo), atualiza o texto exibido no campo.
+    partial void OnLimiteCreditoChanged(decimal value) => OnPropertyChanged(nameof(LimiteCreditoTexto));
 
     /// <summary>Prepara o formulário para um novo cadastro (limpo, em edição).</summary>
     public void PrepararNovo()

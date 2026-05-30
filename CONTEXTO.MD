@@ -27,7 +27,7 @@ Concorrência de estoque tratada com controle otimista (`xmin`) — risco nº 1 
 | Módulo | Pasta (MODULO.md) | Estado |
 |--------|-------------------|--------|
 | Segurança (login, perfis) | [Security](src/AutoCar.Desktop/Views/Security/MODULO.md) | ✅ Fase 1 |
-| Cadastros (Cliente ✅; Fornecedor ✅; Produto ⏳) | [Registrations](src/AutoCar.Desktop/Views/Registrations/MODULO.md) | 🔄 Fase 2 |
+| Cadastros (Cliente ✅; Fornecedor ✅; Marca ✅; Categoria ✅; Produto ⏳) | [Registrations](src/AutoCar.Desktop/Views/Registrations/MODULO.md) | 🔄 Fase 2 |
 | Catálogo automotivo (peças, aplicação por veículo) | _a criar (Fase 2)_ | ⏳ |
 | Estoque (entrada por compra) | _a criar (Fase 3)_ | ⏳ |
 | Vendas / Balcão | _a criar (Fase 3)_ | ⏳ |
@@ -44,7 +44,14 @@ usuário + perfis (BCrypt), logout, shell ERP (menu de texto + toolbar + status 
 completo (CRUD, validação CPF/CNPJ com dígito verificador, **consulta automática de CNPJ via BrasilAPI**,
 endereço). Cliente tem limite de crédito; Fornecedor tem Inscrição Estadual + Contato (vendedor) e abre
 como PJ por padrão. Listagem densa (busca automática, badges, contador) + formulário denso dois modos.
-Navegação por rota (`INavegador`). Testes passando (VO Documento + consulta CNPJ). Próximo cadastro: Produto.
+Navegação por rota (`INavegador`). Testes passando (VO Documento + consulta CNPJ).
+
+Cadastros auxiliares do Produto concluídos: **Marca** e **Categoria** (CRUD enxuto — só descrição,
+unicidade case-insensitive — no menu Cadastros, perfil Vendedor). Tema padronizado nesta rodada:
+ComboBox/menu corrigidos para o FluentTheme (cores via resource-key, não via `/template/` — evita
+flicker), campos a 24px (`MinHeight` obrigatório), CAIXA ALTA automática em nomes/endereço, valores
+monetários como `TextBox` (não `NumericUpDown`). Próximo: **Produto** (mestre, com FK para
+Marca/Categoria/Fornecedor).
 
 Admin de teste: usuário **`julio`** / senha `123` (trocar).
 
@@ -53,10 +60,13 @@ Admin de teste: usuário **`julio`** / senha `123` (trocar).
 Layout estilo ERP (sem sidebar): menu de texto no topo + toolbar de atalhos + área central + status bar.
 
 - **Toolbar de atalhos:** Buscar, Clientes, Fornecedor, Produtos, Orçamento, Pré-venda, Ordens de Serviço.
-- **Menu de texto:** Cadastros (Clientes, Fornecedor, Produtos, Usuários) · Movimentos (Orçamento,
-  Pré-venda, OS, Estoque) · Financeiro (Caixa, Contas a Receber, Contas a Pagar, Fiscal).
-- **Clientes** já tem tela real (listagem + formulário). Demais módulos ainda são **placeholders**.
+- **Menu de texto:** Cadastros (Clientes, Fornecedor, Produtos, Marcas, Categorias, Usuários) · Movimentos
+  (Orçamento, Pré-venda, OS, Estoque) · Financeiro (Caixa, Contas a Receber, Contas a Pagar, Fiscal).
+- **Clientes, Fornecedor, Marcas e Categorias** já têm tela real (listagem + formulário). Demais módulos
+  ainda são **placeholders**.
 - "Balcão" do plano = **Pré-venda**. "Catálogo" fora da navegação por enquanto (a definir).
+- Menu de texto corrigido: as categorias não renderizavam (gotcha do FluentTheme) — resolvido via
+  `Menu.Styles` ligando Header/ItemsSource no MenuItem + cor de texto fixa.
 
 ## Perfis de acesso (enum PerfilUsuario)
 
@@ -78,10 +88,13 @@ Um perfil por usuário. Admin vê tudo.
 
 ## Próximos Passos
 
-1. Fase 2: próximo cadastro — **Produto** + catálogo automotivo (reaproveitar padrão de cadastro)
-2. Definir o que fazer com "Catálogo" na navegação
-3. Implementar a busca global de verdade (atalho "Buscar" hoje é placeholder)
-4. Tela de troca de senha no primeiro acesso
+1. **Produto** (mestre): tabela `produto` com FK para `marca`/`categoria_produto`/`fornecedor`, campos
+   cod_barras, descrição, descrição complementar, cod_fabricante, unidade, vlr_custo, vlr_venda.
+   Reaproveitar o padrão de cadastro (e a skill `/novo-cadastro`).
+2. Depois do Produto: aplicação por veículo (montadora/modelo/ano — texto livre no MVP)
+3. Definir o que fazer com "Catálogo" na navegação
+4. Implementar a busca global de verdade (atalho "Buscar" hoje é placeholder)
+5. Tela de troca de senha no primeiro acesso
 
 ## Histórico de Mudanças
 
@@ -93,3 +106,6 @@ Um perfil por usuário. Admin vê tudo.
 | 2026-05-29 | Toolbar reorganizada: Buscar, Clientes, Fornecedor, Produtos, Orçamento, Pré-venda, OS |
 | 2026-05-29 | Fase 2: módulo Cliente (CRUD PF/PJ, validação CPF/CNPJ, consulta CNPJ BrasilAPI, form denso) + navegação por rota |
 | 2026-05-29 | Fase 2: módulo Fornecedor (CRUD PF/PJ, Inscrição Estadual + Contato, consulta CNPJ, default PJ) |
+| 2026-05-29 | Fase 2: cadastros Marca e Categoria (CRUD enxuto, unicidade case-insensitive) — base do Produto |
+| 2026-05-29 | UI: correção do menu de texto + padronização de tema (FluentTheme via resource-keys, MinHeight 24, CAIXA ALTA, NumericUpDown→TextBox) |
+| 2026-05-29 | Setup Claude Code: MCP context7, subagent avalonia-reviewer, skill /novo-cadastro, hook anti-edição de migration |

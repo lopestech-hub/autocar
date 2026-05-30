@@ -17,11 +17,11 @@ public sealed record Endereco
         string? uf)
     {
         Cep = Limpar(cep);
-        Logradouro = Limpar(logradouro);
+        Logradouro = MaiusculaOuNulo(logradouro);
         Numero = Limpar(numero);
-        Complemento = Limpar(complemento);
-        Bairro = Limpar(bairro);
-        Cidade = Limpar(cidade);
+        Complemento = MaiusculaOuNulo(complemento);
+        Bairro = MaiusculaOuNulo(bairro);
+        Cidade = MaiusculaOuNulo(cidade);
         Uf = string.IsNullOrWhiteSpace(uf) ? null : uf.Trim().ToUpperInvariant();
     }
 
@@ -37,4 +37,8 @@ public sealed record Endereco
 
     private static string? Limpar(string? valor) =>
         string.IsNullOrWhiteSpace(valor) ? null : valor.Trim();
+
+    // Campos de endereço textual padronizados em CAIXA ALTA (padrão ERP).
+    private static string? MaiusculaOuNulo(string? valor) =>
+        string.IsNullOrWhiteSpace(valor) ? null : valor.Trim().ToUpperInvariant();
 }

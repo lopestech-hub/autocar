@@ -85,8 +85,47 @@ listagem, form denso de dois modos, consulta CNPJ via BrasilAPI). Rota `"fornece
 - Form abre como **PJ** por padrão (fornecedor é tipicamente jurídico), enquanto Cliente abre como PF.
 - Reusa integralmente os VOs `Documento` e `Endereco` e o serviço `IConsultaCnpj`.
 
+## Marca e Categoria de Produto
+
+Cadastros mestre **auxiliares do Produto** (FK futura). Enxutos: só descrição + ativo.
+
+### Tabelas `marca` e `categoria_produto`
+
+- `id_marca`/`id_categoria` (uuid PK), `cod_marca`/`cod_categoria` (int identity)
+- `descricao` (varchar 80), `flg_ativo`, `dat_criacao`, `dat_atualizacao` (UTC), `xmin`
+- Índices únicos: `ix_<t>_cod`, `ix_<t>_descricao`. Migration: `CadastroMarcaCategoria`.
+
+### Camadas / Telas
+
+- **Domain:** `Marca`, `CategoriaProduto` (descrição normalizada em CAIXA ALTA via `ToUpperInvariant`).
+- **Application:** módulo `Produtos` — services/DTOs/validators dos dois (CRUD com `Result<T>`).
+- **Infrastructure:** configurations + repositories. Unicidade **case-insensitive** via `EF.Functions.ILike`
+  no repositório ("Bosch" colide com "BOSCH").
+- **Desktop:** listagem Grid único (CÓDIGO · DESCRIÇÃO · STATUS) + form denso de um campo. Menu de texto
+  (Cadastros), perfil Vendedor. Rotas `marcas` e `categorias`.
+
+### Regras
+
+- Descrição única (case-insensitive) e obrigatória; salva em CAIXA ALTA.
+- Inativar em vez de excluir (`flg_ativo`).
+
+## Decisões Técnicas (UI do módulo)
+
+Padrões de UI estabelecidos nesta fase, reaproveitáveis pelos próximos cadastros (ver também a skill
+global `/design-engineer-desktop`):
+
+- **CAIXA ALTA** em nome/razão social/fantasia/endereço/contato: normalização no domínio
+  (`ToUpperInvariant`) + `MaiusculoBehavior` (AttachedProperty) na digitação. Exceto e-mail/observação/documento.
+- **Valores monetários** usam `TextBox` com parse no ViewModel (`LimiteCreditoTexto`), não `NumericUpDown`
+  (o ButtonSpinner do Fluent estiliza mal).
+- **Larguras:** campos curtos (valor, IE, número) com `Width` fixo + `Left`; nomes esticam. Rótulo sempre
+  na coluna de label do Grid.
+- **FluentTheme:** cores de ComboBox/Menu corrigidas via resource-keys no `Tema.axaml` (não `/template/`
+  em `:pointerover`, que causa flicker). Altura de campo 24px exige `MinHeight=24`.
+
 ## Dependências
 
 - Depende de: `Security` (usuário logado para rastreabilidade futura). Shared (`Result<T>`).
 - Será consumido por: Vendas/Balcão, OS, Contas a Receber (cliente é base dessas operações);
   Estoque/Compras (entrada de NF) e Contas a Pagar (fornecedor é base dessas operações).
+- **Marca e Categoria** serão consumidos pelo **Produto** (FK `id_marca`, `id_categoria`).

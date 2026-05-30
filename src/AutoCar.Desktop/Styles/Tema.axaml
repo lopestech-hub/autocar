@@ -72,6 +72,78 @@
             <SolidColorBrush x:Key="BrushPrimario" Color="{StaticResource ColorPrimario}" />
             <SolidColorBrush x:Key="BrushPrimarioHover" Color="{StaticResource ColorPrimarioHover}" />
             <SolidColorBrush x:Key="BrushErro" Color="{StaticResource ColorErro}" />
+
+            <!-- ===== OVERRIDE DO MENU (FluentTheme) =====
+                 Por padrão o FluentTheme renderiza o popup do submenu com fundo escuro e
+                 controla a cor do texto nos estados (some no hover). Sobrescrever esses
+                 resource-keys deixa o submenu claro e legível, alinhado ao app, sem mexer
+                 em template/animação (evita o flicker). -->
+            <SolidColorBrush x:Key="MenuFlyoutPresenterBackground" Color="{StaticResource ColorFundoCard}" />
+            <SolidColorBrush x:Key="MenuFlyoutPresenterBorderBrush" Color="{StaticResource ColorBorda}" />
+            <SolidColorBrush x:Key="MenuBackground" Color="{StaticResource ColorFundoCard}" />
+            <SolidColorBrush x:Key="MenuBorderBrush" Color="{StaticResource ColorBorda}" />
+
+            <!-- Texto dos itens em todos os estados: sempre escuro e legível -->
+            <SolidColorBrush x:Key="MenuFlyoutItemForeground" Color="{StaticResource ColorTexto}" />
+            <SolidColorBrush x:Key="MenuFlyoutItemForegroundPointerOver" Color="{StaticResource ColorTexto}" />
+            <SolidColorBrush x:Key="MenuFlyoutItemForegroundPressed" Color="{StaticResource ColorTexto}" />
+            <SolidColorBrush x:Key="MenuFlyoutItemForegroundSelected" Color="{StaticResource ColorTexto}" />
+            <SolidColorBrush x:Key="MenuFlyoutItemForegroundSubMenuOpened" Color="{StaticResource ColorTexto}" />
+
+            <!-- Fundo dos itens: transparente normal, azul-claro no hover/seleção -->
+            <SolidColorBrush x:Key="MenuFlyoutItemBackground" Color="Transparent" />
+            <SolidColorBrush x:Key="MenuFlyoutItemBackgroundPointerOver" Color="{StaticResource ColorFundoSelecionado}" />
+            <SolidColorBrush x:Key="MenuFlyoutItemBackgroundPressed" Color="{StaticResource ColorFundoSelecionado}" />
+            <SolidColorBrush x:Key="MenuFlyoutItemBackgroundSelected" Color="{StaticResource ColorFundoSelecionado}" />
+
+            <!-- ===== OVERRIDE DO COMBOBOX (FluentTheme) =====
+                 Mesmo gotcha do menu: o dropdown do ComboBox usa o tema do FluentTheme,
+                 que pode apagar o texto do item no hover/seleção. Sobrescrever os resources
+                 mantém o item sempre legível (texto escuro) com hover/seleção azul-claro,
+                 alinhado ao app. Cobre todos os ComboBox (Tipo Pessoa de Cliente/Fornecedor). -->
+            <SolidColorBrush x:Key="ComboBoxItemForeground" Color="{StaticResource ColorTexto}" />
+            <SolidColorBrush x:Key="ComboBoxItemForegroundPressed" Color="{StaticResource ColorTexto}" />
+            <SolidColorBrush x:Key="ComboBoxItemForegroundPointerOver" Color="{StaticResource ColorTexto}" />
+            <SolidColorBrush x:Key="ComboBoxItemForegroundSelected" Color="{StaticResource ColorTexto}" />
+            <SolidColorBrush x:Key="ComboBoxItemForegroundSelectedPointerOver" Color="{StaticResource ColorTexto}" />
+            <SolidColorBrush x:Key="ComboBoxItemForegroundSelectedPressed" Color="{StaticResource ColorTexto}" />
+            <SolidColorBrush x:Key="ComboBoxItemForegroundDisabled" Color="{StaticResource ColorTextoMudo}" />
+
+            <SolidColorBrush x:Key="ComboBoxItemBackground" Color="Transparent" />
+            <SolidColorBrush x:Key="ComboBoxItemBackgroundPointerOver" Color="{StaticResource ColorFundoSelecionado}" />
+            <SolidColorBrush x:Key="ComboBoxItemBackgroundPressed" Color="{StaticResource ColorFundoSelecionado}" />
+            <SolidColorBrush x:Key="ComboBoxItemBackgroundSelected" Color="{StaticResource ColorFundoSelecionado}" />
+            <SolidColorBrush x:Key="ComboBoxItemBackgroundSelectedPointerOver" Color="{StaticResource ColorFundoSelecionado}" />
+            <SolidColorBrush x:Key="ComboBoxItemBackgroundSelectedPressed" Color="{StaticResource ColorFundoSelecionado}" />
+
+            <!-- Fundo do popup do dropdown -->
+            <SolidColorBrush x:Key="ComboBoxDropDownBackground" Color="{StaticResource ColorFundoCard}" />
+            <SolidColorBrush x:Key="ComboBoxDropDownBorderBrush" Color="{StaticResource ColorBorda}" />
+
+            <!-- Fundo do ComboBox FECHADO (a caixa em si): branco em todos os estados,
+                 igual aos TextBox ao lado. Por padrão o FluentTheme deixa cinza-escuro
+                 no hover/foco, destoando dos demais campos do formulário. -->
+            <SolidColorBrush x:Key="ComboBoxBackground" Color="{StaticResource ColorFundoInput}" />
+            <SolidColorBrush x:Key="ComboBoxBackgroundPointerOver" Color="{StaticResource ColorFundoInput}" />
+            <SolidColorBrush x:Key="ComboBoxBackgroundPressed" Color="{StaticResource ColorFundoInput}" />
+            <SolidColorBrush x:Key="ComboBoxBackgroundFocused" Color="{StaticResource ColorFundoInput}" />
+            <SolidColorBrush x:Key="ComboBoxBackgroundDisabled" Color="{StaticResource ColorFundoSelecionado}" />
+            <SolidColorBrush x:Key="ComboBoxForeground" Color="{StaticResource ColorTexto}" />
+            <SolidColorBrush x:Key="ComboBoxForegroundPointerOver" Color="{StaticResource ColorTexto}" />
+            <SolidColorBrush x:Key="ComboBoxForegroundFocused" Color="{StaticResource ColorTexto}" />
+
+            <!-- Borda visível em repouso (o FluentTheme deixa transparente até o hover,
+                 por isso a caixa parecia "solta"). Igual à borda dos TextBox. -->
+            <SolidColorBrush x:Key="ComboBoxBorderBrush" Color="{StaticResource ColorBorda}" />
+            <SolidColorBrush x:Key="ComboBoxBorderBrushPointerOver" Color="{StaticResource ColorBordaFoco}" />
+            <SolidColorBrush x:Key="ComboBoxBorderBrushPressed" Color="{StaticResource ColorBordaFoco}" />
+            <SolidColorBrush x:Key="ComboBoxBorderBrushFocused" Color="{StaticResource ColorBordaFoco}" />
+            <SolidColorBrush x:Key="ComboBoxBorderBrushDisabled" Color="{StaticResource ColorBorda}" />
+            <!-- Espessura da borda 1px em todos os estados (o FluentTheme usa 2px no foco). -->
+            <Thickness x:Key="ComboBoxBorderThemeThickness">1</Thickness>
+            <!-- Desabilitado (modo visualização): texto escuro legível, não o cinza-claro
+                 do FluentTheme que sumia no fundo. Mesma lógica do TextBox:disabled. -->
+            <SolidColorBrush x:Key="ComboBoxForegroundDisabled" Color="{StaticResource ColorTexto}" />
         </ResourceDictionary>
     </Styles.Resources>
 
@@ -96,9 +168,11 @@
         <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
 
-    <!-- TextBox padrão (24px) -->
+    <!-- TextBox padrão (24px). MinHeight=24 é obrigatório: o FluentTheme usa MinHeight 32
+         por padrão, que vence o Height e deixava o campo a 32px (mais alto que o ComboBox). -->
     <Style Selector="TextBox">
         <Setter Property="Height" Value="24" />
+        <Setter Property="MinHeight" Value="24" />
         <Setter Property="FontSize" Value="12" />
         <Setter Property="FontFamily" Value="{DynamicResource FonteInterface}" />
         <Setter Property="Padding" Value="5,0" />
@@ -154,8 +228,11 @@
         <Setter Property="Opacity" Value="1" />
         <Setter Property="Foreground" Value="{DynamicResource BrushTexto}" />
     </Style>
+    <!-- Modo visualização (campo desabilitado): fundo azul-claro de destaque (#EFF6FF),
+         o mesmo do hover das listas — sinaliza "somente leitura" de forma elegante,
+         em vez do cinza apagado. Vale para TextBox, ComboBox e NumericUpDown. -->
     <Style Selector="TextBox:disabled /template/ Border#PART_BorderElement">
-        <Setter Property="Background" Value="{DynamicResource BrushFundoDesabilitado}" />
+        <Setter Property="Background" Value="{DynamicResource BrushFundoSelecionado}" />
         <Setter Property="BorderBrush" Value="{DynamicResource BrushBorda}" />
     </Style>
 
@@ -164,6 +241,63 @@
         <Setter Property="Height" Value="28" />
         <Setter Property="Padding" Value="8,0" />
     </Style>
+
+    <!-- ComboBox: alinhado aos campos do formulário (24px, radius 2) e fundo branco
+         em todos os estados. Mesma técnica do TextBox: forçar o Border interno
+         (PART_BackgroundElement), pois o FluentTheme escurece a caixa no hover/foco. -->
+    <Style Selector="ComboBox">
+        <Setter Property="MinHeight" Value="24" />
+        <Setter Property="Height" Value="24" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Padding" Value="5,0" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="CornerRadius" Value="2" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushTexto}" />
+    </Style>
+    <Style Selector="ComboBox /template/ Border#Background">
+        <Setter Property="Background" Value="{DynamicResource BrushFundoInput}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BrushBorda}" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+    <Style Selector="ComboBox:pointerover /template/ Border#Background">
+        <Setter Property="Background" Value="{DynamicResource BrushFundoInput}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BrushBordaFoco}" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+    <Style Selector="ComboBox:focus /template/ Border#Background">
+        <Setter Property="Background" Value="{DynamicResource BrushFundoInput}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BrushBordaFoco}" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+    <Style Selector="ComboBox:focus-within /template/ Border#Background">
+        <Setter Property="Background" Value="{DynamicResource BrushFundoInput}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BrushBordaFoco}" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+    <Style Selector="ComboBox:pressed /template/ Border#Background">
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+    <Style Selector="ComboBox:disabled /template/ Border#Background">
+        <Setter Property="Background" Value="{DynamicResource BrushFundoSelecionado}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BrushBorda}" />
+    </Style>
+    <Style Selector="ComboBox:disabled">
+        <Setter Property="Opacity" Value="1" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushTexto}" />
+    </Style>
+    <!-- O valor selecionado é exibido pelo ContentPresenter interno; no modo visualização
+         (desabilitado) ele precisa de cor e opacidade explícitas para não sumir. -->
+    <Style Selector="ComboBox:disabled /template/ ContentControl#ContentPresenter">
+        <Setter Property="Foreground" Value="{DynamicResource BrushTexto}" />
+        <Setter Property="Opacity" Value="1" />
+    </Style>
+    <Style Selector="ComboBox:disabled /template/ ContentPresenter#ContentPresenter">
+        <Setter Property="Foreground" Value="{DynamicResource BrushTexto}" />
+        <Setter Property="Opacity" Value="1" />
+    </Style>
+
+    <!-- (NumericUpDown removido: valores monetários usam TextBox com parse no ViewModel —
+         o NumericUpDown do Fluent dava problema de estilo/borda. Ver LimiteCreditoTexto.) -->
 
     <!-- Botão primário (26px) -->
     <Style Selector="Button.primario">
@@ -236,14 +370,14 @@
         <Setter Property="Padding" Value="4,2" />
         <Setter Property="FontFamily" Value="{DynamicResource FonteInterface}" />
     </Style>
+    <!-- Categorias de topo (fundo branco da faixa): texto escuro. Os itens do submenu
+         têm cor controlada pelos resources MenuFlyoutItem* (definidos acima), que cobrem
+         todos os estados sem flicker e sem o texto sumir no hover. -->
     <Style Selector="Menu.topo > MenuItem">
         <Setter Property="FontSize" Value="12" />
         <Setter Property="Padding" Value="10,4" />
         <Setter Property="Foreground" Value="{DynamicResource BrushTexto}" />
         <Setter Property="Cursor" Value="Hand" />
-    </Style>
-    <Style Selector="Menu.topo MenuItem:selected /template/ Border#PART_LayoutRoot">
-        <Setter Property="Background" Value="{DynamicResource BrushFundoHover}" />
     </Style>
 
     <!-- Botão da toolbar de ícones (ícone grande + legenda em até 2 linhas) -->

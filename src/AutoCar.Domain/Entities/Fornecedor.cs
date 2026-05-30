@@ -28,13 +28,13 @@ public class Fornecedor : EntidadeBase
     {
         TipoPessoa = documento.Tipo;
         Documento = documento.Numero;
-        RazaoSocial = razaoSocial.Trim();
-        NomeFantasia = string.IsNullOrWhiteSpace(nomeFantasia) ? null : nomeFantasia.Trim();
+        RazaoSocial = razaoSocial.Trim().ToUpperInvariant();
+        NomeFantasia = string.IsNullOrWhiteSpace(nomeFantasia) ? null : nomeFantasia.Trim().ToUpperInvariant();
         Telefone = string.IsNullOrWhiteSpace(telefone) ? null : telefone.Trim();
         Email = string.IsNullOrWhiteSpace(email) ? null : email.Trim().ToLowerInvariant();
         Endereco = endereco;
         InscricaoEstadual = string.IsNullOrWhiteSpace(inscricaoEstadual) ? null : inscricaoEstadual.Trim();
-        Contato = string.IsNullOrWhiteSpace(contato) ? null : contato.Trim();
+        Contato = string.IsNullOrWhiteSpace(contato) ? null : contato.Trim().ToUpperInvariant();
         Observacao = string.IsNullOrWhiteSpace(observacao) ? null : observacao.Trim();
         FlgAtivo = true;
     }
@@ -82,13 +82,13 @@ public class Fornecedor : EntidadeBase
     {
         TipoPessoa = documento.Tipo;
         Documento = documento.Numero;
-        RazaoSocial = razaoSocial.Trim();
-        NomeFantasia = string.IsNullOrWhiteSpace(nomeFantasia) ? null : nomeFantasia.Trim();
+        RazaoSocial = razaoSocial.Trim().ToUpperInvariant();
+        NomeFantasia = string.IsNullOrWhiteSpace(nomeFantasia) ? null : nomeFantasia.Trim().ToUpperInvariant();
         Telefone = string.IsNullOrWhiteSpace(telefone) ? null : telefone.Trim();
         Email = string.IsNullOrWhiteSpace(email) ? null : email.Trim().ToLowerInvariant();
         Endereco = endereco;
         InscricaoEstadual = string.IsNullOrWhiteSpace(inscricaoEstadual) ? null : inscricaoEstadual.Trim();
-        Contato = string.IsNullOrWhiteSpace(contato) ? null : contato.Trim();
+        Contato = string.IsNullOrWhiteSpace(contato) ? null : contato.Trim().ToUpperInvariant();
         Observacao = string.IsNullOrWhiteSpace(observacao) ? null : observacao.Trim();
         MarcarAtualizada();
     }
