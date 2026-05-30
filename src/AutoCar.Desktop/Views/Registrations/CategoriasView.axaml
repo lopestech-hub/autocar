@@ -1,0 +1,67 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AutoCar.Desktop.ViewModels.Registrations"
+             x:Class="AutoCar.Desktop.Views.Registrations.CategoriasView"
+             x:DataType="vm:CategoriasViewModel">
+
+    <Panel>
+        <!-- ===== LISTAGEM ===== -->
+        <Grid RowDefinitions="Auto,Auto,*" Margin="16"
+              IsVisible="{Binding !MostrarFormulario}">
+
+            <Grid Grid.Row="0" ColumnDefinitions="Auto,Auto,*,Auto,Auto" Margin="0,0,0,12">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8"
+                            VerticalAlignment="Center" Margin="0,0,16,0">
+                    <TextBlock Text="Categorias"
+                               FontSize="14" FontWeight="SemiBold"
+                               Foreground="{DynamicResource BrushTexto}"
+                               VerticalAlignment="Center" />
+                    <Border Background="{DynamicResource BrushFundoHeader}"
+                            BorderBrush="{DynamicResource BrushBorda}" BorderThickness="1"
+                            CornerRadius="10" Padding="8,1" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding TextoContador}"
+                                   FontSize="11"
+                                   Foreground="{DynamicResource BrushTextoSecundario}" />
+                    </Border>
+                </StackPanel>
+
+                <Button Grid.Column="1" Content="+ Nova categoria"
+                        Classes="primario"
+                        Command="{Binding NovoCommand}"
+                        Cursor="Hand" />
+
+                <TextBox Grid.Column="3" Width="260"
+                         Watermark="Buscar por descrição"
+                         Text="{Binding Filtro}"
+                         Margin="0,0,8,0" />
+                <Button Grid.Column="4" Content="Buscar"
+                        Classes="secundario"
+                        Command="{Binding BuscarCommand}"
+                        Cursor="Hand" />
+            </Grid>
+
+            <ProgressBar Grid.Row="1" IsIndeterminate="True" Height="2"
+                         IsVisible="{Binding Carregando}" />
+
+            <Border Grid.Row="2"
+                    Background="{DynamicResource BrushFundoCard}"
+                    BorderBrush="{DynamicResource BrushBorda}"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    ClipToBounds="True">
+                <Panel Name="TabelaContainer">
+                    <TextBlock Text="{Binding MensagemErro}"
+                               IsVisible="{Binding MensagemErro, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                               Foreground="{DynamicResource BrushErro}"
+                               FontSize="11"
+                               HorizontalAlignment="Center" VerticalAlignment="Top"
+                               Margin="0,40,0,0" />
+                </Panel>
+            </Border>
+        </Grid>
+
+        <!-- ===== FORMULÁRIO (sobreposto) ===== -->
+        <ContentControl Content="{Binding FormularioAtivo}"
+                        IsVisible="{Binding MostrarFormulario}" />
+    </Panel>
+</UserControl>

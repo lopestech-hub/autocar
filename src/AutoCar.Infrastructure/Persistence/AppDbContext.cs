@@ -19,6 +19,10 @@ public class AppDbContext : DbContext
 
     public DbSet<Fornecedor> Fornecedores => Set<Fornecedor>();
 
+    public DbSet<Marca> Marcas => Set<Marca>();
+
+    public DbSet<CategoriaProduto> Categorias => Set<CategoriaProduto>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
