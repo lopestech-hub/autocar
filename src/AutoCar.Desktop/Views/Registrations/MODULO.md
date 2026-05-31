@@ -195,6 +195,22 @@ global `/design-engineer-desktop`):
   `DockPanel` (Grid único — Cliente/Fornecedor) ou `Grid Auto,*` (blocos — Produto). Detalhes e a
   variante "formulário em blocos de seção" no `system.md` da Luna.
 
+## Catálogo (consulta peça → veículo)
+
+Tela de **consulta** (não cadastro) em `Views/Catalogo/` — o vendedor responde "quais peças servem
+nesse carro?". Consome o módulo Produtos; não tem tabela própria.
+
+- **Busca:** cruza `produto` × `produto_aplicacao`. Filtros opcionais (vão estreitando): montadora,
+  modelo, ano (faixa `ano_inicio..ano_fim`, null = aberta) e termo da peça (descrição/cod_barras/
+  cod_fabricante via `ILike`). O produto entra se tiver **ao menos uma** aplicação que case com todos
+  os critérios de veículo informados.
+- **Camadas:** reusa `IProdutoService`/`ProdutoRepository` — `BuscarCatalogoAsync`, `ListarMontadorasAsync`,
+  `ListarModelosAsync`; DTOs `BuscaCatalogoDto`/`CatalogoItemDto`. `CatalogoViewModel` + `CatalogoView`
+  (Grid único: CÓDIGO·DESCRIÇÃO·CATEGORIA·APLICAÇÕES·UN·VENDA). Rota `catalogo`.
+- **Futuro:** será o ponto de entrada de peças na **Pré-venda** (Fase 3) — buscar e adicionar item.
+- **Dado de teste:** seed demo no `DbInitializer` (8 produtos variados, idempotente — só roda em banco
+  com ≤1 produto). Remover/gear por flag antes do deploy real.
+
 ## Dependências
 
 - Depende de: `Security` (usuário logado para rastreabilidade futura). Shared (`Result<T>`).

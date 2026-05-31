@@ -3,6 +3,7 @@ using System.IO;
 using AutoCar.Application;
 using AutoCar.Desktop.Navegacao;
 using AutoCar.Desktop.ViewModels;
+using AutoCar.Desktop.ViewModels.Catalogo;
 using AutoCar.Desktop.ViewModels.Registrations;
 using AutoCar.Infrastructure;
 using Microsoft.Extensions.Configuration;
@@ -61,6 +62,7 @@ public static class Bootstrap
         services.AddTransient<CategoriaFormViewModel>();
         services.AddTransient<ProdutosViewModel>();
         services.AddTransient<ProdutoFormViewModel>();
+        services.AddTransient<CatalogoViewModel>();
 
         return services.BuildServiceProvider();
     }

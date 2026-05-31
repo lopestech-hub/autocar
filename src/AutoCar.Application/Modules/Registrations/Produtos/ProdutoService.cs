@@ -115,6 +115,36 @@ public sealed class ProdutoService : IProdutoService
         return lista.Select(f => new OpcaoDto(f.Id, f.RazaoSocial)).ToList();
     }
 
+    public async Task<IReadOnlyList<CatalogoItemDto>> BuscarCatalogoAsync(BuscaCatalogoDto filtro, CancellationToken ct = default)
+    {
+        var produtos = await _produtos.BuscarPorVeiculoAsync(
+            filtro.Termo, filtro.Montadora, filtro.Modelo, filtro.Ano, ct);
+
+        return produtos.Select(p => new CatalogoItemDto(
+            p.Id, p.CodProduto, p.Descricao, p.Categoria?.Descricao, p.Marca?.Descricao,
+            p.Unidade, p.VlrVenda, ResumirAplicacoes(p))).ToList();
+    }
+
+    public Task<IReadOnlyList<string>> ListarMontadorasAsync(CancellationToken ct = default) =>
+        _produtos.ListarMontadorasAsync(ct);
+
+    public Task<IReadOnlyList<string>> ListarModelosAsync(string? montadora, CancellationToken ct = default) =>
+        _produtos.ListarModelosAsync(montadora, ct);
+
+    // Resume as aplicações do produto numa linha legível: "GOL 2008-2014; PARATI 2005-2018".
+    private static string ResumirAplicacoes(Produto p) =>
+        string.Join("; ", p.Aplicacoes.Select(a =>
+        {
+            var anos = (a.AnoInicio, a.AnoFim) switch
+            {
+                (null, null) => "",
+                (var ini, null) => $" {ini}+",
+                (null, var fim) => $" até {fim}",
+                var (ini, fim) => $" {ini}-{fim}",
+            };
+            return $"{a.Modelo}{anos}";
+        }));
+
     /// <summary>Valida o DTO, confere a categoria e a unicidade do código de barras. Retorna o erro ou null.</summary>
     private async Task<Error?> ValidarAsync(SalvarProdutoDto dto, Guid? idAtual, CancellationToken ct)
     {

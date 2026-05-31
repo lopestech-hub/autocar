@@ -20,4 +20,14 @@ public interface IProdutoService
 
     /// <summary>Fornecedores ativos para o combo (opcional no produto).</summary>
     Task<IReadOnlyList<OpcaoDto>> ListarFornecedoresAsync(CancellationToken ct = default);
+
+    /// <summary>Busca de peças por veículo (tela Catálogo). Cruza produto × aplicação;
+    /// todos os filtros são opcionais e vão estreitando o resultado.</summary>
+    Task<IReadOnlyList<CatalogoItemDto>> BuscarCatalogoAsync(BuscaCatalogoDto filtro, CancellationToken ct = default);
+
+    /// <summary>Montadoras distintas já cadastradas em aplicações (autocomplete do Catálogo).</summary>
+    Task<IReadOnlyList<string>> ListarMontadorasAsync(CancellationToken ct = default);
+
+    /// <summary>Modelos distintos já cadastrados (autocomplete); filtra por montadora se informada.</summary>
+    Task<IReadOnlyList<string>> ListarModelosAsync(string? montadora, CancellationToken ct = default);
 }

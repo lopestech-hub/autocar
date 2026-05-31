@@ -28,7 +28,7 @@ Concorrência de estoque tratada com controle otimista (`xmin`) — risco nº 1 
 |--------|-------------------|--------|
 | Segurança (login, perfis) | [Security](src/AutoCar.Desktop/Views/Security/MODULO.md) | ✅ Fase 1 |
 | Cadastros (Cliente ✅; Fornecedor ✅; Marca ✅; Categoria ✅; Produto ✅ + aplicação por veículo ✅) | [Registrations](src/AutoCar.Desktop/Views/Registrations/MODULO.md) | 🔄 Fase 2 |
-| Catálogo automotivo (peça → veículo) | aplicação por veículo ✅ (no Produto); navegação a definir | 🔄 |
+| Catálogo automotivo (peça → veículo) | [Catalogo](src/AutoCar.Desktop/Views/Catalogo/) — busca de peça por veículo ✅ | ✅ Fase 2 |
 | Estoque (entrada por compra) | _a criar (Fase 3)_ | ⏳ |
 | Vendas / Balcão | _a criar (Fase 3)_ | ⏳ |
 | Oficina / OS | _a criar (Fase 4)_ | ⏳ |
@@ -96,13 +96,15 @@ Um perfil por usuário. Admin vê tudo.
 
 ## Próximos Passos
 
-1. Definir o que fazer com "Catálogo" na navegação (aplicação por veículo já existe no Produto)
+1. **Pré-venda** (Fase 3): documento com itens (cabeçalho cliente+veículo + linhas de produto),
+   consumindo o Catálogo. Estabelece o padrão de documento reusado em Orçamento/OS/Venda.
 2. Implementar a busca global de verdade (atalho "Buscar" hoje é placeholder)
 3. Tela de troca de senha no primeiro acesso
-4. (dívida) Paginação na listagem de Produto quando o volume crescer (hoje sem `Take`/`Skip`,
-   alinhado ao padrão dos demais cadastros)
+4. (dívida) Paginação na listagem de Produto/Catálogo quando o volume crescer (hoje sem `Take`/`Skip`)
 5. (dívida) Migrar os demais repositórios para `IDbContextFactory` quando ganharem coleção filha
    (hoje só `ProdutoRepository` usa; os outros usam `AppDbContext` injetado)
+6. (dívida) **Remover/gear por flag o seed demo do DbInitializer antes do deploy** — hoje cria 8
+   produtos de teste em banco com ≤1 produto; inofensivo em dev, mas não pode rodar no cliente real
 
 ## Histórico de Mudanças
 
@@ -120,3 +122,4 @@ Um perfil por usuário. Admin vê tudo.
 | 2026-05-31 | Fase 2: cadastro Produto (mestre) — FK categoria/marca/fornecedor, unidade enum, cod_barras único parcial, margem calculada |
 | 2026-05-31 | UI: padronização das seções de formulário (título azul + linha) em Cliente/Fornecedor/Produto; hook PostToolUse lembra o system.md ao editar .axaml |
 | 2026-05-31 | Fase 2: aplicação por veículo no Produto (tabela `produto_aplicacao` 1:N, mini-grid no form). ProdutoRepository → IDbContextFactory; Produto sem xmin (incompat. com coleção filha) |
+| 2026-05-31 | Fase 2: tela **Catálogo** (busca de peça por montadora/modelo/ano, cruzando produto × aplicação) + seed demo de 8 produtos no DbInitializer |

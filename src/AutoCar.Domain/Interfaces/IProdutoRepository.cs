@@ -22,4 +22,16 @@ public interface IProdutoRepository
     /// <summary>Verifica se já existe outro produto com o mesmo código de barras
     /// (exceto o id informado, em edição). Usado só quando o código de barras é informado.</summary>
     Task<bool> ExisteCodBarrasAsync(string codBarras, Guid? excetoId = null, CancellationToken ct = default);
+
+    /// <summary>Busca de peças por veículo (Catálogo): produtos ativos que casam com o termo na
+    /// descrição E têm aplicação no veículo informado. Filtros nulos são ignorados. As navegações
+    /// (categoria, marca, aplicações) vêm carregadas para montar o resultado.</summary>
+    Task<IReadOnlyList<Produto>> BuscarPorVeiculoAsync(
+        string? termo, string? montadora, string? modelo, int? ano, CancellationToken ct = default);
+
+    /// <summary>Montadoras distintas cadastradas em aplicações de produtos ativos.</summary>
+    Task<IReadOnlyList<string>> ListarMontadorasAsync(CancellationToken ct = default);
+
+    /// <summary>Modelos distintos cadastrados; filtra por montadora se informada.</summary>
+    Task<IReadOnlyList<string>> ListarModelosAsync(string? montadora, CancellationToken ct = default);
 }

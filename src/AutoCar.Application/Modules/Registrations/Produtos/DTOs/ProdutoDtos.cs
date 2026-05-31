@@ -55,3 +55,21 @@ public sealed record ProdutoListaDto(
 
 /// <summary>Opção genérica para preencher combos (Categoria/Marca/Fornecedor).</summary>
 public sealed record OpcaoDto(Guid Id, string Descricao);
+
+/// <summary>Filtros da busca de peças por veículo (tela Catálogo). Todos opcionais.</summary>
+public sealed record BuscaCatalogoDto(
+    string? Termo,
+    string? Montadora,
+    string? Modelo,
+    int? Ano);
+
+/// <summary>Linha do resultado do Catálogo: a peça + em quais veículos ela aplica.</summary>
+public sealed record CatalogoItemDto(
+    Guid Id,
+    int CodProduto,
+    string Descricao,
+    string? Categoria,
+    string? Marca,
+    UnidadeMedida Unidade,
+    decimal VlrVenda,
+    string Aplicacoes);

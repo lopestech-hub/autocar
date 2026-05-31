@@ -87,4 +87,83 @@ public class ProdutoRepository : IProdutoRepository
         return await db.Produtos.AnyAsync(
             p => p.CodBarras == codBarras && (excetoId == null || p.Id != excetoId), ct);
     }
+
+    public async Task<IReadOnlyList<Produto>> BuscarPorVeiculoAsync(
+        string? termo, string? montadora, string? modelo, int? ano, CancellationToken ct = default)
+    {
+        await using var db = await _factory.CreateDbContextAsync(ct);
+
+        var query = db.Produtos
+            .AsNoTracking()
+            .Include(p => p.Categoria)
+            .Include(p => p.Marca)
+            .Include(p => p.Aplicacoes)
+            .Where(p => p.FlgAtivo);
+
+        // Termo casa com descrição, código de barras ou código de fabricante.
+        if (!string.IsNullOrWhiteSpace(termo))
+        {
+            var t = termo.Trim();
+            query = query.Where(p =>
+                EF.Functions.ILike(p.Descricao, $"%{t}%") ||
+                (p.CodBarras != null && EF.Functions.ILike(p.CodBarras, $"%{t}%")) ||
+                (p.CodFabricante != null && EF.Functions.ILike(p.CodFabricante, $"%{t}%")));
+        }
+
+        // Filtros de veículo: o produto precisa ter PELO MENOS UMA aplicação que case com todos
+        // os critérios informados. Ano cai dentro da faixa (faixa aberta tratada com null).
+        if (!string.IsNullOrWhiteSpace(montadora))
+        {
+            var m = montadora.Trim();
+            query = query.Where(p => p.Aplicacoes.Any(a => EF.Functions.ILike(a.Montadora, $"%{m}%")));
+        }
+
+        if (!string.IsNullOrWhiteSpace(modelo))
+        {
+            var mod = modelo.Trim();
+            query = query.Where(p => p.Aplicacoes.Any(a => EF.Functions.ILike(a.Modelo, $"%{mod}%")));
+        }
+
+        if (ano is int anoFiltro)
+        {
+            query = query.Where(p => p.Aplicacoes.Any(a =>
+                (a.AnoInicio == null || a.AnoInicio <= anoFiltro) &&
+                (a.AnoFim == null || a.AnoFim >= anoFiltro)));
+        }
+
+        return await query.OrderBy(p => p.Descricao).ToListAsync(ct);
+    }
+
+    public async Task<IReadOnlyList<string>> ListarMontadorasAsync(CancellationToken ct = default)
+    {
+        await using var db = await _factory.CreateDbContextAsync(ct);
+        // Só aplicações de produtos ativos (ProdutoAplicacao não tem navegação de volta — filtra por subquery).
+        var idsAtivos = db.Produtos.Where(p => p.FlgAtivo).Select(p => p.Id);
+        return await db.ProdutoAplicacoes
+            .AsNoTracking()
+            .Where(a => idsAtivos.Contains(a.IdProduto))
+            .Select(a => a.Montadora)
+            .Distinct()
+            .OrderBy(m => m)
+            .ToListAsync(ct);
+    }
+
+    public async Task<IReadOnlyList<string>> ListarModelosAsync(string? montadora, CancellationToken ct = default)
+    {
+        await using var db = await _factory.CreateDbContextAsync(ct);
+        var idsAtivos = db.Produtos.Where(p => p.FlgAtivo).Select(p => p.Id);
+        var query = db.ProdutoAplicacoes.AsNoTracking().Where(a => idsAtivos.Contains(a.IdProduto));
+
+        if (!string.IsNullOrWhiteSpace(montadora))
+        {
+            var m = montadora.Trim();
+            query = query.Where(a => EF.Functions.ILike(a.Montadora, $"%{m}%"));
+        }
+
+        return await query
+            .Select(a => a.Modelo)
+            .Distinct()
+            .OrderBy(mod => mod)
+            .ToListAsync(ct);
+    }
 }

@@ -30,6 +30,7 @@ public partial class MainWindowViewModel : ViewModelBase
         new ItemMenu("Clientes", "fa-solid fa-user-group", "Cadastros", flgToolbar: true, new[] { PerfilUsuario.Vendedor, PerfilUsuario.Mecanico }, rota: "clientes"),
         new ItemMenu("Fornecedor", "fa-solid fa-truck-field", "Cadastros", flgToolbar: true, new[] { PerfilUsuario.Vendedor }, rota: "fornecedor"),
         new ItemMenu("Produtos", "fa-solid fa-box", "Cadastros", flgToolbar: true, new[] { PerfilUsuario.Vendedor, PerfilUsuario.Mecanico }, rota: "produtos"),
+        new ItemMenu("Catálogo", "fa-solid fa-magnifying-glass", "Cadastros", flgToolbar: true, new[] { PerfilUsuario.Vendedor, PerfilUsuario.Mecanico }, rota: "catalogo"),
         new ItemMenu("Orçamento", "fa-solid fa-file-lines", "Movimentos", flgToolbar: true, new[] { PerfilUsuario.Vendedor }),
         new ItemMenu("Pré-venda", "fa-solid fa-cart-shopping", "Movimentos", flgToolbar: true, new[] { PerfilUsuario.Vendedor }),
         new ItemMenu("Ordens de Serviço", "fa-solid fa-screwdriver-wrench", "Movimentos", flgToolbar: true, new[] { PerfilUsuario.Mecanico }),

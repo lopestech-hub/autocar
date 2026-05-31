@@ -1,5 +1,6 @@
 using System;
 using AutoCar.Desktop.ViewModels;
+using AutoCar.Desktop.ViewModels.Catalogo;
 using AutoCar.Desktop.ViewModels.Registrations;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -20,6 +21,7 @@ public sealed class Navegador : INavegador
         "clientes" => _sp.GetRequiredService<ClientesViewModel>(),
         "fornecedor" => _sp.GetRequiredService<FornecedoresViewModel>(),
         "produtos" => _sp.GetRequiredService<ProdutosViewModel>(),
+        "catalogo" => _sp.GetRequiredService<CatalogoViewModel>(),
         "marcas" => _sp.GetRequiredService<MarcasViewModel>(),
         "categorias" => _sp.GetRequiredService<CategoriasViewModel>(),
         _ => null,

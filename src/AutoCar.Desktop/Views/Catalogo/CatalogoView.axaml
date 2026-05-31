@@ -1,0 +1,66 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AutoCar.Desktop.ViewModels.Catalogo"
+             x:Class="AutoCar.Desktop.Views.Catalogo.CatalogoView"
+             x:DataType="vm:CatalogoViewModel">
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*" Margin="16">
+
+        <!-- Título + contador -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8"
+                    VerticalAlignment="Center" Margin="0,0,0,12">
+            <TextBlock Text="Catálogo"
+                       FontSize="14" FontWeight="SemiBold"
+                       Foreground="{DynamicResource BrushTexto}"
+                       VerticalAlignment="Center" />
+            <Border Background="{DynamicResource BrushFundoHeader}"
+                    BorderBrush="{DynamicResource BrushBorda}" BorderThickness="1"
+                    CornerRadius="10" Padding="8,1" VerticalAlignment="Center">
+                <TextBlock Text="{Binding TextoContador}"
+                           FontSize="11"
+                           Foreground="{DynamicResource BrushTextoSecundario}" />
+            </Border>
+            <TextBlock Text="Quais peças servem no veículo?"
+                       FontSize="11" Foreground="{DynamicResource BrushTextoMudo}"
+                       VerticalAlignment="Center" Margin="8,0,0,0" />
+        </StackPanel>
+
+        <!-- Filtros: Veículo (montadora/modelo/ano) + Peça -->
+        <Grid Grid.Row="1" ColumnDefinitions="Auto,160,Auto,160,Auto,80,Auto,*,Auto"
+              Margin="0,0,0,12">
+            <TextBlock Grid.Column="0" Classes="formlabel" Text="Montadora" />
+            <TextBox Grid.Column="1" Text="{Binding Montadora}"
+                     Watermark="VW, FIAT..." Margin="0,0,8,0" />
+            <TextBlock Grid.Column="2" Classes="formlabel" Text="Modelo" />
+            <TextBox Grid.Column="3" Text="{Binding Modelo}"
+                     Watermark="GOL, PALIO..." Margin="0,0,8,0" />
+            <TextBlock Grid.Column="4" Classes="formlabel" Text="Ano" />
+            <TextBox Grid.Column="5" Text="{Binding AnoTexto}"
+                     MaxLength="4" Watermark="2010" Margin="0,0,8,0" />
+            <TextBlock Grid.Column="6" Classes="formlabel" Text="Peça" />
+            <TextBox Grid.Column="7" Text="{Binding Termo}"
+                     Watermark="amortecedor, pastilha..." Margin="0,0,8,0" />
+            <Button Grid.Column="8" Content="Limpar" Classes="secundario"
+                    Command="{Binding LimparCommand}" Cursor="Hand" />
+        </Grid>
+
+        <ProgressBar Grid.Row="2" IsIndeterminate="True" Height="2"
+                     IsVisible="{Binding Carregando}" />
+
+        <Border Grid.Row="3"
+                Background="{DynamicResource BrushFundoCard}"
+                BorderBrush="{DynamicResource BrushBorda}"
+                BorderThickness="1"
+                CornerRadius="6"
+                ClipToBounds="True">
+            <Panel Name="TabelaContainer">
+                <TextBlock Text="{Binding MensagemErro}"
+                           IsVisible="{Binding MensagemErro, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                           Foreground="{DynamicResource BrushErro}"
+                           FontSize="11"
+                           HorizontalAlignment="Center" VerticalAlignment="Top"
+                           Margin="0,40,0,0" />
+            </Panel>
+        </Border>
+    </Grid>
+</UserControl>
