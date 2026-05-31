@@ -1,0 +1,186 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AutoCar.Desktop.ViewModels.Registrations"
+             xmlns:dto="using:AutoCar.Application.Modules.Registrations.Produtos.DTOs"
+             xmlns:b="using:AutoCar.Desktop.Behaviors"
+             x:Class="AutoCar.Desktop.Views.Registrations.ProdutoFormView"
+             x:DataType="vm:ProdutoFormViewModel">
+
+    <UserControl.Resources>
+        <!-- Combo de opção (Categoria/Marca/Fornecedor): mostra a descrição; item nulo vira "—". -->
+        <DataTemplate x:Key="OpcaoTemplate" x:DataType="dto:OpcaoDto">
+            <TextBlock Text="{Binding Descricao, FallbackValue=—, TargetNullValue=—}" />
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Border Margin="16"
+            Background="{DynamicResource BrushFundoCard}"
+            BorderBrush="{DynamicResource BrushBorda}"
+            BorderThickness="1"
+            CornerRadius="6">
+        <Grid RowDefinitions="Auto,*,Auto,Auto">
+
+            <!-- HEADER -->
+            <Border Grid.Row="0"
+                    BorderBrush="{DynamicResource BrushBorda}"
+                    BorderThickness="0,0,0,1"
+                    Padding="16,10">
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="{Binding Titulo}"
+                               FontSize="14" FontWeight="SemiBold"
+                               Foreground="{DynamicResource BrushTexto}"
+                               VerticalAlignment="Center" />
+                    <Border Background="#E0F2FE" CornerRadius="2" Padding="6,2"
+                            VerticalAlignment="Center" IsVisible="{Binding ModoVisualizacao}">
+                        <TextBlock Text="VISUALIZAÇÃO" FontSize="10" FontWeight="Medium" Foreground="#075985" />
+                    </Border>
+                    <Border Background="#FEF3C7" CornerRadius="2" Padding="6,2"
+                            VerticalAlignment="Center" IsVisible="{Binding !ModoVisualizacao}">
+                        <TextBlock Text="EDIÇÃO" FontSize="10" FontWeight="Medium" Foreground="#92400E" />
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <!-- CORPO denso agrupado em seções. Larguras controladas (campos não esticam até a borda):
+                 col 0 = label | col 1 = campo principal (380) | col 2 = label | col 3 = campo (200) | col 4 = sobra -->
+            <ScrollViewer Grid.Row="1" Padding="16,12" VerticalScrollBarVisibility="Auto">
+                <StackPanel Spacing="2" HorizontalAlignment="Left">
+
+                    <!-- ===== IDENTIFICAÇÃO ===== -->
+                    <Grid ColumnDefinitions="Auto,*" Width="780" HorizontalAlignment="Left" Margin="0,0,0,4">
+                        <TextBlock Grid.Column="0" Classes="formsecao" Text="IDENTIFICAÇÃO" />
+                        <Border Grid.Column="1" Classes="formsecaoLinha" />
+                    </Grid>
+                    <Grid RowSpacing="6" ColumnDefinitions="90,380,100,200">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" /><!-- 0: Descrição -->
+                            <RowDefinition Height="Auto" /><!-- 1: Complemento -->
+                            <RowDefinition Height="Auto" /><!-- 2: Cód. barras | Cód. fabricante -->
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Classes="formlabel" Text="Descrição" />
+                        <TextBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3"
+                                 Text="{Binding Descricao}" IsEnabled="{Binding !ModoVisualizacao}"
+                                 b:MaiusculoBehavior.Ativo="True"
+                                 Watermark="Ex: PASTILHA DE FREIO DIANTEIRA" />
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Classes="formlabel" Text="Compl." />
+                        <TextBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3"
+                                 Text="{Binding DescricaoComplementar}" IsEnabled="{Binding !ModoVisualizacao}"
+                                 b:MaiusculoBehavior.Ativo="True"
+                                 Watermark="Detalhe adicional (opcional)" />
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Classes="formlabel" Text="Cód. Barras" />
+                        <TextBox Grid.Row="2" Grid.Column="1"
+                                 Text="{Binding CodBarras}" IsEnabled="{Binding !ModoVisualizacao}"
+                                 HorizontalAlignment="Left" Width="180"
+                                 Watermark="EAN/GTIN (opcional)" />
+                        <TextBlock Grid.Row="2" Grid.Column="2" Classes="formlabel" Text="Cód. Fabric." />
+                        <TextBox Grid.Row="2" Grid.Column="3"
+                                 Text="{Binding CodFabricante}" IsEnabled="{Binding !ModoVisualizacao}"
+                                 Watermark="Referência (opcional)" />
+                    </Grid>
+
+                    <!-- ===== CLASSIFICAÇÃO ===== -->
+                    <Grid ColumnDefinitions="Auto,*" Width="780" HorizontalAlignment="Left" Margin="0,12,0,4">
+                        <TextBlock Grid.Column="0" Classes="formsecao" Text="CLASSIFICAÇÃO" />
+                        <Border Grid.Column="1" Classes="formsecaoLinha" />
+                    </Grid>
+                    <Grid RowSpacing="6" ColumnDefinitions="90,380,100,200">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" /><!-- 0: Categoria | Marca -->
+                            <RowDefinition Height="Auto" /><!-- 1: Unidade | Fornecedor -->
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Classes="formlabel" Text="Categoria" />
+                        <ComboBox Grid.Row="0" Grid.Column="1"
+                                  ItemsSource="{Binding Categorias}"
+                                  SelectedItem="{Binding CategoriaSelecionada}"
+                                  ItemTemplate="{StaticResource OpcaoTemplate}"
+                                  IsEnabled="{Binding !ModoVisualizacao}"
+                                  HorizontalAlignment="Left" Width="260" />
+                        <TextBlock Grid.Row="0" Grid.Column="2" Classes="formlabel" Text="Marca" />
+                        <ComboBox Grid.Row="0" Grid.Column="3"
+                                  ItemsSource="{Binding Marcas}"
+                                  SelectedItem="{Binding MarcaSelecionada}"
+                                  ItemTemplate="{StaticResource OpcaoTemplate}"
+                                  IsEnabled="{Binding !ModoVisualizacao}"
+                                  HorizontalAlignment="Left" Width="200" />
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Classes="formlabel" Text="Unidade" />
+                        <ComboBox Grid.Row="1" Grid.Column="1"
+                                  ItemsSource="{Binding Unidades}"
+                                  SelectedItem="{Binding Unidade}"
+                                  IsEnabled="{Binding !ModoVisualizacao}"
+                                  HorizontalAlignment="Left" Width="100" />
+                        <TextBlock Grid.Row="1" Grid.Column="2" Classes="formlabel" Text="Fornecedor" />
+                        <ComboBox Grid.Row="1" Grid.Column="3"
+                                  ItemsSource="{Binding Fornecedores}"
+                                  SelectedItem="{Binding FornecedorSelecionado}"
+                                  ItemTemplate="{StaticResource OpcaoTemplate}"
+                                  IsEnabled="{Binding !ModoVisualizacao}"
+                                  HorizontalAlignment="Left" Width="200" />
+                    </Grid>
+
+                    <!-- ===== VALORES ===== -->
+                    <Grid ColumnDefinitions="Auto,*" Width="780" HorizontalAlignment="Left" Margin="0,12,0,4">
+                        <TextBlock Grid.Column="0" Classes="formsecao" Text="VALORES" />
+                        <Border Grid.Column="1" Classes="formsecaoLinha" />
+                    </Grid>
+                    <Grid RowSpacing="6" ColumnDefinitions="90,120,100,120,90,Auto">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" /><!-- 0: Custo | Venda | Margem -->
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Classes="formlabel" Text="Custo" />
+                        <TextBox Grid.Row="0" Grid.Column="1"
+                                 Text="{Binding VlrCustoTexto}" IsEnabled="{Binding !ModoVisualizacao}"
+                                 Watermark="0,00" />
+                        <TextBlock Grid.Row="0" Grid.Column="2" Classes="formlabel" Text="Venda" />
+                        <TextBox Grid.Row="0" Grid.Column="3"
+                                 Text="{Binding VlrVendaTexto}" IsEnabled="{Binding !ModoVisualizacao}"
+                                 Watermark="0,00" />
+                        <TextBlock Grid.Row="0" Grid.Column="4" Classes="formlabel" Text="Margem" />
+                        <TextBlock Grid.Row="0" Grid.Column="5"
+                                   Text="{Binding MargemTexto}"
+                                   FontSize="12" FontFamily="{DynamicResource FonteMono}"
+                                   Foreground="{DynamicResource BrushTextoSecundario}"
+                                   VerticalAlignment="Center" />
+                    </Grid>
+
+                    <!-- mensagem de erro -->
+                    <TextBlock Text="{Binding MensagemErro}"
+                               IsVisible="{Binding MensagemErro, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                               Foreground="{DynamicResource BrushErro}" FontSize="11"
+                               TextWrapping="Wrap" Margin="0,12,0,0" />
+                </StackPanel>
+            </ScrollViewer>
+
+            <ProgressBar Grid.Row="2" IsIndeterminate="True" Height="2"
+                         IsVisible="{Binding Carregando}" />
+
+            <!-- RODAPÉ dois modos -->
+            <Border Grid.Row="3"
+                    BorderBrush="{DynamicResource BrushBorda}"
+                    BorderThickness="0,1,0,0"
+                    Padding="16,12">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                    <Button Content="Fechar" Classes="secundario"
+                            Command="{Binding CancelarCommand}"
+                            IsVisible="{Binding ModoVisualizacao}" Cursor="Hand" />
+                    <Button Content="Editar" Classes="primario"
+                            Command="{Binding HabilitarEdicaoCommand}"
+                            IsVisible="{Binding ModoVisualizacao}" Cursor="Hand" />
+                    <Button Content="Cancelar" Classes="secundario"
+                            Command="{Binding CancelarCommand}"
+                            IsVisible="{Binding !ModoVisualizacao}"
+                            IsEnabled="{Binding !Carregando}" Cursor="Hand" />
+                    <Button Content="Salvar" Classes="primario"
+                            Command="{Binding SalvarCommand}"
+                            IsVisible="{Binding !ModoVisualizacao}"
+                            IsEnabled="{Binding !Carregando}" Cursor="Hand" />
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>

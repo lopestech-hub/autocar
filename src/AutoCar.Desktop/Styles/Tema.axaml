@@ -160,12 +160,22 @@
         <Setter Property="Margin" Value="0,0,8,0" />
     </Style>
 
-    <!-- Título de seção dentro de formulário (ex: "Endereço") -->
+    <!-- Título de seção dentro de formulário (ex: "IDENTIFICAÇÃO"). Cor da marca (azul
+         primário) para destacar o agrupamento sem competir com as labels cinza dos campos.
+         Acompanhar de uma linha divisória (Border 1px) ao lado — ver formsecaoLinha. -->
     <Style Selector="TextBlock.formsecao">
         <Setter Property="FontSize" Value="11" />
         <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="Foreground" Value="{DynamicResource BrushTextoSecundario}" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushPrimario}" />
         <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <!-- Linha divisória que acompanha o título de seção (preenche a largura ao lado do texto). -->
+    <Style Selector="Border.formsecaoLinha">
+        <Setter Property="Height" Value="1" />
+        <Setter Property="Background" Value="{DynamicResource BrushBordaSuave}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="8,0,0,0" />
     </Style>
 
     <!-- TextBox padrão (24px). MinHeight=24 é obrigatório: o FluentTheme usa MinHeight 32

@@ -23,6 +23,8 @@ public class AppDbContext : DbContext
 
     public DbSet<CategoriaProduto> Categorias => Set<CategoriaProduto>();
 
+    public DbSet<Produto> Produtos => Set<Produto>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

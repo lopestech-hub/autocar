@@ -19,6 +19,7 @@ public sealed class Navegador : INavegador
     {
         "clientes" => _sp.GetRequiredService<ClientesViewModel>(),
         "fornecedor" => _sp.GetRequiredService<FornecedoresViewModel>(),
+        "produtos" => _sp.GetRequiredService<ProdutosViewModel>(),
         "marcas" => _sp.GetRequiredService<MarcasViewModel>(),
         "categorias" => _sp.GetRequiredService<CategoriasViewModel>(),
         _ => null,

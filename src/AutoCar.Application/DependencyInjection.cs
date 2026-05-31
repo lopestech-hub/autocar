@@ -33,6 +33,9 @@ public static class DependencyInjection
         services.AddScoped<ICategoriaProdutoService, CategoriaProdutoService>();
         services.AddScoped<IValidator<SalvarCategoriaProdutoDto>, SalvarCategoriaProdutoValidator>();
 
+        services.AddScoped<IProdutoService, ProdutoService>();
+        services.AddScoped<IValidator<SalvarProdutoDto>, SalvarProdutoValidator>();
+
         return services;
     }
 }

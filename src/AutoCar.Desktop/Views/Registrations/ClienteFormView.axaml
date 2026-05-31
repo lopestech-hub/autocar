@@ -105,8 +105,10 @@
                              Text="{Binding Email}" IsEnabled="{Binding !ModoVisualizacao}" />
 
                     <!-- Linha 4: seção Endereço -->
-                    <TextBlock Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="6" Classes="formsecao"
-                               Text="ENDEREÇO" Margin="0,8,0,2" />
+                    <DockPanel Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="6" Margin="0,8,0,2" LastChildFill="True">
+                        <TextBlock DockPanel.Dock="Left" Classes="formsecao" Text="ENDEREÇO" />
+                        <Border Classes="formsecaoLinha" />
+                    </DockPanel>
 
                     <!-- Linha 5: CEP | Logradouro | Número (rótulo "Número" na coluna de label 4,
                          alinhado à direita como os demais; campo na coluna 5) -->
@@ -142,9 +144,11 @@
                              Text="{Binding Uf}" MaxLength="2" IsEnabled="{Binding !ModoVisualizacao}"
                              HorizontalAlignment="Left" Width="60" />
 
-                    <!-- Linha 8: seção Outros -->
-                    <TextBlock Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="6" Classes="formsecao"
-                               Text="OBSERVAÇÃO" Margin="0,8,0,2" />
+                    <!-- Linha 8: seção Observação -->
+                    <DockPanel Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="6" Margin="0,8,0,2" LastChildFill="True">
+                        <TextBlock DockPanel.Dock="Left" Classes="formsecao" Text="OBSERVAÇÃO" />
+                        <Border Classes="formsecaoLinha" />
+                    </DockPanel>
 
                     <!-- Linha 9: Observação -->
                     <TextBox Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="6"

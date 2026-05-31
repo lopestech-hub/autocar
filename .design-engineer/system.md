@@ -52,6 +52,11 @@ CornerRadius: controles 2px · cards 6px · ícone-marcador 3px.
 - `Button.toolbaritem` — atalho da toolbar do shell (ícone grande + legenda, 76×64, alinhado ao topo)
 - `Menu.topo` / `Menu.topo > MenuItem` — menu superior de texto
 - `TextBox.login` — input de 28px da tela de login
+- `TextBlock.formlabel` — label à direita do campo (cinza secundário, 12px). Em todo cadastro.
+- `TextBlock.formsecao` — título de seção em **azul primário** + SemiBold (ex: "IDENTIFICAÇÃO"). Destaca o
+  grupo sem competir com as labels cinza. Acompanhar SEMPRE de `Border.formsecaoLinha` ao lado.
+- `Border.formsecaoLinha` — linha divisória 1px (`BrushBordaSuave`) que preenche a largura ao lado do
+  título de seção, dando o ar de "cabeçalho de grupo".
 
 > ⚠️ **NÃO existe classe `toolbar`** — só `toolbaritem` (atalho do shell). Botão com `Classes="toolbar"`
 > cai no estilo default do FluentTheme e fica apagado/cinza. Para botões de ação em listagens use
@@ -77,10 +82,30 @@ CornerRadius: controles 2px · cards 6px · ícone-marcador 3px.
   centralizado). Campos longos usam `Grid.ColumnSpan`.
 - **Compacto**: campos 24px, espaçamento vertical 6px entre linhas. Operador vê o cadastro quase
   todo sem rolar.
-- **Seções** com `TextBlock.formsecao` (ex: "ENDEREÇO"), `ColumnSpan` total, margem `0,8,0,2`.
+- **Seções** = título azul (`TextBlock.formsecao`) + linha divisória (`Border.formsecaoLinha`) ao lado,
+  preenchendo a largura. Dois jeitos de montar o par, conforme o layout do form:
+  - **Grid único** (Cliente, Fornecedor): a seção ocupa uma linha com `Grid.ColumnSpan` total. Envolver
+    título+linha num `DockPanel LastChildFill="True"` (título `DockPanel.Dock="Left"` + Border).
+  - **StackPanel de blocos** (Produto): cada seção é um `Grid ColumnDefinitions="Auto,*"` (título col 0 +
+    Border col 1). Ver `ProdutoFormView.axaml`.
+  - Margem do bloco de seção: `0,8,0,2` (primeira) / `0,12,0,4` (demais, mais respiro entre grupos).
 - Header: título + badge VISUALIZAÇÃO/EDIÇÃO. Rodapé dois modos (Fechar/Editar ↔ Cancelar/Salvar).
-- Classes novas no Tema: `TextBlock.formlabel` (label à direita) e `TextBlock.formsecao` (título de seção).
-- Referência viva: `Views/Registrations/ClienteFormView.axaml`.
+- Classes no Tema: `TextBlock.formlabel`, `TextBlock.formsecao` (azul), `Border.formsecaoLinha`.
+- Referência viva: `ClienteFormView.axaml` (Grid único) e `ProdutoFormView.axaml` (blocos em seções).
+
+### Formulário em blocos de seção — variante para cadastros com poucos campos (PADRÃO do Produto)
+
+> Quando o cadastro tem poucos campos, o Grid único de Cliente/Fornecedor deixa um vazião embaixo e
+> espalha os pares. Para esses casos, agrupar em **blocos de seção** com largura controlada.
+> Julio aprovou esse layout para o Produto ("agora eu amei").
+
+- **StackPanel `HorizontalAlignment="Left"`** com um bloco por grupo (IDENTIFICAÇÃO, CLASSIFICAÇÃO, VALORES).
+- **Largura controlada, não esticar até a borda**: cada campo com `Width` adequado ao conteúdo
+  (`HorizontalAlignment="Left"`) — descrição larga, códigos/valores estreitos. Evita o "campo gigante".
+- Cada bloco é um `Grid` próprio (`RowSpacing="6"`, colunas `label,campo,label,campo`). Campos longos com
+  `ColumnSpan`. A linha de seção usa `Width` fixo (ex: 780) para o divisor não cruzar a tela inteira.
+- **Valor calculado read-only** (ex: Margem % do Produto = `(venda-custo)/custo`) como `TextBlock` em
+  `FonteMono`, cinza, ao lado dos campos de valor. Recalcula via `OnXChanged` no ViewModel; "—" sem base.
 
 ### Janela de Login (LoginWindow)
 

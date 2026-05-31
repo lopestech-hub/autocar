@@ -113,8 +113,10 @@
                              Watermark="Nome do vendedor/representante" />
 
                     <!-- Linha 5: seção Endereço -->
-                    <TextBlock Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="6" Classes="formsecao"
-                               Text="ENDEREÇO" Margin="0,8,0,2" />
+                    <DockPanel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="6" Margin="0,8,0,2" LastChildFill="True">
+                        <TextBlock DockPanel.Dock="Left" Classes="formsecao" Text="ENDEREÇO" />
+                        <Border Classes="formsecaoLinha" />
+                    </DockPanel>
 
                     <!-- Linha 6: CEP | Logradouro | Número (rótulo "Número" na coluna de label 4,
                          alinhado à direita como os demais; campo na coluna 5) -->
@@ -151,8 +153,10 @@
                              HorizontalAlignment="Left" Width="60" />
 
                     <!-- Linha 9: seção Observação -->
-                    <TextBlock Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="6" Classes="formsecao"
-                               Text="OBSERVAÇÃO" Margin="0,8,0,2" />
+                    <DockPanel Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="6" Margin="0,8,0,2" LastChildFill="True">
+                        <TextBlock DockPanel.Dock="Left" Classes="formsecao" Text="OBSERVAÇÃO" />
+                        <Border Classes="formsecaoLinha" />
+                    </DockPanel>
 
                     <!-- Linha 10: Observação -->
                     <TextBox Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="6"
