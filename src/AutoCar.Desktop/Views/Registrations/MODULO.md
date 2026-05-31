@@ -109,6 +109,54 @@ Cadastros mestre **auxiliares do Produto** (FK futura). Enxutos: só descrição
 - Descrição única (case-insensitive) e obrigatória; salva em CAIXA ALTA.
 - Inativar em vez de excluir (`flg_ativo`).
 
+## Produto
+
+Cadastro mestre central do catálogo. Consome Marca, Categoria e Fornecedor via FK. **Saldo de
+estoque NÃO mora aqui** — fica no módulo de Estoque (Fase 3).
+
+### Tabela `produto` (mestre)
+
+- `id_produto` (uuid PK), `cod_produto` (int identity)
+- `cod_barras` (varchar 20, opcional — **único quando informado**, índice único parcial
+  `WHERE cod_barras IS NOT NULL`)
+- `descricao` (varchar 120), `descricao_complementar` (varchar 160), `cod_fabricante` (varchar 40)
+- `sts_unidade` (int — enum `UnidadeMedida`: UN, PC, CX, JG, PAR, KIT, L, KG, M)
+- `vlr_custo`, `vlr_venda` (decimal 10,2)
+- `id_categoria` (FK **obrigatória** → `categoria_produto`, `Restrict`)
+- `id_marca`, `id_fornecedor` (FKs **opcionais** → `marca`/`fornecedor`, `Restrict`)
+- `flg_ativo`, `dat_criacao`, `dat_atualizacao` (UTC), `xmin` (concorrência)
+- Índices: `ix_produto_cod` (único), `ix_produto_cod_barras` (único parcial), `ix_produto_descricao`,
+  + os de FK. Migration: `CadastroProduto`.
+
+### Camadas / Telas
+
+- **Domain:** `Produto` (entidade rica, descrição/complementar em CAIXA ALTA; códigos só `Trim`),
+  enum `UnidadeMedida`, `IProdutoRepository`.
+- **Application:** módulo `Produtos` — `ProdutoService` (CRUD com `Result<T>` + métodos
+  `ListarCategorias/Marcas/Fornecedores` para os combos), DTOs (`SalvarProdutoDto`, `ProdutoDto`,
+  `ProdutoListaDto`, `OpcaoDto`), `SalvarProdutoValidator`.
+- **Infrastructure:** `ProdutoConfiguration` (FKs + índice único parcial + xmin), `ProdutoRepository`
+  (`Include` das navegações; filtro `ILike` por descrição/cod_barras/cod_fabricante).
+- **Desktop:** `ProdutosViewModel` (listagem) + `ProdutoFormViewModel` (form em blocos de seção,
+  combos de FK selecionados por Id, margem % calculada). `ProdutosView` (Grid único:
+  CÓDIGO · DESCRIÇÃO · CATEGORIA · MARCA · UN · VENDA · STATUS) + `ProdutoFormView`. Rota `produtos`.
+
+### Regras de Negócio
+
+- **Categoria obrigatória** (validada no service via `ObterPorIdAsync`); Marca e Fornecedor opcionais.
+- **cod_barras único quando informado** — checado no service (`ExisteCodBarrasAsync`) + índice parcial.
+- Descrição obrigatória; valores não-negativos; unidade do enum.
+- **Margem %** = `(venda - custo) / custo` exibida na tela (somente leitura; "—" sem custo).
+- Inativar em vez de excluir (`flg_ativo`).
+
+### Decisões Técnicas
+
+- **Combos de FK selecionam por Id na coleção** (`FirstOrDefault(x => x.Id == ...)`) — Avalonia faz
+  matching por referência; a navegação do EF é instância diferente da do combo. Marca/Fornecedor têm
+  item nulo ("—") para o opcional. Ver [[combobox-avalonia-selecao-id]] (memória global).
+- **Listagem sem paginação** (dívida) — alinhado ao padrão dos demais cadastros; revisar quando o
+  volume de produtos crescer.
+
 ## Decisões Técnicas (UI do módulo)
 
 Padrões de UI estabelecidos nesta fase, reaproveitáveis pelos próximos cadastros (ver também a skill
@@ -122,6 +170,10 @@ global `/design-engineer-desktop`):
   na coluna de label do Grid.
 - **FluentTheme:** cores de ComboBox/Menu corrigidas via resource-keys no `Tema.axaml` (não `/template/`
   em `:pointerover`, que causa flicker). Altura de campo 24px exige `MinHeight=24`.
+- **Seções de formulário:** título em **azul primário** (`TextBlock.formsecao`) + **linha divisória**
+  (`Border.formsecaoLinha`) que preenche a largura ao lado. Dois jeitos de montar conforme o layout:
+  `DockPanel` (Grid único — Cliente/Fornecedor) ou `Grid Auto,*` (blocos — Produto). Detalhes e a
+  variante "formulário em blocos de seção" no `system.md` da Luna.
 
 ## Dependências
 

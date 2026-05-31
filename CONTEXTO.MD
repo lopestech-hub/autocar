@@ -27,7 +27,7 @@ Concorrência de estoque tratada com controle otimista (`xmin`) — risco nº 1 
 | Módulo | Pasta (MODULO.md) | Estado |
 |--------|-------------------|--------|
 | Segurança (login, perfis) | [Security](src/AutoCar.Desktop/Views/Security/MODULO.md) | ✅ Fase 1 |
-| Cadastros (Cliente ✅; Fornecedor ✅; Marca ✅; Categoria ✅; Produto ⏳) | [Registrations](src/AutoCar.Desktop/Views/Registrations/MODULO.md) | 🔄 Fase 2 |
+| Cadastros (Cliente ✅; Fornecedor ✅; Marca ✅; Categoria ✅; Produto ✅) | [Registrations](src/AutoCar.Desktop/Views/Registrations/MODULO.md) | 🔄 Fase 2 |
 | Catálogo automotivo (peças, aplicação por veículo) | _a criar (Fase 2)_ | ⏳ |
 | Estoque (entrada por compra) | _a criar (Fase 3)_ | ⏳ |
 | Vendas / Balcão | _a criar (Fase 3)_ | ⏳ |
@@ -50,8 +50,16 @@ Cadastros auxiliares do Produto concluídos: **Marca** e **Categoria** (CRUD enx
 unicidade case-insensitive — no menu Cadastros, perfil Vendedor). Tema padronizado nesta rodada:
 ComboBox/menu corrigidos para o FluentTheme (cores via resource-key, não via `/template/` — evita
 flicker), campos a 24px (`MinHeight` obrigatório), CAIXA ALTA automática em nomes/endereço, valores
-monetários como `TextBox` (não `NumericUpDown`). Próximo: **Produto** (mestre, com FK para
-Marca/Categoria/Fornecedor).
+monetários como `TextBox` (não `NumericUpDown`).
+
+**Produto (mestre) concluído.** Tabela `produto` com FK para `categoria_produto` (obrigatória),
+`marca` e `fornecedor` (opcionais). Campos: cod_barras (único quando informado — índice único
+parcial), descrição, descrição complementar, cod_fabricante, unidade (enum `UnidadeMedida`),
+vlr_custo, vlr_venda. Saldo de estoque NÃO mora aqui (fica na Fase 3). Tela: listagem Grid único +
+formulário em **blocos de seção** (IDENTIFICAÇÃO/CLASSIFICAÇÃO/VALORES) com largura controlada e
+margem % calculada. Nesta rodada também: seções de formulário ganharam **título azul + linha
+divisória** (classes `formsecao`/`formsecaoLinha` no Tema), aplicado em Cliente, Fornecedor e Produto.
+Próximo: aplicação por veículo (montadora/modelo/ano — texto livre no MVP).
 
 Admin de teste: usuário **`julio`** / senha `123` (trocar).
 
@@ -88,13 +96,13 @@ Um perfil por usuário. Admin vê tudo.
 
 ## Próximos Passos
 
-1. **Produto** (mestre): tabela `produto` com FK para `marca`/`categoria_produto`/`fornecedor`, campos
-   cod_barras, descrição, descrição complementar, cod_fabricante, unidade, vlr_custo, vlr_venda.
-   Reaproveitar o padrão de cadastro (e a skill `/novo-cadastro`).
-2. Depois do Produto: aplicação por veículo (montadora/modelo/ano — texto livre no MVP)
-3. Definir o que fazer com "Catálogo" na navegação
-4. Implementar a busca global de verdade (atalho "Buscar" hoje é placeholder)
-5. Tela de troca de senha no primeiro acesso
+1. **Aplicação por veículo** (montadora/modelo/ano — texto livre no MVP): vincular ao Produto para
+   o catálogo automotivo.
+2. Definir o que fazer com "Catálogo" na navegação
+3. Implementar a busca global de verdade (atalho "Buscar" hoje é placeholder)
+4. Tela de troca de senha no primeiro acesso
+5. (dívida) Paginação na listagem de Produto quando o volume crescer (hoje sem `Take`/`Skip`,
+   alinhado ao padrão dos demais cadastros)
 
 ## Histórico de Mudanças
 
@@ -109,3 +117,5 @@ Um perfil por usuário. Admin vê tudo.
 | 2026-05-29 | Fase 2: cadastros Marca e Categoria (CRUD enxuto, unicidade case-insensitive) — base do Produto |
 | 2026-05-29 | UI: correção do menu de texto + padronização de tema (FluentTheme via resource-keys, MinHeight 24, CAIXA ALTA, NumericUpDown→TextBox) |
 | 2026-05-29 | Setup Claude Code: MCP context7, subagent avalonia-reviewer, skill /novo-cadastro, hook anti-edição de migration |
+| 2026-05-31 | Fase 2: cadastro Produto (mestre) — FK categoria/marca/fornecedor, unidade enum, cod_barras único parcial, margem calculada |
+| 2026-05-31 | UI: padronização das seções de formulário (título azul + linha) em Cliente/Fornecedor/Produto; hook PostToolUse lembra o system.md ao editar .axaml |
