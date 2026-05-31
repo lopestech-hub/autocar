@@ -3,6 +3,7 @@ using System;
 using AutoCar.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AutoCar.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260531053833_AplicacaoProduto")]
+    partial class AplicacaoProduto
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -377,6 +380,12 @@ namespace AutoCar.Infrastructure.Persistence.Migrations
                         .HasColumnType("decimal(10,2)")
                         .HasColumnName("vlr_venda");
 
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CodBarras")
@@ -566,7 +575,7 @@ namespace AutoCar.Infrastructure.Persistence.Migrations
 
                             b1.HasKey("ClienteId");
 
-                            b1.ToTable("cliente", (string)null);
+                            b1.ToTable("cliente");
 
                             b1.WithOwner()
                                 .HasForeignKey("ClienteId");
@@ -620,7 +629,7 @@ namespace AutoCar.Infrastructure.Persistence.Migrations
 
                             b1.HasKey("FornecedorId");
 
-                            b1.ToTable("fornecedor", (string)null);
+                            b1.ToTable("fornecedor");
 
                             b1.WithOwner()
                                 .HasForeignKey("FornecedorId");

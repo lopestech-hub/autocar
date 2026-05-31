@@ -41,9 +41,9 @@ public sealed class ProdutoService : IProdutoService
         var produto = new Produto(
             dto.IdCategoria, dto.Descricao, dto.DescricaoComplementar, dto.CodBarras,
             dto.CodFabricante, dto.Unidade, dto.VlrCusto, dto.VlrVenda, dto.IdMarca, dto.IdFornecedor);
+        produto.DefinirAplicacoes(MapearAplicacoes(dto.Aplicacoes));
 
         await _produtos.AdicionarAsync(produto, ct);
-        await _produtos.SalvarAsync(ct);
 
         return Result.Ok(Mapear(produto));
     }
@@ -54,18 +54,21 @@ public sealed class ProdutoService : IProdutoService
         if (erro is not null)
             return Result.Falhar<ProdutoDto>(erro);
 
-        var produto = await _produtos.ObterPorIdAsync(id, ct);
-        if (produto is null)
+        var existe = await _produtos.ObterPorIdAsync(id, ct);
+        if (existe is null)
             return Result.Falhar<ProdutoDto>(Error.NaoEncontrado("Produto não encontrado."));
 
-        produto.AlterarDados(
-            dto.IdCategoria, dto.Descricao, dto.DescricaoComplementar, dto.CodBarras,
-            dto.CodFabricante, dto.Unidade, dto.VlrCusto, dto.VlrVenda, dto.IdMarca, dto.IdFornecedor);
+        // O repositório carrega o produto rastreado num contexto próprio, aplica a alteração e salva.
+        await _produtos.AtualizarAsync(id, produto =>
+        {
+            produto.AlterarDados(
+                dto.IdCategoria, dto.Descricao, dto.DescricaoComplementar, dto.CodBarras,
+                dto.CodFabricante, dto.Unidade, dto.VlrCusto, dto.VlrVenda, dto.IdMarca, dto.IdFornecedor);
+            produto.DefinirAplicacoes(MapearAplicacoes(dto.Aplicacoes));
+        }, ct);
 
-        _produtos.Atualizar(produto);
-        await _produtos.SalvarAsync(ct);
-
-        return Result.Ok(Mapear(produto));
+        var atualizado = await _produtos.ObterPorIdAsync(id, ct);
+        return Result.Ok(Mapear(atualizado!));
     }
 
     public async Task<Result> InativarAsync(Guid id, CancellationToken ct = default)
@@ -74,9 +77,7 @@ public sealed class ProdutoService : IProdutoService
         if (produto is null)
             return Result.Falhar(Error.NaoEncontrado("Produto não encontrado."));
 
-        produto.Inativar();
-        _produtos.Atualizar(produto);
-        await _produtos.SalvarAsync(ct);
+        await _produtos.AtualizarAsync(id, p => p.Inativar(), ct);
         return Result.Ok();
     }
 
@@ -133,7 +134,14 @@ public sealed class ProdutoService : IProdutoService
         return null;
     }
 
+    // Converte os DTOs de aplicação em entidades (linhas vazias são descartadas).
+    private static IEnumerable<ProdutoAplicacao> MapearAplicacoes(IReadOnlyList<AplicacaoDto> aplicacoes) =>
+        aplicacoes
+            .Where(a => !string.IsNullOrWhiteSpace(a.Montadora) || !string.IsNullOrWhiteSpace(a.Modelo))
+            .Select(a => new ProdutoAplicacao(a.Montadora, a.Modelo, a.AnoInicio, a.AnoFim, a.Observacao));
+
     private static ProdutoDto Mapear(Produto p) => new(
         p.Id, p.CodProduto, p.IdCategoria, p.Descricao, p.DescricaoComplementar, p.CodBarras,
-        p.CodFabricante, p.Unidade, p.VlrCusto, p.VlrVenda, p.IdMarca, p.IdFornecedor, p.FlgAtivo);
+        p.CodFabricante, p.Unidade, p.VlrCusto, p.VlrVenda, p.IdMarca, p.IdFornecedor, p.FlgAtivo,
+        p.Aplicacoes.Select(a => new AplicacaoDto(a.Montadora, a.Modelo, a.AnoInicio, a.AnoFim, a.Observacao)).ToList());
 }

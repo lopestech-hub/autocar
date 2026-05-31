@@ -47,6 +47,9 @@ public partial class ProdutoFormViewModel : ViewModelBase
     /// <summary>Fornecedores para o combo (opcional — inclui item nulo "—").</summary>
     public ObservableCollection<OpcaoDto?> Fornecedores { get; } = new();
 
+    /// <summary>Aplicações por veículo (mini-grid editável). Salvas junto com o produto.</summary>
+    public ObservableCollection<AplicacaoItemViewModel> Aplicacoes { get; } = new();
+
     [ObservableProperty] private string _descricao = string.Empty;
     [ObservableProperty] private string? _descricaoComplementar;
     [ObservableProperty] private string? _codBarras;
@@ -115,6 +118,7 @@ public partial class ProdutoFormViewModel : ViewModelBase
         CategoriaSelecionada = null;
         MarcaSelecionada = null;
         FornecedorSelecionado = null;
+        Aplicacoes.Clear();
         MensagemErro = null;
         ModoVisualizacao = false;
         OnPropertyChanged(nameof(Titulo));
@@ -151,6 +155,10 @@ public partial class ProdutoFormViewModel : ViewModelBase
             MarcaSelecionada = Marcas.FirstOrDefault(m => m?.Id == p.IdMarca);
             FornecedorSelecionado = Fornecedores.FirstOrDefault(f => f?.Id == p.IdFornecedor);
 
+            Aplicacoes.Clear();
+            foreach (var a in p.Aplicacoes)
+                Aplicacoes.Add(new AplicacaoItemViewModel(a.Montadora, a.Modelo, a.AnoInicio, a.AnoFim, a.Observacao));
+
             ModoVisualizacao = true;
             OnPropertyChanged(nameof(Titulo));
         }
@@ -181,10 +189,16 @@ public partial class ProdutoFormViewModel : ViewModelBase
                 return;
             }
 
+            // Descarta linhas vazias; o service normaliza CAIXA ALTA e grava substituindo as antigas.
+            var aplicacoes = Aplicacoes
+                .Where(a => a.TemConteudo)
+                .Select(a => new AplicacaoDto(a.Montadora, a.Modelo, a.AnoInicio, a.AnoFim, a.Observacao))
+                .ToList();
+
             var dto = new SalvarProdutoDto(
                 CategoriaSelecionada.Id, Descricao, DescricaoComplementar, CodBarras,
                 CodFabricante, Unidade, VlrCusto, VlrVenda,
-                MarcaSelecionada?.Id, FornecedorSelecionado?.Id);
+                MarcaSelecionada?.Id, FornecedorSelecionado?.Id, aplicacoes);
 
             var resultado = _id is null
                 ? await _produtos.CriarAsync(dto)
@@ -207,6 +221,16 @@ public partial class ProdutoFormViewModel : ViewModelBase
         {
             Carregando = false;
         }
+    }
+
+    [RelayCommand]
+    private void AdicionarAplicacao() => Aplicacoes.Add(new AplicacaoItemViewModel());
+
+    [RelayCommand]
+    private void RemoverAplicacao(AplicacaoItemViewModel? item)
+    {
+        if (item is not null)
+            Aplicacoes.Remove(item);
     }
 
     [RelayCommand]

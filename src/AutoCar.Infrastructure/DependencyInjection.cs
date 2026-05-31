@@ -17,6 +17,12 @@ public static class DependencyInjection
         services.AddDbContext<AppDbContext>(options =>
             options.UseNpgsql(connectionString));
 
+        // Factory para repositórios que precisam de um DbContext novo por operação (evita xmin
+        // defasado do contexto de longa duração). Usado pelo ProdutoRepository; os demais repos
+        // ainda usam o AppDbContext injetado. Veja IProdutoRepository.AtualizarAsync.
+        services.AddDbContextFactory<AppDbContext>(options =>
+            options.UseNpgsql(connectionString), lifetime: ServiceLifetime.Scoped);
+
         services.AddScoped<IUsuarioRepository, UsuarioRepository>();
         services.AddScoped<IClienteRepository, ClienteRepository>();
         services.AddScoped<IFornecedorRepository, FornecedorRepository>();

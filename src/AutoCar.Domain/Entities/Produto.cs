@@ -74,6 +74,13 @@ public class Produto : EntidadeBase
     public Marca? Marca { get; protected set; }
     public Fornecedor? Fornecedor { get; protected set; }
 
+    // Aplicações por veículo (1:N). Backing field para expor como somente leitura.
+    private readonly List<ProdutoAplicacao> _aplicacoes = new();
+
+    /// <summary>Veículos em que este produto se aplica (montadora/modelo/ano). Somente leitura;
+    /// alterar via <see cref="DefinirAplicacoes"/>.</summary>
+    public IReadOnlyList<ProdutoAplicacao> Aplicacoes => _aplicacoes;
+
     public bool FlgAtivo { get; protected set; }
 
     public void AlterarDados(
@@ -98,6 +105,15 @@ public class Produto : EntidadeBase
         VlrVenda = vlrVenda;
         IdMarca = idMarca;
         IdFornecedor = idFornecedor;
+        MarcarAtualizada();
+    }
+
+    /// <summary>Substitui todas as aplicações por veículo (padrão "salva junto" — o form envia a
+    /// lista completa a cada gravação). O EF remove as antigas (Cascade) e insere as novas.</summary>
+    public void DefinirAplicacoes(IEnumerable<ProdutoAplicacao> aplicacoes)
+    {
+        _aplicacoes.Clear();
+        _aplicacoes.AddRange(aplicacoes);
         MarcarAtualizada();
     }
 

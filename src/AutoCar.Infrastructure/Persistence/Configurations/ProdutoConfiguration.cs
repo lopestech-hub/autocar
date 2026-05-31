@@ -113,11 +113,20 @@ public class ProdutoConfiguration : IEntityTypeConfiguration<Produto>
         builder.HasIndex(p => p.Descricao)
             .HasDatabaseName("ix_produto_descricao");
 
-        // Concorrência otimista via system column xmin (mesmo padrão de Cliente/Marca).
-        builder.Property<uint>("xmin")
-            .HasColumnName("xmin")
-            .HasColumnType("xid")
-            .ValueGeneratedOnAddOrUpdate()
-            .IsRowVersion();
+        // Aplicações por veículo (1:N) — apaga as aplicações junto com o produto pai (Cascade).
+        // A coleção é exposta como somente leitura; o EF acessa o backing field _aplicacoes.
+        builder.HasMany(p => p.Aplicacoes)
+            .WithOne()
+            .HasForeignKey(a => a.IdProduto)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(p => p.Aplicacoes)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        // NOTA: o Produto NÃO usa concorrência otimista via xmin (diferente de Cliente/Marca).
+        // Com a coleção de aplicações (1:N) carregada via Include, o batch UPDATE+DELETE+INSERT do
+        // Npgsql fazia o "UPDATE produto ... WHERE xmin = @p" afetar 0 linhas → DbUpdateConcurrency-
+        // Exception, travando o save. O produto é editado numa tela única por vez no MVP; reavaliar
+        // quando houver edição concorrente real (ex: Fase 3 / estoque).
     }
 }

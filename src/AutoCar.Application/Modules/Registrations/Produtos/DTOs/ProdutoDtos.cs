@@ -2,6 +2,14 @@ using AutoCar.Domain.Enums;
 
 namespace AutoCar.Application.Modules.Registrations.Produtos.DTOs;
 
+/// <summary>Aplicação por veículo (montadora/modelo/ano). Texto livre no MVP.</summary>
+public sealed record AplicacaoDto(
+    string Montadora,
+    string Modelo,
+    int? AnoInicio,
+    int? AnoFim,
+    string? Observacao);
+
 /// <summary>Dados de entrada para criar/atualizar um produto (vindo da tela).</summary>
 public sealed record SalvarProdutoDto(
     Guid IdCategoria,
@@ -13,7 +21,8 @@ public sealed record SalvarProdutoDto(
     decimal VlrCusto,
     decimal VlrVenda,
     Guid? IdMarca,
-    Guid? IdFornecedor);
+    Guid? IdFornecedor,
+    IReadOnlyList<AplicacaoDto> Aplicacoes);
 
 /// <summary>Produto completo para o formulário (visualização/edição).</summary>
 public sealed record ProdutoDto(
@@ -29,7 +38,8 @@ public sealed record ProdutoDto(
     decimal VlrVenda,
     Guid? IdMarca,
     Guid? IdFornecedor,
-    bool FlgAtivo);
+    bool FlgAtivo,
+    IReadOnlyList<AplicacaoDto> Aplicacoes);
 
 /// <summary>Linha enxuta para a listagem de produtos (com nomes das FKs já resolvidos).</summary>
 public sealed record ProdutoListaDto(
