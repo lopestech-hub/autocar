@@ -149,7 +149,7 @@ estoque NÃO mora aqui** — fica no módulo de Estoque (Fase 3).
 - **Margem %** = `(venda - custo) / custo` exibida na tela (somente leitura; "—" sem custo).
 - Inativar em vez de excluir (`flg_ativo`).
 
-### Decisões Técnicas
+### Decisões Técnicas do Produto
 
 - **Combos de FK selecionam por Id na coleção** (`FirstOrDefault(x => x.Id == ...)`) — Avalonia faz
   matching por referência; a navegação do EF é instância diferente da do combo. Marca/Fornecedor têm
