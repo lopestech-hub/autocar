@@ -27,8 +27,8 @@ Concorrência de estoque tratada com controle otimista (`xmin`) — risco nº 1 
 | Módulo | Pasta (MODULO.md) | Estado |
 |--------|-------------------|--------|
 | Segurança (login, perfis) | [Security](src/AutoCar.Desktop/Views/Security/MODULO.md) | ✅ Fase 1 |
-| Cadastros (Cliente ✅; Fornecedor ✅; Marca ✅; Categoria ✅; Produto ✅) | [Registrations](src/AutoCar.Desktop/Views/Registrations/MODULO.md) | 🔄 Fase 2 |
-| Catálogo automotivo (peças, aplicação por veículo) | _a criar (Fase 2)_ | ⏳ |
+| Cadastros (Cliente ✅; Fornecedor ✅; Marca ✅; Categoria ✅; Produto ✅ + aplicação por veículo ✅) | [Registrations](src/AutoCar.Desktop/Views/Registrations/MODULO.md) | 🔄 Fase 2 |
+| Catálogo automotivo (peça → veículo) | aplicação por veículo ✅ (no Produto); navegação a definir | 🔄 |
 | Estoque (entrada por compra) | _a criar (Fase 3)_ | ⏳ |
 | Vendas / Balcão | _a criar (Fase 3)_ | ⏳ |
 | Oficina / OS | _a criar (Fase 4)_ | ⏳ |
@@ -96,13 +96,13 @@ Um perfil por usuário. Admin vê tudo.
 
 ## Próximos Passos
 
-1. **Aplicação por veículo** (montadora/modelo/ano — texto livre no MVP): vincular ao Produto para
-   o catálogo automotivo.
-2. Definir o que fazer com "Catálogo" na navegação
-3. Implementar a busca global de verdade (atalho "Buscar" hoje é placeholder)
-4. Tela de troca de senha no primeiro acesso
-5. (dívida) Paginação na listagem de Produto quando o volume crescer (hoje sem `Take`/`Skip`,
+1. Definir o que fazer com "Catálogo" na navegação (aplicação por veículo já existe no Produto)
+2. Implementar a busca global de verdade (atalho "Buscar" hoje é placeholder)
+3. Tela de troca de senha no primeiro acesso
+4. (dívida) Paginação na listagem de Produto quando o volume crescer (hoje sem `Take`/`Skip`,
    alinhado ao padrão dos demais cadastros)
+5. (dívida) Migrar os demais repositórios para `IDbContextFactory` quando ganharem coleção filha
+   (hoje só `ProdutoRepository` usa; os outros usam `AppDbContext` injetado)
 
 ## Histórico de Mudanças
 
@@ -119,3 +119,4 @@ Um perfil por usuário. Admin vê tudo.
 | 2026-05-29 | Setup Claude Code: MCP context7, subagent avalonia-reviewer, skill /novo-cadastro, hook anti-edição de migration |
 | 2026-05-31 | Fase 2: cadastro Produto (mestre) — FK categoria/marca/fornecedor, unidade enum, cod_barras único parcial, margem calculada |
 | 2026-05-31 | UI: padronização das seções de formulário (título azul + linha) em Cliente/Fornecedor/Produto; hook PostToolUse lembra o system.md ao editar .axaml |
+| 2026-05-31 | Fase 2: aplicação por veículo no Produto (tabela `produto_aplicacao` 1:N, mini-grid no form). ProdutoRepository → IDbContextFactory; Produto sem xmin (incompat. com coleção filha) |

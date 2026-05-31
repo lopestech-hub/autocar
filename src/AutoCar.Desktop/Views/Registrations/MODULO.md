@@ -149,11 +149,31 @@ estoque NÃO mora aqui** — fica no módulo de Estoque (Fase 3).
 - **Margem %** = `(venda - custo) / custo` exibida na tela (somente leitura; "—" sem custo).
 - Inativar em vez de excluir (`flg_ativo`).
 
+### Aplicação por veículo (tabela `produto_aplicacao`)
+
+Tabela filho 1:N do Produto — quais veículos a peça atende. Texto livre no MVP (sem cadastro
+normalizado de montadora/modelo). Sem `cod_` (registro filho). Migration: `AplicacaoProduto`.
+
+- `id_aplicacao` (uuid PK), `id_produto` (FK → produto, **Cascade**)
+- `montadora`, `modelo` (varchar, CAIXA ALTA, obrigatórios), `ano_inicio`, `ano_fim` (int, opcionais —
+  ano_fim vazio = "em diante"), `observacao` (varchar 120, opcional)
+- Índices: `ix_produto_aplicacao_veiculo` (montadora+modelo, busca), `ix_produto_aplicacao_produto` (FK)
+- **UI:** seção APLICAÇÕES no form do Produto — mini-grid editável (`AplicacaoItemViewModel`), botão
+  "+ Adicionar" e "✕" por linha; some no modo visualização. **Salva junto com o produto** (substitui
+  todas a cada gravação — `Produto.DefinirAplicacoes`).
+
 ### Decisões Técnicas do Produto
 
 - **Combos de FK selecionam por Id na coleção** (`FirstOrDefault(x => x.Id == ...)`) — Avalonia faz
   matching por referência; a navegação do EF é instância diferente da do combo. Marca/Fornecedor têm
   item nulo ("—") para o opcional. Ver [[combobox-avalonia-selecao-id]] (memória global).
+- **Produto sem `xmin`** (concorrência otimista) — diferente dos outros cadastros. O `xmin` quebrava o
+  save quando a coleção de aplicações mudava no mesmo `SaveChanges` (UPDATE afetava 0 linhas). Ver
+  lição global de EF Core + Npgsql.
+- **`ProdutoRepository` usa `IDbContextFactory`** (contexto novo por operação), não o `AppDbContext`
+  injetado dos demais repos — evita estado defasado de contexto de longa duração no desktop.
+- **Aplicações novas forçadas a `State = Added`** no `AtualizarAsync` — a PK gerada no cliente
+  (`Guid.NewGuid`) fazia o EF inferir `Modified` → UPDATE em linha inexistente. Ver lição global.
 - **Listagem sem paginação** (dívida) — alinhado ao padrão dos demais cadastros; revisar quando o
   volume de produtos crescer.
 
