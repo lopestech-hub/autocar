@@ -213,9 +213,12 @@ nesse carro?". Consome o módulo Produtos; não tem tabela própria.
   cod_fabricante via `ILike`). O produto entra se tiver **ao menos uma** aplicação que case com todos
   os critérios de veículo informados.
 - **Camadas:** reusa `IProdutoService`/`ProdutoRepository` — `BuscarCatalogoAsync`, `ListarMontadorasAsync`,
-  `ListarModelosAsync`; DTOs `BuscaCatalogoDto`/`CatalogoItemDto`. `CatalogoViewModel` + `CatalogoView`
-  (Grid único: CÓDIGO·DESCRIÇÃO·CATEGORIA·APLICAÇÕES·UN·VENDA). Rota `catalogo`.
-- **Futuro:** será o ponto de entrada de peças na **Pré-venda** (Fase 3) — buscar e adicionar item.
+  `ListarModelosAsync`; DTOs `BuscaCatalogoDto`/`CatalogoItemDto` (este traz Posicao + CodFabricante).
+  `CatalogoViewModel` + `CatalogoView` (Grid único:
+  **CÓDIGO·DESCRIÇÃO·APLICAÇÃO·POSIÇÃO·COD.FABRIC·UN·VENDA**). Rota `catalogo`.
+- **Dois modos do CatalogoView:** consulta (toolbar) e **seletor** (Pré-venda F2). Em ambos: clique marca
+  a linha + régua lateral, setas navegam. Só no seletor o duplo-clique/Enter **adiciona** a peça; na
+  consulta não há ação (teclado da consulta no próprio grid; no seletor, na `CatalogoSeletorWindow`).
 - **Dado de teste:** seed demo no `DbInitializer` (8 produtos variados, idempotente — só roda em banco
   com ≤1 produto). Remover/gear por flag antes do deploy real.
 

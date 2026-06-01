@@ -187,6 +187,16 @@ CornerRadius: controles 2px · cards 6px · ícone-marcador 3px.
   Estilo global `Selector="ToolTip"` no Tema — destaca mais que o escuro padrão e usa cor da paleta.
 - Microcopy de atalho: usar `=` (ex: "F3 = buscar cliente"), nunca traço longo.
 
+### Contador de itens (cabeçalho de listagem) — PADRÃO
+
+> A "etiqueta" ao lado do título da listagem que mostra "X produtos", "9 peças", etc.
+
+- `Border` fundo **`#DBEAFE`** (azul-claro = informação) + borda **`#3B82F6`** 1px + texto **`#1E40AF`**
+  11px Medium, **CornerRadius 2** (cantos retos, nunca pílula arredondada), `Padding="8,1"`.
+- Mesma família visual do badge "Aberta" da Pré-venda — cor comunica "informação", coeso e leve.
+- Aplicado em todas as listagens (Catálogo, Produtos, Clientes, Fornecedor, Marcas, Categorias, Pré-vendas).
+- ⚠️ Não usar `CornerRadius` alto (pílula) — destoa do enterprise compacto; o padrão é canto reto.
+
 ### Shell principal (MainWindow) — layout ERP clássico
 
 > Padrão de ERP desktop brasileiro (estilo Resulth). Sem sidebar — menu de texto + toolbar.
