@@ -8,6 +8,11 @@
              x:Class="AutoCar.Desktop.Views.Registrations.ProdutoFormView"
              x:DataType="vm:ProdutoFormViewModel">
 
+    <!-- ESC fecha o formulário (mesma ação do botão Cancelar/Fechar). -->
+    <UserControl.KeyBindings>
+        <KeyBinding Gesture="Escape" Command="{Binding CancelarCommand}" />
+    </UserControl.KeyBindings>
+
     <UserControl.Resources>
         <!-- Combo de opção (Categoria/Marca/Fornecedor): mostra a descrição; item nulo vira "—". -->
         <DataTemplate x:Key="OpcaoTemplate" x:DataType="dto:OpcaoDto">

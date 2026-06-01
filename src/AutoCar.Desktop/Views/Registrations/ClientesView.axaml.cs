@@ -24,6 +24,8 @@ public partial class ClientesView : UserControl
         { "CÓDIGO", "TIPO", "DOCUMENTO", "NOME / RAZÃO SOCIAL", "TELEFONE", "STATUS" };
 
     private static readonly IBrush CorHover = new SolidColorBrush(Color.Parse("#EFF6FF"));
+    private static readonly IBrush CorSelecionada = new SolidColorBrush(Color.Parse("#DBEAFE"));
+    private static readonly IBrush CorBarraAtiva = new SolidColorBrush(Color.Parse("#3B82F6"));
     private static readonly IBrush CorNormal = Brushes.Transparent;
     private static readonly IBrush CorZebra = new SolidColorBrush(Color.Parse("#FAFBFC"));
     private static readonly IBrush CorBordaSuave = new SolidColorBrush(Color.Parse("#E2E8F0"));
@@ -31,6 +33,11 @@ public partial class ClientesView : UserControl
     private static readonly IBrush CorFundoHeader = new SolidColorBrush(Color.Parse("#F8FAFC"));
     private static readonly IBrush CorTextoHeader = new SolidColorBrush(Color.Parse("#64748B"));
     private static readonly IBrush CorTexto = new SolidColorBrush(Color.Parse("#1E293B"));
+
+    // Estado da seleção visual (clique marca; ↓/↑ navegam; Enter/duplo-clique abre o form).
+    private readonly System.Collections.Generic.List<Border> _linhas = new();
+    private readonly System.Collections.Generic.List<Border> _barras = new();
+    private int _indiceSelecionado = -1;
 
     private ClientesViewModel? _vm;
 
@@ -67,6 +74,10 @@ public partial class ClientesView : UserControl
         for (var i = container.Children.Count - 1; i >= 0; i--)
             if (container.Children[i] is DockPanel)
                 container.Children.RemoveAt(i);
+
+        _linhas.Clear();
+        _barras.Clear();
+        _indiceSelecionado = -1;
 
         // Header sempre visível (dá estrutura à tabela mesmo vazia).
         var header = CriarHeader();
@@ -121,7 +132,8 @@ public partial class ClientesView : UserControl
 
     private ScrollViewer CriarCorpo()
     {
-        var grid = new Grid { ColumnDefinitions = ColumnDefinitions.Parse(ColDefs) };
+        var grid = new Grid { ColumnDefinitions = ColumnDefinitions.Parse(ColDefs), Focusable = true };
+        grid.KeyDown += AoTeclarNaLista;
         for (var i = 0; i < _vm!.Clientes.Count; i++)
             grid.RowDefinitions.Add(new RowDefinition(28, GridUnitType.Pixel));
 
@@ -131,6 +143,7 @@ public partial class ClientesView : UserControl
 
             // Zebra: linhas ímpares recebem um fundo sutil para facilitar a leitura.
             var corLinha = i % 2 == 1 ? CorZebra : CorNormal;
+            var indiceLinha = i;
 
             var fundo = new Border
             {
@@ -143,14 +156,22 @@ public partial class ClientesView : UserControl
             Grid.SetRow(fundo, i);
             Grid.SetColumnSpan(fundo, Headers.Length);
 
-            fundo.PointerEntered += (_, _) => fundo.Background = CorHover;
-            fundo.PointerExited += (_, _) => fundo.Background = corLinha;
+            fundo.PointerEntered += (_, _) => { if (indiceLinha != _indiceSelecionado) fundo.Background = CorHover; };
+            fundo.PointerExited += (_, _) => { if (indiceLinha != _indiceSelecionado) fundo.Background = corLinha; };
+            fundo.Tapped += (_, _) => { grid.Focus(); DestacarLinha(indiceLinha); };   // 1 clique = marca + foca
             fundo.DoubleTapped += (_, _) =>
             {
                 if (fundo.Tag is ClienteListaDto dto && _vm.AbrirCommand.CanExecute(dto))
                     _vm.AbrirCommand.Execute(dto);
             };
             grid.Children.Add(fundo);
+            _linhas.Add(fundo);
+
+            var barra = new Border { Width = 3, Background = CorBarraAtiva, HorizontalAlignment = HorizontalAlignment.Left, IsVisible = false };
+            Grid.SetRow(barra, i);
+            Grid.SetColumnSpan(barra, Headers.Length);
+            _barras.Add(barra);
+            grid.Children.Add(barra);
 
             Celula(grid, i, 0, cliente.CodCliente.ToString(), mono: true);
             BadgeTipo(grid, i, 1, cliente.TipoPessoa);
@@ -166,6 +187,42 @@ public partial class ClientesView : UserControl
             VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
             HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
         };
+    }
+
+    // Marca a linha (fundo azul + barra lateral); devolve as demais à zebra.
+    private void DestacarLinha(int indice)
+    {
+        if (indice < 0 || indice >= _linhas.Count) return;
+        for (var i = 0; i < _linhas.Count; i++)
+        {
+            _linhas[i].Background = i == indice ? CorSelecionada : (i % 2 == 1 ? CorZebra : CorNormal);
+            _barras[i].IsVisible = i == indice;
+        }
+        _indiceSelecionado = indice;
+        _linhas[indice].BringIntoView();
+    }
+
+    // Teclado na lista: ↓/↑ movem a marca; Enter abre o form da linha marcada.
+    private void AoTeclarNaLista(object? sender, KeyEventArgs e)
+    {
+        if (_linhas.Count == 0) return;
+        switch (e.Key)
+        {
+            case Key.Down:
+                DestacarLinha(System.Math.Min(_indiceSelecionado + 1, _linhas.Count - 1));
+                e.Handled = true;
+                break;
+            case Key.Up:
+                DestacarLinha(System.Math.Max(_indiceSelecionado - 1, 0));
+                e.Handled = true;
+                break;
+            case Key.Enter:
+                if (_indiceSelecionado >= 0 && _linhas[_indiceSelecionado].Tag is ClienteListaDto dto
+                    && _vm?.AbrirCommand.CanExecute(dto) == true)
+                    _vm.AbrirCommand.Execute(dto);
+                e.Handled = true;
+                break;
+        }
     }
 
     private static Border CriarMensagemVazia() => new()

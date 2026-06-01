@@ -6,6 +6,11 @@
              x:Class="AutoCar.Desktop.Views.Registrations.ClienteFormView"
              x:DataType="vm:ClienteFormViewModel">
 
+    <!-- ESC fecha o formulário (mesma ação do botão Cancelar/Fechar). -->
+    <UserControl.KeyBindings>
+        <KeyBinding Gesture="Escape" Command="{Binding CancelarCommand}" />
+    </UserControl.KeyBindings>
+
     <Border Margin="16"
             Background="{DynamicResource BrushFundoCard}"
             BorderBrush="{DynamicResource BrushBorda}"

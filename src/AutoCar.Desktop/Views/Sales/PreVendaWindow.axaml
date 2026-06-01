@@ -9,10 +9,11 @@
         Title="Pré-venda"
         Background="{DynamicResource BrushFundo}">
 
-    <!-- F2 abre o catálogo de peças; F3 abre o seletor de cliente. -->
+    <!-- F2 abre o catálogo de peças; F3 abre o seletor de cliente; ESC fecha a pré-venda. -->
     <Window.KeyBindings>
         <KeyBinding Gesture="F2" Command="{Binding AbrirCatalogoCommand}" />
         <KeyBinding Gesture="F3" Command="{Binding AbrirSeletorClienteCommand}" />
+        <KeyBinding Gesture="Escape" Command="{Binding CancelarCommand}" />
     </Window.KeyBindings>
 
     <!-- A janela hospeda o mesmo formulário usado antes embutido no shell. -->

@@ -32,6 +32,9 @@ appsettings.*.local.json
 # ---- Controle de revisão da Vera (local, nunca versionar) ----
 .vera-ok
 
+# ---- Utilitário local de dev (atalho para rodar o app) ----
+Iniciar-AutoCar.bat
+
 # ---- SO / temporários ----
 Thumbs.db
 desktop.ini
