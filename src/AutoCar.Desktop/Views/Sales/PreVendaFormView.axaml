@@ -43,12 +43,25 @@
                                        Foreground="{DynamicResource BrushTextoSecundario}"
                                        VerticalAlignment="Center" />
                         </StackPanel>
-                        <!-- Dica do atalho F2 para abrir o catálogo de peças. -->
+                        <!-- Dicas de atalho (só no modo edição). Mesmo estilo de badge. -->
                         <Border Background="{DynamicResource BrushFundoHeader}"
                                 BorderBrush="{DynamicResource BrushBorda}" BorderThickness="1"
                                 CornerRadius="3" Padding="6,2" VerticalAlignment="Center"
                                 IsVisible="{Binding !ModoVisualizacao}">
                             <TextBlock Text="F2 = buscar peça" FontSize="10"
+                                       Foreground="{DynamicResource BrushTextoSecundario}" />
+                        </Border>
+                        <Border Background="{DynamicResource BrushFundoHeader}"
+                                BorderBrush="{DynamicResource BrushBorda}" BorderThickness="1"
+                                CornerRadius="3" Padding="6,2" VerticalAlignment="Center"
+                                IsVisible="{Binding !ModoVisualizacao}">
+                            <TextBlock Text="F3 = buscar cliente" FontSize="10"
+                                       Foreground="{DynamicResource BrushTextoSecundario}" />
+                        </Border>
+                        <Border Background="{DynamicResource BrushFundoHeader}"
+                                BorderBrush="{DynamicResource BrushBorda}" BorderThickness="1"
+                                CornerRadius="3" Padding="6,2" VerticalAlignment="Center">
+                            <TextBlock Text="ESC = fechar" FontSize="10"
                                        Foreground="{DynamicResource BrushTextoSecundario}" />
                         </Border>
                     </StackPanel>
