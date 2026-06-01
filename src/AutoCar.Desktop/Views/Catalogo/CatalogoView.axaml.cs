@@ -18,9 +18,9 @@ namespace AutoCar.Desktop.Views.Catalogo;
 /// </summary>
 public partial class CatalogoView : UserControl
 {
-    // CÓDIGO · DESCRIÇÃO · CATEGORIA · APLICAÇÕES (veículos) · UN · VENDA
-    private const string ColDefs = "80,*,130,2*,50,90";
-    private static readonly string[] Headers = { "CÓDIGO", "DESCRIÇÃO", "CATEGORIA", "APLICAÇÕES", "UN", "VENDA" };
+    // CÓDIGO · DESCRIÇÃO · APLICAÇÃO (veículos) · POSIÇÃO · COD.FABRIC · UN · VENDA
+    private const string ColDefs = "80,*,2*,90,120,50,90";
+    private static readonly string[] Headers = { "CÓDIGO", "DESCRIÇÃO", "APLICAÇÃO", "POSIÇÃO", "COD.FABRIC", "UN", "VENDA" };
 
     private static readonly CultureInfo PtBr = new("pt-BR");
 
@@ -104,6 +104,23 @@ public partial class CatalogoView : UserControl
             return true;
         }
         return false;
+    }
+
+    // Teclado no modo consulta (toolbar): ↓/↑ movem a marca. Sem Enter (consulta não tem ação).
+    private void AoTeclarNaListaConsulta(object? sender, KeyEventArgs e)
+    {
+        if (_linhas.Count == 0) return;
+        switch (e.Key)
+        {
+            case Key.Down:
+                DestacarLinha(System.Math.Min(_indiceSelecionado + 1, _linhas.Count - 1));
+                e.Handled = true;
+                break;
+            case Key.Up:
+                DestacarLinha(System.Math.Max(_indiceSelecionado - 1, 0));
+                e.Handled = true;
+                break;
+        }
     }
 
     // Pinta a linha destacada (azul) + barra lateral azul-primário; devolve as demais à zebra.
@@ -191,6 +208,13 @@ public partial class CatalogoView : UserControl
     private ScrollViewer CriarCorpo()
     {
         var grid = new Grid { ColumnDefinitions = ColumnDefinitions.Parse(ColDefs) };
+        // No modo consulta (toolbar), o próprio grid captura o teclado (↓/↑ navegam a marca).
+        // No modo seletor, quem cuida do teclado é a CatalogoSeletorWindow (evita handler duplicado).
+        if (!ModoSeletor)
+        {
+            grid.Focusable = true;
+            grid.KeyDown += AoTeclarNaListaConsulta;
+        }
         for (var i = 0; i < _vm!.Resultados.Count; i++)
             grid.RowDefinitions.Add(new RowDefinition(28, GridUnitType.Pixel));
 
@@ -215,41 +239,45 @@ public partial class CatalogoView : UserControl
             fundo.PointerEntered += (_, _) => { if (indiceLinha != _indiceSelecionado) fundo.Background = CorHover; };
             fundo.PointerExited += (_, _) => { if (indiceLinha != _indiceSelecionado) fundo.Background = corLinha; };
 
-            // No modo seletor (pré-venda): clique simples SELECIONA (marca); duplo-clique ADICIONA.
+            // Seleção visual vale nos DOIS modos (consulta pela toolbar e seletor pela pré-venda):
+            // clique marca a linha (+ régua lateral), igual às listas de cadastro.
+            fundo.Cursor = new Cursor(StandardCursorType.Hand);
+            fundo.Tag = item;
+            _linhas.Add(fundo);
+            fundo.Tapped += (_, _) => { grid.Focus(); DestacarLinha(indiceLinha); }; // 1 clique = marca + foca (habilita setas na consulta)
+
+            // Barra lateral azul-primário (3px) — "régua" da linha marcada.
+            var barra = new Border
+            {
+                Width = 3,
+                Background = CorBarraAtiva,
+                HorizontalAlignment = HorizontalAlignment.Left,
+                IsVisible = false,
+            };
+            Grid.SetRow(barra, i);
+            Grid.SetColumnSpan(barra, Headers.Length);
+            _barras.Add(barra);
+            grid.Children.Add(barra);
+
+            // Exclusivo do seletor (pré-venda): duplo-clique ADICIONA a peça.
             if (ModoSeletor)
             {
-                fundo.Cursor = new Cursor(StandardCursorType.Hand);
-                fundo.Tag = item;
-                _linhas.Add(fundo);
-                fundo.Tapped += (_, _) => DestacarLinha(indiceLinha); // 1 clique = marca
                 fundo.DoubleTapped += (_, _) =>
                 {
                     if (fundo.Tag is CatalogoItemDto escolhida)
-                        PecaSelecionada?.Invoke(escolhida); // 2 cliques = adiciona
+                        PecaSelecionada?.Invoke(escolhida);
                 };
-
-                // Barra lateral azul-primário (3px) na borda esquerda — "régua" da linha selecionada.
-                var barra = new Border
-                {
-                    Width = 3,
-                    Background = CorBarraAtiva,
-                    HorizontalAlignment = HorizontalAlignment.Left,
-                    IsVisible = false,
-                };
-                Grid.SetRow(barra, i);
-                Grid.SetColumnSpan(barra, Headers.Length);
-                _barras.Add(barra);
-                grid.Children.Add(barra);
             }
 
             grid.Children.Add(fundo);
 
             Celula(grid, i, 0, item.CodProduto.ToString(), mono: true);
             Celula(grid, i, 1, item.Descricao);
-            Celula(grid, i, 2, item.Categoria ?? "—");
-            Celula(grid, i, 3, string.IsNullOrEmpty(item.Aplicacoes) ? "—" : item.Aplicacoes, suave: true);
-            Celula(grid, i, 4, item.Unidade.ToString());
-            Celula(grid, i, 5, item.VlrVenda.ToString("N2", PtBr), mono: true, alinharDireita: true);
+            Celula(grid, i, 2, string.IsNullOrEmpty(item.Aplicacoes) ? "—" : item.Aplicacoes, suave: true);
+            Celula(grid, i, 3, Converters.PosicaoPecaConverter.Rotular(item.Posicao));
+            Celula(grid, i, 4, string.IsNullOrEmpty(item.CodFabricante) ? "—" : item.CodFabricante!, mono: true);
+            Celula(grid, i, 5, item.Unidade.ToString());
+            Celula(grid, i, 6, item.VlrVenda.ToString("N2", PtBr), mono: true, alinharDireita: true);
         }
 
         return new ScrollViewer

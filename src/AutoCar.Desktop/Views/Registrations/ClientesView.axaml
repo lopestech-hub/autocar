@@ -17,12 +17,13 @@
                                FontSize="14" FontWeight="SemiBold"
                                Foreground="{DynamicResource BrushTexto}"
                                VerticalAlignment="Center" />
-                    <Border Background="{DynamicResource BrushFundoHeader}"
-                            BorderBrush="{DynamicResource BrushBorda}" BorderThickness="1"
-                            CornerRadius="10" Padding="8,1" VerticalAlignment="Center">
+                    <!-- Contador: etiqueta azul-clara (informação), cantos retos no padrão do sistema. -->
+                    <Border Background="#DBEAFE"
+                            BorderBrush="#3B82F6" BorderThickness="1"
+                            CornerRadius="2" Padding="8,1" VerticalAlignment="Center">
                         <TextBlock Text="{Binding TextoContador}"
-                                   FontSize="11"
-                                   Foreground="{DynamicResource BrushTextoSecundario}" />
+                                   FontSize="11" FontWeight="Medium"
+                                   Foreground="#1E40AF" />
                     </Border>
                 </StackPanel>
 

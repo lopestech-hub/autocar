@@ -76,5 +76,7 @@ public sealed record CatalogoItemDto(
     string? Categoria,
     string? Marca,
     UnidadeMedida Unidade,
+    PosicaoPeca Posicao,
+    string? CodFabricante,
     decimal VlrVenda,
     string Aplicacoes);

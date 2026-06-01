@@ -122,7 +122,7 @@ public sealed class ProdutoService : IProdutoService
 
         return produtos.Select(p => new CatalogoItemDto(
             p.Id, p.CodProduto, p.Descricao, p.Categoria?.Descricao, p.Marca?.Descricao,
-            p.Unidade, p.VlrVenda, ResumirAplicacoes(p))).ToList();
+            p.Unidade, p.Posicao, p.CodFabricante, p.VlrVenda, ResumirAplicacoes(p))).ToList();
     }
 
     public Task<IReadOnlyList<string>> ListarMontadorasAsync(CancellationToken ct = default) =>
