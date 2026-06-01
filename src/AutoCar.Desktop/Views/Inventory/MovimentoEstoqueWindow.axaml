@@ -1,0 +1,19 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AutoCar.Desktop.ViewModels.Inventory"
+        xmlns:views="using:AutoCar.Desktop.Views.Inventory"
+        x:Class="AutoCar.Desktop.Views.Inventory.MovimentoEstoqueWindow"
+        x:DataType="vm:MovimentoEstoqueFormViewModel"
+        Width="640" Height="600"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Title="Movimentação de Estoque"
+        Background="{DynamicResource BrushFundo}">
+
+    <!-- ESC fecha a janela sem registrar movimento. -->
+    <Window.KeyBindings>
+        <KeyBinding Gesture="Escape" Command="{Binding CancelarCommand}" />
+    </Window.KeyBindings>
+
+    <views:MovimentoEstoqueFormView />
+</Window>

@@ -1,8 +1,10 @@
 using System;
+using AutoCar.Application.Modules.Estoque;
 using AutoCar.Application.Modules.Sales.PreVendas;
 using AutoCar.Application.Modules.Security.DTOs;
 using AutoCar.Desktop.ViewModels;
 using AutoCar.Desktop.ViewModels.Catalogo;
+using AutoCar.Desktop.ViewModels.Inventory;
 using AutoCar.Desktop.ViewModels.Registrations;
 using AutoCar.Desktop.ViewModels.Sales;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,6 +34,7 @@ public sealed class Navegador : INavegador
         "marcas" => _sp.GetRequiredService<MarcasViewModel>(),
         "categorias" => _sp.GetRequiredService<CategoriasViewModel>(),
         "pre-vendas" => CriarPreVendas(),
+        "estoque" => CriarEstoque(),
         _ => null,
     };
 
@@ -49,5 +52,18 @@ public sealed class Navegador : INavegador
             _sp.GetRequiredService<IPreVendaService>(),
             () => _sp.GetRequiredService<PreVendaFormViewModel>(),
             _sp.GetRequiredService<ILogger<PreVendasViewModel>>());
+    }
+
+    // EstoqueViewModel também depende do usuário logado (registra quem movimentou) — montado à mão.
+    private EstoqueViewModel? CriarEstoque()
+    {
+        if (_usuario is null)
+            return null;
+
+        return new EstoqueViewModel(
+            _usuario,
+            _sp.GetRequiredService<IEstoqueService>(),
+            () => _sp.GetRequiredService<MovimentoEstoqueFormViewModel>(),
+            _sp.GetRequiredService<ILogger<EstoqueViewModel>>());
     }
 }

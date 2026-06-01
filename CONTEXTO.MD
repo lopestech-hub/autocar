@@ -30,7 +30,7 @@ Concorrência de estoque tratada com controle otimista (`xmin`) — risco nº 1 
 | Cadastros (Cliente ✅; Fornecedor ✅; Marca ✅; Categoria ✅; Produto ✅ + aplicação por veículo ✅) | [Registrations](src/AutoCar.Desktop/Views/Registrations/MODULO.md) | 🔄 Fase 2 |
 | Catálogo automotivo (peça → veículo) | [Catalogo](src/AutoCar.Desktop/Views/Catalogo/) — busca de peça por veículo ✅ | ✅ Fase 2 |
 | Vendas (Pré-venda) | [Sales](src/AutoCar.Desktop/Views/Sales/MODULO.md) — Pré-venda (cabeçalho + itens) ✅ | 🔄 Fase 3 |
-| Estoque (entrada por compra) | _a criar (Fase 3)_ | ⏳ |
+| Estoque (saldo + movimentação) | [Inventory](src/AutoCar.Desktop/Views/Inventory/MODULO.md) — saldo, livro-razão, concorrência `xmin` ✅ | 🔄 Fase 3 |
 | Oficina / OS | _a criar (Fase 4)_ | ⏳ |
 | Financeiro (caixa, contas) | _a criar (Fase 4)_ | ⏳ |
 | Fiscal (NCM/CFOP/CST, sem SEFAZ) | _a criar (Fase 5)_ | ⏳ |
@@ -64,11 +64,18 @@ Próximo: aplicação por veículo (montadora/modelo/ano — texto livre no MVP)
 Produto ganhou (Fase 3) o campo **`sts_posicao`** (enum `PosicaoPeca`: NaoAplica/Dianteira/Traseira) e a
 aplicação por veículo ganhou **`motorizacao`** (texto) + **`sts_combustivel`** (enum `Combustivel`).
 
-**Fase 3 (Vendas) — em andamento.** Módulo **Pré-venda concluído** (ver [Sales](src/AutoCar.Desktop/Views/Sales/MODULO.md)):
+**Fase 3 (Vendas + Estoque) — em andamento.** Módulo **Pré-venda concluído** (ver [Sales](src/AutoCar.Desktop/Views/Sales/MODULO.md)):
 documento provisório de balcão (cabeçalho cliente opcional + veículo livre + itens), abre em **janela
 separada maximizada**, **F2** abre o Catálogo como seletor (clique marca, duplo-clique/Enter adiciona).
 Total calculado no domínio (item + desconto geral); ciclo Aberta→Faturada/Cancelada (UI só cria/edita
-Aberta por ora). Não baixa estoque (só no faturamento, Fase de Estoque). Testes do agregado passando.
+Aberta por ora). Não baixa estoque (só no faturamento). Testes do agregado passando.
+
+**Estoque (fundação do saldo) concluído** (ver [Inventory](src/AutoCar.Desktop/Views/Inventory/MODULO.md)):
+saldo por produto (`estoque_produto`, **com `xmin`**) + livro-razão imutável (`movimento_estoque`).
+Movimentação Entrada/Saída/Ajuste com **saldo nunca negativo** e **concorrência otimista** (risco nº 1 —
+dois terminais no último item geram `Error.Conflito`). Quantidades **inteiras** (autopeça não fraciona).
+Tela: listagem de saldos + janela de movimentação por produto (saldo + tipo/qtd/observação + histórico).
+Falta: o **Faturar da Pré-venda baixar estoque** e a **entrada por compra/documento** (próximos passos).
 
 Admin de teste: usuário **`julio`** / senha `123` (trocar).
 
@@ -97,7 +104,7 @@ Um perfil por usuário. Admin vê tudo.
 
 - [x] Fase 1 — Setup, auth, menu, perfis
 - [x] Fase 2 — Cadastros base + catálogo
-- [ ] Fase 3 — Pré-venda ✅ · Estoque (entrada por compra) + Domain Events + concorrência (pendente)
+- [ ] Fase 3 — Pré-venda ✅ · Estoque saldo + movimentação + concorrência `xmin` ✅ · Faturar baixa estoque + entrada por compra + Domain Events (pendente)
 - [ ] Fase 4 — OS + Financeiro
 - [ ] Fase 5 — Fiscal estruturado + PDF
 - [ ] Fase 6 — (pós-MVP) SEFAZ, custo médio, multi-depósito, DRE
@@ -105,9 +112,11 @@ Um perfil por usuário. Admin vê tudo.
 
 ## Próximos Passos
 
-1. **Estoque** (Fase 3): entrada por compra + saldo; o **Faturar** da Pré-venda baixa estoque
-   (via Domain Event `PreVendaFaturada`). Concorrência otimista (`xmin`) — risco nº 1.
-2. **Faturar/Cancelar** na UI da Pré-venda (o domínio já tem; falta botão + fluxo) — vinculado ao Estoque.
+1. **Estoque** (Fase 3): saldo + movimentação + concorrência `xmin` ✅ feito. Falta: **entrada por
+   compra** (documento fornecedor + itens) e o **Faturar** da Pré-venda baixar estoque (via Domain
+   Event `PreVendaFaturada`). Dívida menor: tratar `DbUpdateException` por unique-violation no 1º
+   movimento concorrente (hoje cai em mensagem genérica; integridade já garantida pelo índice único).
+2. **Faturar/Cancelar** na UI da Pré-venda (o domínio já tem; falta botão + fluxo) — baixa estoque ao faturar.
 3. Implementar a busca global de verdade (atalho "Buscar" hoje é placeholder)
 4. Tela de troca de senha no primeiro acesso
 5. (dívida) **Padronizar seleção≠adição nas listas de cadastro** — hoje só os seletores (Catálogo) usam;
@@ -139,3 +148,4 @@ Um perfil por usuário. Admin vê tudo.
 | 2026-06-01 | Produto: campo **`sts_posicao`** (Dianteira/Traseira); aplicação por veículo ganhou **`motorizacao`** + **`sts_combustivel`** (migrations `PosicaoProduto`, `AplicacaoMotorCombustivel`) |
 | 2026-06-01 | UI: realces de cor com significado (faixa do TOTAL, badge com borda, célula âmbar de desconto, flash de item novo, régua azul no seletor); padrão "Seletor" registrado no system.md |
 | 2026-06-01 | UX Pré-venda: seleção-tudo ao focar campos numéricos (`SelecionarTudoBehavior`); borda de campo mais forte (#1E293B); cliente vira **seletor por janela** (F3, busca nome/código) — AutoCompleteBox descartado (quebrado no Avalonia 11); tooltip azul-ardósia padronizado |
+| 2026-06-01 | Fase 3: módulo **Estoque** (fundação do saldo) — tabelas `estoque_produto` (**com `xmin`**) + `movimento_estoque` (livro-razão imutável); movimentação Entrada/Saída/Ajuste com saldo nunca negativo e **concorrência otimista** (risco nº 1); quantidades **inteiras**; `ConcorrenciaException` neutra (Clean Architecture); tela listagem + janela de movimentação. Migration `CadastroEstoque` (aditiva). 9 testes do agregado |

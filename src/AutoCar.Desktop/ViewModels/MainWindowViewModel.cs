@@ -39,7 +39,7 @@ public partial class MainWindowViewModel : ViewModelBase
         new ItemMenu("Marcas", "fa-solid fa-tags", "Cadastros", flgToolbar: false, new[] { PerfilUsuario.Vendedor }, rota: "marcas"),
         new ItemMenu("Categorias", "fa-solid fa-layer-group", "Cadastros", flgToolbar: false, new[] { PerfilUsuario.Vendedor }, rota: "categorias"),
         new ItemMenu("Usuários", "fa-solid fa-users", "Cadastros", flgToolbar: false, Array.Empty<PerfilUsuario>()), // só Admin
-        new ItemMenu("Estoque", "fa-solid fa-boxes-stacked", "Movimentos", flgToolbar: false, new[] { PerfilUsuario.Vendedor }),
+        new ItemMenu("Estoque", "fa-solid fa-boxes-stacked", "Movimentos", flgToolbar: false, new[] { PerfilUsuario.Vendedor }, rota: "estoque"),
         new ItemMenu("Caixa", "fa-solid fa-money-bill-wave", "Financeiro", flgToolbar: false, new[] { PerfilUsuario.Financeiro }),
         new ItemMenu("Contas a Receber", "fa-solid fa-arrow-down", "Financeiro", flgToolbar: false, new[] { PerfilUsuario.Financeiro }),
         new ItemMenu("Contas a Pagar", "fa-solid fa-arrow-up", "Financeiro", flgToolbar: false, new[] { PerfilUsuario.Financeiro }),
