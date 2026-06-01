@@ -120,8 +120,22 @@ CornerRadius: controles 2px · cards 6px · ícone-marcador 3px.
   ("régua" que o olho segue). **1ª linha já vem selecionada** ao abrir (fluxo de teclado imediato).
 - Implementado via Grid único code-behind (`CatalogoView` modo seletor): lista de Borders das linhas +
   lista de barras + `_indiceSelecionado`; `DestacarLinha(i)` repinta tudo e `BringIntoView`.
-- ⚠️ Nas **listas de cadastro** (Cliente, Produto, etc.) ainda **não** se aplica — lá o duplo-clique abre
-  o form e não há conceito de "marca". Só padronizar quando a seleção tiver função (ver dívida no CONTEXTO).
+
+### Seleção por teclado nas listas de cadastro — PADRÃO
+
+> Mesma mecânica de marca visual do "Seletor", aplicada a TODAS as listas de cadastro (Clientes,
+> Fornecedor, Produtos, Marcas, Categorias, Pré-vendas). Aqui a marca é **só visual/consistência** —
+> a ação principal (abrir o form) continua no duplo-clique/Enter.
+
+- **Clique simples** marca a linha (fundo `#DBEAFE` + barra lateral 3px `#3B82F6`). **↑/↓** navegam a
+  marca (`BringIntoView`). **Enter** ou **duplo-clique** abrem o form (via `AbrirCommand` com o DTO da linha).
+- **Hover** (`#EFF6FF`) não desfaz a marca (a seleção vence o hover).
+- Implementação por tela (Grid único code-behind): `Focusable=true` + `KeyDown += AoTeclarNaLista`;
+  `_linhas`/`_barras`/`_indiceSelecionado` resetados a cada `RegerarTabela`; `Tapped` faz `grid.Focus()`
+  + `DestacarLinha` (o foco habilita as setas). `DestacarLinha` e `AoTeclarNaLista` iguais em todas.
+- **ESC fecha o formulário** (todos os forms): `KeyBinding Escape → CancelarCommand` (UserControl.KeyBindings
+  nos cadastros; Window.KeyBindings na Pré-venda). Cancela direto, sem confirmação.
+- Dívida (não feito): a marca ainda não habilita ações (Editar/Inativar na linha) — fazer se surgir o gatilho.
 
 ### Realces de cor com significado (Pré-venda) — PADRÃO
 
