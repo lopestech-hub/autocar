@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:AutoCar.Desktop.ViewModels.Catalogo"
+             xmlns:b="using:AutoCar.Desktop.Behaviors"
              x:Class="AutoCar.Desktop.Views.Catalogo.CatalogoView"
              x:DataType="vm:CatalogoViewModel">
 
@@ -36,6 +37,7 @@
                      Watermark="GOL, PALIO..." Margin="0,0,8,0" />
             <TextBlock Grid.Column="4" Classes="formlabel" Text="Ano" />
             <TextBox Grid.Column="5" Text="{Binding AnoTexto}"
+                     b:SelecionarTudoBehavior.Ativo="True"
                      MaxLength="4" Watermark="2010" Margin="0,0,8,0" />
             <TextBlock Grid.Column="6" Classes="formlabel" Text="Peça" />
             <TextBox Grid.Column="7" Name="CampoPeca" Text="{Binding Termo}"

@@ -7,12 +7,6 @@
              x:Class="AutoCar.Desktop.Views.Sales.PreVendaFormView"
              x:DataType="vm:PreVendaFormViewModel">
 
-    <UserControl.Resources>
-        <!-- Combo de cliente: razão social; item nulo = venda avulsa (Consumidor). -->
-        <DataTemplate x:Key="ClienteTemplate" x:DataType="cli:ClienteListaDto">
-            <TextBlock Text="{Binding RazaoSocial, FallbackValue=— (Consumidor), TargetNullValue=— (Consumidor)}" />
-        </DataTemplate>
-    </UserControl.Resources>
 
     <Panel>
         <Border Margin="16"
@@ -78,12 +72,18 @@
                             </Grid.RowDefinitions>
 
                             <TextBlock Grid.Row="0" Grid.Column="0" Classes="formlabel" Text="Cliente" />
-                            <ComboBox Grid.Row="0" Grid.Column="1"
-                                      ItemsSource="{Binding Clientes}"
-                                      SelectedItem="{Binding ClienteSelecionado}"
-                                      ItemTemplate="{StaticResource ClienteTemplate}"
-                                      IsEnabled="{Binding !ModoVisualizacao}"
-                                      HorizontalAlignment="Stretch" />
+                            <!-- Cliente: campo read-only que mostra o selecionado; F3 ou clique abre o
+                                 seletor de cliente (janela com busca por nome/código). Vazio = Consumidor. -->
+                            <Button Grid.Row="0" Grid.Column="1"
+                                    Classes="seletor"
+                                    Command="{Binding AbrirSeletorClienteCommand}"
+                                    IsEnabled="{Binding !ModoVisualizacao}"
+                                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                    Cursor="Hand" ToolTip.Tip="F3 = buscar cliente">
+                                <TextBlock Text="{Binding ClienteTexto}"
+                                           Foreground="{DynamicResource BrushTexto}"
+                                           VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                            </Button>
                             <TextBlock Grid.Row="0" Grid.Column="2" Classes="formlabel" Text="Avulso" />
                             <TextBox Grid.Row="0" Grid.Column="3"
                                      Text="{Binding NomeClienteAvulso}"
@@ -158,15 +158,18 @@
                                         <TextBox Grid.Column="0" Text="{Binding DescricaoProduto}"
                                                  IsEnabled="False" Margin="0,0,4,0" />
                                         <TextBox Grid.Column="1" Text="{Binding QtdTexto}"
+                                                 b:SelecionarTudoBehavior.Ativo="True"
                                                  IsEnabled="{Binding $parent[ItemsControl].((vm:PreVendaFormViewModel)DataContext).ModoVisualizacao, Converter={x:Static BoolConverters.Not}}"
                                                  TextAlignment="Right" Margin="0,0,4,0" Watermark="1,00" />
                                         <TextBox Grid.Column="2" Text="{Binding VlrUnitarioTexto}"
+                                                 b:SelecionarTudoBehavior.Ativo="True"
                                                  IsEnabled="{Binding $parent[ItemsControl].((vm:PreVendaFormViewModel)DataContext).ModoVisualizacao, Converter={x:Static BoolConverters.Not}}"
                                                  TextAlignment="Right" Margin="0,0,4,0" Watermark="0,00" />
                                         <!-- Realce âmbar atrás do campo quando a linha tem desconto. -->
                                         <Border Grid.Column="3" Margin="0,0,4,0" CornerRadius="2"
                                                 Background="{Binding TemDesconto, Converter={x:Static conv:DescontoFundoConverter.Instancia}}">
                                             <TextBox Text="{Binding VlrDescontoTexto}"
+                                                     b:SelecionarTudoBehavior.Ativo="True"
                                                      Background="Transparent"
                                                      IsEnabled="{Binding $parent[ItemsControl].((vm:PreVendaFormViewModel)DataContext).ModoVisualizacao, Converter={x:Static BoolConverters.Not}}"
                                                      TextAlignment="Right" Watermark="0,00" />
@@ -214,6 +217,7 @@
                                     <TextBlock Grid.Column="0" Text="Desconto" Classes="formlabel"
                                                HorizontalAlignment="Right" />
                                     <TextBox Grid.Column="1" Text="{Binding VlrDescontoTexto}"
+                                             b:SelecionarTudoBehavior.Ativo="True"
                                              IsEnabled="{Binding !ModoVisualizacao}"
                                              TextAlignment="Right" Watermark="0,00" />
                                 </Grid>

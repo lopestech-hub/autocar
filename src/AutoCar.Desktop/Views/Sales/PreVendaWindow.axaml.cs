@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using AutoCar.Application.Modules.Registrations.Clientes;
 using AutoCar.Desktop.ViewModels.Catalogo;
 using AutoCar.Desktop.ViewModels.Sales;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,6 +28,7 @@ public partial class PreVendaWindow : Window
         viewModel.Salvo += Close;
         viewModel.Cancelado += Close;
         viewModel.AbrirCatalogoSolicitado += AbrirCatalogo;
+        viewModel.AbrirSeletorClienteSolicitado += AbrirSeletorCliente;
     }
 
     private void InitializeComponent() => AvaloniaXamlLoader.Load(this);
@@ -44,5 +46,19 @@ public partial class PreVendaWindow : Window
         var catalogoVm = App.Services.GetRequiredService<CatalogoViewModel>();
         var seletor = new CatalogoSeletorWindow(catalogoVm, peca => _vm.AdicionarPecaDoCatalogo(peca));
         seletor.ShowDialog(this); // modal sobre a pré-venda; o shell principal segue acessível por trás dela
+    }
+
+    /// <summary>
+    /// Abre o seletor de cliente (modal sobre a pré-venda). Busca por nome/código, setas,
+    /// Enter/duplo-clique escolhe; "Consumidor" devolve null. IClienteService vem do DI.
+    /// </summary>
+    private void AbrirSeletorCliente()
+    {
+        if (_vm is null)
+            return;
+
+        var clientes = App.Services.GetRequiredService<IClienteService>();
+        var seletor = new ClienteSeletorWindow(clientes, cli => _vm.DefinirCliente(cli));
+        seletor.ShowDialog(this);
     }
 }

@@ -79,6 +79,7 @@
                     <TextBlock Grid.Row="0" Grid.Column="4" Classes="formlabel" Text="Limite Crédito" />
                     <TextBox Grid.Row="0" Grid.Column="5"
                              Text="{Binding LimiteCreditoTexto}" IsEnabled="{Binding !ModoVisualizacao}"
+                             b:SelecionarTudoBehavior.Ativo="True"
                              Watermark="0,00"
                              HorizontalAlignment="Left" Width="120" />
 

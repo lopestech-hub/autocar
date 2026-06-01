@@ -40,7 +40,10 @@ Orçamento, OS e Venda. Não baixa estoque ao salvar — o saldo só sai quando 
 - `PreVendaFormView` + `PreVendaFormViewModel` — form dois modos: seções DADOS (cliente opcional +
   veículo livre + vendedor read-only) · ITENS (grid editável) · TOTAIS (subtotal/desconto/TOTAL em faixa).
 - `PreVendaItemViewModel` — linha do grid de itens (qtd/unitário/desconto editáveis; total recalcula).
-- `CatalogoSeletorWindow` — janela do catálogo no F2, reusa `CatalogoView` em **modo seletor**.
+- `CatalogoSeletorWindow` — janela do catálogo no **F2**, reusa `CatalogoView` em **modo seletor**.
+- `ClienteSeletorWindow` — janela seletora de cliente no **F3** (ou clique no campo Cliente): busca por
+  nome ou código, setas, Enter/duplo-clique; botão "Consumidor" = avulso. Cliente é um `Button.seletor`
+  (não combo) — o AutoCompleteBox foi descartado por renderizar quebrado no Avalonia 11.
 
 ## Regras de Negócio
 

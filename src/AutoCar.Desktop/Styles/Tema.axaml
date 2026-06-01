@@ -25,7 +25,9 @@
             <Color x:Key="ColorFundoHeader">#F8FAFC</Color>
 
             <!-- ===== BORDAS ===== -->
-            <Color x:Key="ColorBorda">#CBD5E1</Color>
+            <!-- Borda de repouso forte (azul-ardósia #1E293B) — campo bem definido, preferência do
+                 Julio (validada na tela). O foco continua azul (#3B82F6, ColorBordaFoco). -->
+            <Color x:Key="ColorBorda">#1E293B</Color>
             <Color x:Key="ColorBordaSuave">#E2E8F0</Color>
             <Color x:Key="ColorBordaFoco">#3B82F6</Color>
             <Color x:Key="ColorBordaErro">#EF4444</Color>
@@ -150,6 +152,20 @@
     <!-- ===================================================================
          COMPONENTES
          =================================================================== -->
+
+    <!-- Tooltip: fundo azul-ardósia do tema (ColorTexto #1E293B) em vez do escuro padrão do
+         Avalonia — destaca mais, conversa com a marca e usa cor da paleta. Texto branco, borda
+         sutil, cantos 3px. Estilo global: vale para todos os tooltips do sistema. -->
+    <Style Selector="ToolTip">
+        <Setter Property="Background" Value="{DynamicResource BrushTexto}" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushTextoInverso}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BrushTextoSecundario}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="3" />
+        <Setter Property="Padding" Value="8,4" />
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontFamily" Value="{DynamicResource FonteInterface}" />
+    </Style>
 
     <!-- Label de formulário denso (à esquerda do campo, alinhado à direita) -->
     <Style Selector="TextBlock.formlabel">
@@ -308,6 +324,38 @@
 
     <!-- (NumericUpDown removido: valores monetários usam TextBox com parse no ViewModel —
          o NumericUpDown do Fluent dava problema de estilo/borda. Ver LimiteCreditoTexto.) -->
+
+    <!-- ===================================================================
+         BOTÃO-SELETOR (campo que abre uma janela de busca: cliente por nome/código, etc.)
+         Parece um campo de formulário (24px, borda, fundo branco, texto à esquerda) mas é um
+         Button — clicar/Enter abre o seletor. Padrão reutilizável (cliente, e futuros).
+         =================================================================== -->
+    <Style Selector="Button.seletor">
+        <Setter Property="Height" Value="24" />
+        <Setter Property="MinHeight" Value="24" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontFamily" Value="{DynamicResource FonteInterface}" />
+        <Setter Property="Padding" Value="5,0" />
+        <Setter Property="Background" Value="{DynamicResource BrushFundoInput}" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushTexto}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BrushBorda}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="2" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+    </Style>
+    <Style Selector="Button.seletor /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource BrushFundoInput}" />
+    </Style>
+    <Style Selector="Button.seletor:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource BrushFundoInput}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BrushBordaFoco}" />
+    </Style>
+    <Style Selector="Button.seletor:disabled /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource BrushFundoSelecionado}" />
+        <Setter Property="Opacity" Value="1" />
+    </Style>
 
     <!-- Botão primário (26px) -->
     <Style Selector="Button.primario">

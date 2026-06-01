@@ -1,0 +1,43 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="AutoCar.Desktop.Views.Sales.ClienteSeletorWindow"
+        Width="720" Height="560"
+        WindowStartupLocation="CenterOwner"
+        Title="Selecionar cliente"
+        Background="{DynamicResource BrushFundo}"
+        KeyDown="AoTeclar">
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="16">
+
+        <!-- Título -->
+        <TextBlock Grid.Row="0" Text="Selecionar cliente"
+                   FontSize="14" FontWeight="SemiBold"
+                   Foreground="{DynamicResource BrushTexto}" Margin="0,0,0,12" />
+
+        <!-- Busca por nome ou código -->
+        <TextBox Grid.Row="1" Name="CampoBusca"
+                 Watermark="Buscar por nome ou código (digite e use as setas)"
+                 Margin="0,0,0,12" />
+
+        <Border Grid.Row="2"
+                Background="{DynamicResource BrushFundoCard}"
+                BorderBrush="{DynamicResource BrushBorda}" BorderThickness="1"
+                CornerRadius="6" ClipToBounds="True">
+            <Panel Name="TabelaContainer" />
+        </Border>
+
+        <Border Grid.Row="3" BorderBrush="{DynamicResource BrushBorda}" BorderThickness="0,1,0,0" Padding="0,10,0,0" Margin="0,12,0,0">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center"
+                           Text="Enter ou duplo-clique seleciona. Esc fecha (sem cliente = Consumidor)."
+                           FontSize="11" Foreground="{DynamicResource BrushTextoMudo}" />
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                    <Button Content="Consumidor (sem cliente)" Classes="secundario"
+                            Cursor="Hand" Click="AoEscolherConsumidor" />
+                    <Button Content="Fechar" Classes="secundario"
+                            Cursor="Hand" Click="AoFechar" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>

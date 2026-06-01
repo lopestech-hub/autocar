@@ -51,9 +51,6 @@ public partial class PreVendaFormViewModel : ViewModelBase
     /// peças (Catálogo) e devolve a escolhida via <see cref="AdicionarPecaDoCatalogo"/>.</summary>
     public event Action? AbrirCatalogoSolicitado;
 
-    /// <summary>Clientes para o combo (inclui item nulo "— (Consumidor)" para venda avulsa).</summary>
-    public ObservableCollection<ClienteListaDto?> Clientes { get; } = new();
-
     /// <summary>Itens (linhas) da pré-venda.</summary>
     public ObservableCollection<PreVendaItemViewModel> Itens { get; } = new();
 
@@ -77,6 +74,15 @@ public partial class PreVendaFormViewModel : ViewModelBase
     /// <summary>Quando há cliente cadastrado selecionado, o nome avulso fica desabilitado.</summary>
     public bool ClienteAvulso => ClienteSelecionado is null;
 
+    /// <summary>Texto exibido no campo-seletor de cliente: "CÓD — NOME" ou "Consumidor" se avulso.</summary>
+    public string ClienteTexto => ClienteSelecionado is { } c
+        ? $"{c.CodCliente:0000} — {c.RazaoSocial}"
+        : "Consumidor";
+
+    /// <summary>Disparado ao pedir o seletor de cliente (F3 / clique no campo). A janela da
+    /// pré-venda abre a janela seletora de cliente e devolve o escolhido via <see cref="DefinirCliente"/>.</summary>
+    public event Action? AbrirSeletorClienteSolicitado;
+
     public string Titulo => _id is null ? "Nova Pré-venda" : $"Pré-venda Nº {CodPreVenda}";
 
     [ObservableProperty] private int _codPreVenda;
@@ -99,6 +105,7 @@ public partial class PreVendaFormViewModel : ViewModelBase
     partial void OnClienteSelecionadoChanged(ClienteListaDto? value)
     {
         OnPropertyChanged(nameof(ClienteAvulso));
+        OnPropertyChanged(nameof(ClienteTexto));
         if (value is not null)
             NomeClienteAvulso = null; // com cliente cadastrado, não usa nome avulso
     }
@@ -113,11 +120,10 @@ public partial class PreVendaFormViewModel : ViewModelBase
     partial void OnCodPreVendaChanged(int value) => OnPropertyChanged(nameof(Titulo));
 
     /// <summary>Prepara o formulário para uma nova pré-venda (limpa, em edição).</summary>
-    public async Task PrepararNovaAsync(Guid idUsuario, string nomeVendedor)
+    public Task PrepararNovaAsync(Guid idUsuario, string nomeVendedor)
     {
         _idUsuario = idUsuario;
         NomeVendedor = nomeVendedor;
-        await CarregarClientesAsync();
         _id = null;
         CodPreVenda = 0;
         ClienteSelecionado = null;
@@ -130,6 +136,7 @@ public partial class PreVendaFormViewModel : ViewModelBase
         ModoVisualizacao = false;
         OnPropertyChanged(nameof(Titulo));
         RecalcularTotais();
+        return Task.CompletedTask;
     }
 
     /// <summary>Carrega uma pré-venda existente em modo visualização.</summary>
@@ -141,7 +148,6 @@ public partial class PreVendaFormViewModel : ViewModelBase
         {
             _idUsuario = idUsuario;
             NomeVendedor = nomeVendedor;
-            await CarregarClientesAsync();
 
             var resultado = await _preVendas.ObterPorIdAsync(id);
             if (resultado.Falha)
@@ -154,8 +160,8 @@ public partial class PreVendaFormViewModel : ViewModelBase
             _id = p.Id;
             CodPreVenda = p.CodPreVenda;
 
-            // Seleciona o cliente pelo Id dentro da coleção do combo (matching por referência).
-            ClienteSelecionado = Clientes.FirstOrDefault(c => c?.Id == p.IdCliente);
+            // Carrega o cliente vinculado (se houver) para exibir no campo-seletor.
+            ClienteSelecionado = await ObterClienteResumoAsync(p.IdCliente);
             NomeClienteAvulso = p.NomeClienteAvulso;
             VeiculoMontadora = p.VeiculoMontadora;
             VeiculoModelo = p.VeiculoModelo;
@@ -193,6 +199,18 @@ public partial class PreVendaFormViewModel : ViewModelBase
         if (!ModoVisualizacao)
             AbrirCatalogoSolicitado?.Invoke();
     }
+
+    /// <summary>F3 / clique no campo Cliente: pede a janela seletora de cliente. Só no modo edição.</summary>
+    [RelayCommand]
+    private void AbrirSeletorCliente()
+    {
+        if (!ModoVisualizacao)
+            AbrirSeletorClienteSolicitado?.Invoke();
+    }
+
+    /// <summary>Define o cliente escolhido no seletor (null = volta para Consumidor/avulso).
+    /// Chamado pela janela seletora de cliente.</summary>
+    public void DefinirCliente(ClienteListaDto? cliente) => ClienteSelecionado = cliente;
 
     /// <summary>Adiciona a peça escolhida no Catálogo como uma nova linha (preço = snapshot do
     /// VlrVenda). Se a peça já está na lista, incrementa a quantidade. Chamado pela janela seletora.</summary>
@@ -269,13 +287,24 @@ public partial class PreVendaFormViewModel : ViewModelBase
     [RelayCommand]
     private void Cancelar() => Cancelado?.Invoke();
 
-    private async Task CarregarClientesAsync()
+    // Busca o resumo de um cliente pelo Id (para exibir no campo ao reabrir uma pré-venda).
+    // Retorna null se não houver cliente vinculado (venda avulsa) ou se não encontrar.
+    private async Task<ClienteListaDto?> ObterClienteResumoAsync(Guid? idCliente)
     {
-        var clientes = await _clientes.ListarAsync(null);
-        Clientes.Clear();
-        Clientes.Add(null); // "— (Consumidor)" — venda de balcão avulsa
-        foreach (var c in clientes) Clientes.Add(c);
+        if (idCliente is not Guid id)
+            return null;
+
+        var r = await _clientes.ObterPorIdAsync(id);
+        if (r.Falha)
+            return null;
+
+        var c = r.Valor;
+        return new ClienteListaDto(c.Id, c.CodCliente, c.TipoPessoa, c.Documento, c.RazaoSocial, c.Telefone, c.FlgAtivo);
     }
+
+    /// <summary>Limpa a seleção de cliente (volta para venda avulsa/Consumidor).</summary>
+    [RelayCommand]
+    private void LimparCliente() => ClienteSelecionado = null;
 
     private void AdicionarItemVm(PreVendaItemViewModel item)
     {

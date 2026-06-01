@@ -19,7 +19,7 @@ bordas no lugar de sombras, tipografia compacta. Cor só comunica significado.
 | `BrushFundoHover` | #F8FAFC | hover de linha/botão |
 | `BrushFundoHeader` | #F8FAFC | barra de status, header de tabela |
 | `BrushPrimario` | #3B82F6 | botão primário, foco, marca, ícone da toolbar |
-| `BrushBorda` | #CBD5E1 | borda padrão |
+| `BrushBorda` | #1E293B | borda padrão de campo (repouso) — forte/bem definida; foco vira azul |
 | `BrushTexto` | #1E293B | texto principal |
 | `BrushTextoSecundario` | #64748B | labels, subtítulos, legendas |
 | `BrushTextoInverso` | #FFFFFF | texto/ícone sobre fundo colorido |
@@ -152,6 +152,26 @@ CornerRadius: controles 2px · cards 6px · ícone-marcador 3px.
   → ProgressBar 2px (loading) → mensagem de erro 11px vermelha.
 - Login é por **nome de usuário** (campo `Login`), não e-mail.
 - Padrão de botão assíncrono: `Carregando` + `MensagemErro`, `IsEnabled="{Binding !Carregando}"`.
+
+### Botão-seletor (campo que abre janela de busca) — PADRÃO
+
+> Para escolher um registro relacionado (cliente, e futuros) sem combo: um `Button Classes="seletor"`
+> que parece campo de formulário (24px, borda, fundo branco, texto à esquerda) e, ao clicar/Enter,
+> abre uma **janela seletora** (Grid único: busca por nome/código, setas, Enter/duplo-clique).
+
+- Estilo `Button.seletor` no Tema (reutilizável). O ViewModel expõe `XTexto` (read-only, "CÓD — NOME"
+  ou rótulo padrão tipo "Consumidor"), um comando `AbrirSeletorX` e um método `DefinirX(item)`.
+- A janela seletora segue o padrão "Seletor" (ver acima) e é aberta modal pela janela-pai via evento.
+- Atalhos: na Pré-venda, **F2 = peça** (Catálogo), **F3 = cliente**.
+- ⚠️ **NÃO usar `AutoCompleteBox` para isso no Avalonia 11** — ele renderiza quebrado (o PART_TextBox
+  interno herda o fundo disabled e fica cinza mesmo habilitado; o popup posiciona mal). Foi descartado
+  em favor do botão-seletor + janela. Ver [[licao-autocompletebox-avalonia11]] (memória global).
+
+### Tooltip — PADRÃO
+
+- Fundo **azul-ardósia `#1E293B`** (ColorTexto), texto branco, borda sutil `#64748B`, radius 3, 11px.
+  Estilo global `Selector="ToolTip"` no Tema — destaca mais que o escuro padrão e usa cor da paleta.
+- Microcopy de atalho: usar `=` (ex: "F3 = buscar cliente"), nunca traço longo.
 
 ### Shell principal (MainWindow) — layout ERP clássico
 

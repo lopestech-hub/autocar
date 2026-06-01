@@ -152,10 +152,12 @@
                         <TextBlock Grid.Row="0" Grid.Column="0" Classes="formlabel" Text="Custo" />
                         <TextBox Grid.Row="0" Grid.Column="1"
                                  Text="{Binding VlrCustoTexto}" IsEnabled="{Binding !ModoVisualizacao}"
+                                 b:SelecionarTudoBehavior.Ativo="True"
                                  Watermark="0,00" />
                         <TextBlock Grid.Row="0" Grid.Column="2" Classes="formlabel" Text="Venda" />
                         <TextBox Grid.Row="0" Grid.Column="3"
                                  Text="{Binding VlrVendaTexto}" IsEnabled="{Binding !ModoVisualizacao}"
+                                 b:SelecionarTudoBehavior.Ativo="True"
                                  Watermark="0,00" />
                         <TextBlock Grid.Row="0" Grid.Column="4" Classes="formlabel" Text="Margem" />
                         <TextBlock Grid.Row="0" Grid.Column="5"
@@ -209,9 +211,11 @@
                                              b:MaiusculoBehavior.Ativo="True" Margin="0,0,4,0"
                                              Watermark="GOL" />
                                     <TextBox Grid.Column="2" Text="{Binding AnoInicioTexto}"
+                                             b:SelecionarTudoBehavior.Ativo="True"
                                              IsEnabled="{Binding $parent[ItemsControl].((vm:ProdutoFormViewModel)DataContext).ModoVisualizacao, Converter={x:Static BoolConverters.Not}}"
                                              MaxLength="4" Margin="0,0,4,0" Watermark="2008" />
                                     <TextBox Grid.Column="3" Text="{Binding AnoFimTexto}"
+                                             b:SelecionarTudoBehavior.Ativo="True"
                                              IsEnabled="{Binding $parent[ItemsControl].((vm:ProdutoFormViewModel)DataContext).ModoVisualizacao, Converter={x:Static BoolConverters.Not}}"
                                              MaxLength="4" Margin="0,0,4,0" Watermark="2014" />
                                     <TextBox Grid.Column="4" Text="{Binding Motorizacao}"
