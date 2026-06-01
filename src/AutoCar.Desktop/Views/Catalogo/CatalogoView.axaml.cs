@@ -3,6 +3,7 @@ using System.Globalization;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
@@ -24,16 +25,33 @@ public partial class CatalogoView : UserControl
     private static readonly CultureInfo PtBr = new("pt-BR");
 
     private static readonly IBrush CorHover = new SolidColorBrush(Color.Parse("#EFF6FF"));
+    private static readonly IBrush CorSelecionada = new SolidColorBrush(Color.Parse("#DBEAFE"));
+    private static readonly IBrush CorBarraAtiva = new SolidColorBrush(Color.Parse("#3B82F6"));
     private static readonly IBrush CorNormal = Brushes.Transparent;
     private static readonly IBrush CorZebra = new SolidColorBrush(Color.Parse("#FAFBFC"));
     private static readonly IBrush CorBordaSuave = new SolidColorBrush(Color.Parse("#E2E8F0"));
     private static readonly IBrush CorBordaHeader = new SolidColorBrush(Color.Parse("#CBD5E1"));
     private static readonly IBrush CorFundoHeader = new SolidColorBrush(Color.Parse("#F8FAFC"));
-    private static readonly IBrush CorTextoHeader = new SolidColorBrush(Color.Parse("#64748B"));
+    private static readonly IBrush CorTextoHeader = new SolidColorBrush(Color.Parse("#475569"));
     private static readonly IBrush CorTexto = new SolidColorBrush(Color.Parse("#1E293B"));
     private static readonly IBrush CorTextoSuave = new SolidColorBrush(Color.Parse("#64748B"));
 
     private CatalogoViewModel? _vm;
+
+    /// <summary>
+    /// Quando true, a tela funciona como SELETOR de peça (usada na pré-venda via F2): cada linha
+    /// fica clicável e dispara <see cref="PecaSelecionada"/>. Quando false, é só consulta (uso normal).
+    /// </summary>
+    public bool ModoSeletor { get; set; }
+
+    /// <summary>Disparado ao escolher uma peça no modo seletor (duplo-clique ou Enter).</summary>
+    public event System.Action<CatalogoItemDto>? PecaSelecionada;
+
+    // Estado da navegação por teclado no modo seletor: os Borders de cada linha (para pintar a
+    // cor de fundo), as barras laterais de destaque, e o índice atualmente destacado (-1 = nenhum).
+    private readonly System.Collections.Generic.List<Border> _linhas = new();
+    private readonly System.Collections.Generic.List<Border> _barras = new();
+    private int _indiceSelecionado = -1;
 
     public CatalogoView()
     {
@@ -57,6 +75,52 @@ public partial class CatalogoView : UserControl
 
     private void AoMudarColecao(object? sender, NotifyCollectionChangedEventArgs e) => RegerarTabela();
 
+    // ===== Navegação por teclado (modo seletor — usada pela CatalogoSeletorWindow) =====
+
+    /// <summary>Coloca o foco no campo de busca de peça (chamado ao abrir o seletor).</summary>
+    public void FocarBusca() => this.FindControl<TextBox>("CampoPeca")?.Focus();
+
+    /// <summary>Move o destaque uma linha para baixo (seta ↓). Entra na lista a partir da busca.</summary>
+    public void NavegarBaixo()
+    {
+        if (_linhas.Count == 0) return;
+        DestacarLinha(System.Math.Min(_indiceSelecionado + 1, _linhas.Count - 1));
+    }
+
+    /// <summary>Move o destaque uma linha para cima (seta ↑).</summary>
+    public void NavegarCima()
+    {
+        if (_linhas.Count == 0) return;
+        DestacarLinha(System.Math.Max(_indiceSelecionado - 1, 0));
+    }
+
+    /// <summary>Confirma a linha destacada (Enter). Retorna true se selecionou algo.</summary>
+    public bool SelecionarAtual()
+    {
+        if (_indiceSelecionado < 0 || _indiceSelecionado >= _linhas.Count) return false;
+        if (_linhas[_indiceSelecionado].Tag is CatalogoItemDto peca)
+        {
+            PecaSelecionada?.Invoke(peca);
+            return true;
+        }
+        return false;
+    }
+
+    // Pinta a linha destacada (azul) + barra lateral azul-primário; devolve as demais à zebra.
+    private void DestacarLinha(int indice)
+    {
+        if (indice < 0 || indice >= _linhas.Count) return;
+
+        for (var i = 0; i < _linhas.Count; i++)
+        {
+            _linhas[i].Background = i == indice ? CorSelecionada : (i % 2 == 1 ? CorZebra : CorNormal);
+            _barras[i].IsVisible = i == indice; // régua azul só na linha ativa
+        }
+
+        _indiceSelecionado = indice;
+        _linhas[indice].BringIntoView();
+    }
+
     private void RegerarTabela()
     {
         var container = this.FindControl<Panel>("TabelaContainer");
@@ -67,6 +131,11 @@ public partial class CatalogoView : UserControl
             if (container.Children[i] is DockPanel)
                 container.Children.RemoveAt(i);
 
+        // A tabela foi recriada (nova busca): zera o rastreio das linhas e a seleção do teclado.
+        _linhas.Clear();
+        _barras.Clear();
+        _indiceSelecionado = -1;
+
         var header = CriarHeader();
         Control corpo = _vm.Resultados.Count > 0 ? CriarCorpo() : CriarMensagemVazia();
 
@@ -75,6 +144,10 @@ public partial class CatalogoView : UserControl
         dock.Children.Add(header);
         dock.Children.Add(corpo);
         container.Children.Insert(0, dock);
+
+        // No modo seletor, abre com a primeira linha já selecionada (fluxo de teclado imediato).
+        if (ModoSeletor && _linhas.Count > 0)
+            DestacarLinha(0);
     }
 
     private Grid CriarHeader()
@@ -96,7 +169,7 @@ public partial class CatalogoView : UserControl
             {
                 Text = Headers[col],
                 FontSize = 11,
-                FontWeight = FontWeight.Medium,
+                FontWeight = FontWeight.SemiBold,
                 Foreground = CorTextoHeader,
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(8, 0, 8, 0),
@@ -135,8 +208,40 @@ public partial class CatalogoView : UserControl
             Grid.SetRow(fundo, i);
             Grid.SetColumnSpan(fundo, Headers.Length);
 
-            fundo.PointerEntered += (_, _) => fundo.Background = CorHover;
-            fundo.PointerExited += (_, _) => fundo.Background = corLinha;
+            var indiceLinha = i;
+
+            // Hover = destaque PASSAGEIRO, separado da seleção. Só pinta/despinta a linha que NÃO é
+            // a selecionada (a marca forte vence o hover). A linha selecionada ignora o hover.
+            fundo.PointerEntered += (_, _) => { if (indiceLinha != _indiceSelecionado) fundo.Background = CorHover; };
+            fundo.PointerExited += (_, _) => { if (indiceLinha != _indiceSelecionado) fundo.Background = corLinha; };
+
+            // No modo seletor (pré-venda): clique simples SELECIONA (marca); duplo-clique ADICIONA.
+            if (ModoSeletor)
+            {
+                fundo.Cursor = new Cursor(StandardCursorType.Hand);
+                fundo.Tag = item;
+                _linhas.Add(fundo);
+                fundo.Tapped += (_, _) => DestacarLinha(indiceLinha); // 1 clique = marca
+                fundo.DoubleTapped += (_, _) =>
+                {
+                    if (fundo.Tag is CatalogoItemDto escolhida)
+                        PecaSelecionada?.Invoke(escolhida); // 2 cliques = adiciona
+                };
+
+                // Barra lateral azul-primário (3px) na borda esquerda — "régua" da linha selecionada.
+                var barra = new Border
+                {
+                    Width = 3,
+                    Background = CorBarraAtiva,
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                    IsVisible = false,
+                };
+                Grid.SetRow(barra, i);
+                Grid.SetColumnSpan(barra, Headers.Length);
+                _barras.Add(barra);
+                grid.Children.Add(barra);
+            }
+
             grid.Children.Add(fundo);
 
             Celula(grid, i, 0, item.CodProduto.ToString(), mono: true);

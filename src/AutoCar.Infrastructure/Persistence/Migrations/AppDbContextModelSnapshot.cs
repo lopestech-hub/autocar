@@ -306,6 +306,157 @@ namespace AutoCar.Infrastructure.Persistence.Migrations
                     b.ToTable("marca", (string)null);
                 });
 
+            modelBuilder.Entity("AutoCar.Domain.Entities.PreVenda", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id_pre_venda");
+
+                    b.Property<DateTime>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("dat_atualizacao");
+
+                    b.Property<int>("CodPreVenda")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("cod_pre_venda");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CodPreVenda"));
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("dat_criacao");
+
+                    b.Property<bool>("FlgAtivo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("flg_ativo");
+
+                    b.Property<Guid?>("IdCliente")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id_cliente");
+
+                    b.Property<Guid>("IdUsuario")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id_usuario");
+
+                    b.Property<string>("NomeClienteAvulso")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("nome_cliente_avulso");
+
+                    b.Property<string>("Observacao")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("observacao");
+
+                    b.Property<int>("Situacao")
+                        .HasColumnType("integer")
+                        .HasColumnName("sts_situacao");
+
+                    b.Property<string>("VeiculoAno")
+                        .HasMaxLength(9)
+                        .HasColumnType("character varying(9)")
+                        .HasColumnName("veiculo_ano");
+
+                    b.Property<string>("VeiculoModelo")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("veiculo_modelo");
+
+                    b.Property<string>("VeiculoMontadora")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("veiculo_montadora");
+
+                    b.Property<string>("VeiculoPlaca")
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)")
+                        .HasColumnName("veiculo_placa");
+
+                    b.Property<decimal>("VlrDesconto")
+                        .HasColumnType("decimal(10,2)")
+                        .HasColumnName("vlr_desconto");
+
+                    b.Property<decimal>("VlrTotal")
+                        .HasColumnType("decimal(10,2)")
+                        .HasColumnName("vlr_total");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CodPreVenda")
+                        .IsUnique()
+                        .HasDatabaseName("ix_pre_venda_cod");
+
+                    b.HasIndex("CriadoEm")
+                        .HasDatabaseName("ix_pre_venda_data");
+
+                    b.HasIndex("IdCliente")
+                        .HasDatabaseName("ix_pre_venda_cliente");
+
+                    b.HasIndex("IdUsuario");
+
+                    b.HasIndex("Situacao")
+                        .HasDatabaseName("ix_pre_venda_situacao");
+
+                    b.ToTable("pre_venda", (string)null);
+                });
+
+            modelBuilder.Entity("AutoCar.Domain.Entities.PreVendaItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id_pre_venda_item");
+
+                    b.Property<DateTime>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("dat_atualizacao");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("dat_criacao");
+
+                    b.Property<string>("DescricaoProduto")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("descricao_produto");
+
+                    b.Property<Guid>("IdPreVenda")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id_pre_venda");
+
+                    b.Property<Guid>("IdProduto")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id_produto");
+
+                    b.Property<decimal>("Qtd")
+                        .HasColumnType("decimal(10,2)")
+                        .HasColumnName("qtd");
+
+                    b.Property<decimal>("VlrDesconto")
+                        .HasColumnType("decimal(10,2)")
+                        .HasColumnName("vlr_desconto");
+
+                    b.Property<decimal>("VlrTotalItem")
+                        .HasColumnType("decimal(10,2)")
+                        .HasColumnName("vlr_total_item");
+
+                    b.Property<decimal>("VlrUnitario")
+                        .HasColumnType("decimal(10,2)")
+                        .HasColumnName("vlr_unitario");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdPreVenda")
+                        .HasDatabaseName("ix_pre_venda_item_pre_venda");
+
+                    b.HasIndex("IdProduto");
+
+                    b.ToTable("pre_venda_item", (string)null);
+                });
+
             modelBuilder.Entity("AutoCar.Domain.Entities.Produto", b =>
                 {
                     b.Property<Guid>("Id")
@@ -365,6 +516,12 @@ namespace AutoCar.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id_marca");
 
+                    b.Property<int>("Posicao")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("sts_posicao");
+
                     b.Property<int>("Unidade")
                         .HasColumnType("integer")
                         .HasColumnName("sts_unidade");
@@ -419,6 +576,12 @@ namespace AutoCar.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("dat_atualizacao");
 
+                    b.Property<int>("Combustivel")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("sts_combustivel");
+
                     b.Property<DateTime>("CriadoEm")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("dat_criacao");
@@ -438,6 +601,11 @@ namespace AutoCar.Infrastructure.Persistence.Migrations
                         .HasMaxLength(60)
                         .HasColumnType("character varying(60)")
                         .HasColumnName("montadora");
+
+                    b.Property<string>("Motorizacao")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("motorizacao");
 
                     b.Property<string>("Observacao")
                         .HasMaxLength(120)
@@ -566,7 +734,7 @@ namespace AutoCar.Infrastructure.Persistence.Migrations
 
                             b1.HasKey("ClienteId");
 
-                            b1.ToTable("cliente", (string)null);
+                            b1.ToTable("cliente");
 
                             b1.WithOwner()
                                 .HasForeignKey("ClienteId");
@@ -620,13 +788,44 @@ namespace AutoCar.Infrastructure.Persistence.Migrations
 
                             b1.HasKey("FornecedorId");
 
-                            b1.ToTable("fornecedor", (string)null);
+                            b1.ToTable("fornecedor");
 
                             b1.WithOwner()
                                 .HasForeignKey("FornecedorId");
                         });
 
                     b.Navigation("Endereco")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("AutoCar.Domain.Entities.PreVenda", b =>
+                {
+                    b.HasOne("AutoCar.Domain.Entities.Cliente", "Cliente")
+                        .WithMany()
+                        .HasForeignKey("IdCliente")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("AutoCar.Domain.Entities.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("IdUsuario")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Cliente");
+                });
+
+            modelBuilder.Entity("AutoCar.Domain.Entities.PreVendaItem", b =>
+                {
+                    b.HasOne("AutoCar.Domain.Entities.PreVenda", null)
+                        .WithMany("Itens")
+                        .HasForeignKey("IdPreVenda")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AutoCar.Domain.Entities.Produto", null)
+                        .WithMany()
+                        .HasForeignKey("IdProduto")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
@@ -662,6 +861,11 @@ namespace AutoCar.Infrastructure.Persistence.Migrations
                         .HasForeignKey("IdProduto")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("AutoCar.Domain.Entities.PreVenda", b =>
+                {
+                    b.Navigation("Itens");
                 });
 
             modelBuilder.Entity("AutoCar.Domain.Entities.Produto", b =>

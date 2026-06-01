@@ -5,6 +5,7 @@ using AutoCar.Desktop.Navegacao;
 using AutoCar.Desktop.ViewModels;
 using AutoCar.Desktop.ViewModels.Catalogo;
 using AutoCar.Desktop.ViewModels.Registrations;
+using AutoCar.Desktop.ViewModels.Sales;
 using AutoCar.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -63,6 +64,9 @@ public static class Bootstrap
         services.AddTransient<ProdutosViewModel>();
         services.AddTransient<ProdutoFormViewModel>();
         services.AddTransient<CatalogoViewModel>();
+        // PreVendasViewModel não entra no DI: depende do UsuarioLogado (runtime). É montado
+        // pelo Navegador. O form, sim, vem do DI (não depende do usuário diretamente).
+        services.AddTransient<PreVendaFormViewModel>();
 
         return services.BuildServiceProvider();
     }

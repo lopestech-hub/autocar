@@ -38,6 +38,9 @@ public partial class ProdutoFormViewModel : ViewModelBase
     /// <summary>Unidades de medida disponíveis (combo).</summary>
     public IReadOnlyList<UnidadeMedida> Unidades { get; } = Enum.GetValues<UnidadeMedida>();
 
+    /// <summary>Posições/eixo disponíveis (combo). NaoAplica é o padrão (peça sem eixo).</summary>
+    public IReadOnlyList<PosicaoPeca> Posicoes { get; } = Enum.GetValues<PosicaoPeca>();
+
     /// <summary>Categorias para o combo (obrigatório). Carregadas ao abrir o form.</summary>
     public ObservableCollection<OpcaoDto> Categorias { get; } = new();
 
@@ -55,6 +58,7 @@ public partial class ProdutoFormViewModel : ViewModelBase
     [ObservableProperty] private string? _codBarras;
     [ObservableProperty] private string? _codFabricante;
     [ObservableProperty] private UnidadeMedida _unidade = UnidadeMedida.UN;
+    [ObservableProperty] private PosicaoPeca _posicao = PosicaoPeca.NaoAplica;
     [ObservableProperty] private decimal _vlrCusto;
     [ObservableProperty] private decimal _vlrVenda;
     [ObservableProperty] private OpcaoDto? _categoriaSelecionada;
@@ -114,6 +118,7 @@ public partial class ProdutoFormViewModel : ViewModelBase
         Descricao = string.Empty;
         DescricaoComplementar = CodBarras = CodFabricante = null;
         Unidade = UnidadeMedida.UN;
+        Posicao = PosicaoPeca.NaoAplica;
         VlrCusto = VlrVenda = 0;
         CategoriaSelecionada = null;
         MarcaSelecionada = null;
@@ -147,6 +152,7 @@ public partial class ProdutoFormViewModel : ViewModelBase
             CodBarras = p.CodBarras;
             CodFabricante = p.CodFabricante;
             Unidade = p.Unidade;
+            Posicao = p.Posicao;
             VlrCusto = p.VlrCusto;
             VlrVenda = p.VlrVenda;
 
@@ -157,7 +163,8 @@ public partial class ProdutoFormViewModel : ViewModelBase
 
             Aplicacoes.Clear();
             foreach (var a in p.Aplicacoes)
-                Aplicacoes.Add(new AplicacaoItemViewModel(a.Montadora, a.Modelo, a.AnoInicio, a.AnoFim, a.Observacao));
+                Aplicacoes.Add(new AplicacaoItemViewModel(
+                    a.Montadora, a.Modelo, a.AnoInicio, a.AnoFim, a.Motorizacao, a.Combustivel, a.Observacao));
 
             ModoVisualizacao = true;
             OnPropertyChanged(nameof(Titulo));
@@ -192,12 +199,13 @@ public partial class ProdutoFormViewModel : ViewModelBase
             // Descarta linhas vazias; o service normaliza CAIXA ALTA e grava substituindo as antigas.
             var aplicacoes = Aplicacoes
                 .Where(a => a.TemConteudo)
-                .Select(a => new AplicacaoDto(a.Montadora, a.Modelo, a.AnoInicio, a.AnoFim, a.Observacao))
+                .Select(a => new AplicacaoDto(
+                    a.Montadora, a.Modelo, a.AnoInicio, a.AnoFim, a.Motorizacao, a.Combustivel, a.Observacao))
                 .ToList();
 
             var dto = new SalvarProdutoDto(
                 CategoriaSelecionada.Id, Descricao, DescricaoComplementar, CodBarras,
-                CodFabricante, Unidade, VlrCusto, VlrVenda,
+                CodFabricante, Unidade, Posicao, VlrCusto, VlrVenda,
                 MarcaSelecionada?.Id, FornecedorSelecionado?.Id, aplicacoes);
 
             var resultado = _id is null

@@ -27,6 +27,8 @@ public partial class LoginWindow : Window
     private void AoConcluirLogin(UsuarioLogado usuario)
     {
         var navegador = App.Services.GetRequiredService<INavegador>();
+        navegador.DefinirUsuario(usuario); // telas que dependem de quem está logado (ex: Pré-venda)
+
         var principal = new MainWindow
         {
             DataContext = new MainWindowViewModel(usuario, navegador),

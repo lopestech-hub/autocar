@@ -27,6 +27,10 @@ public class AppDbContext : DbContext
 
     public DbSet<ProdutoAplicacao> ProdutoAplicacoes => Set<ProdutoAplicacao>();
 
+    public DbSet<PreVenda> PreVendas => Set<PreVenda>();
+
+    public DbSet<PreVendaItem> PreVendaItens => Set<PreVendaItem>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

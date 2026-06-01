@@ -1,0 +1,305 @@
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Linq;
+using System.Threading.Tasks;
+using AutoCar.Application.Modules.Registrations.Clientes;
+using AutoCar.Application.Modules.Registrations.Clientes.DTOs;
+using AutoCar.Application.Modules.Registrations.Produtos.DTOs;
+using AutoCar.Application.Modules.Sales.PreVendas;
+using AutoCar.Application.Modules.Sales.PreVendas.DTOs;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
+
+namespace AutoCar.Desktop.ViewModels.Sales;
+
+/// <summary>
+/// Formulário de Pré-venda em dois modos (visualização/edição). Cabeçalho com cliente
+/// opcional (combo + opção "— (Consumidor)") e veículo texto livre; grid de itens editável
+/// alimentado pelo Catálogo (aberto numa janela separada via F2). Total calculado a partir das
+/// linhas e do desconto geral. Nesta rodada só cria/edita pré-venda Aberta (sem Faturar/Cancelar).
+/// </summary>
+public partial class PreVendaFormViewModel : ViewModelBase
+{
+    private static readonly CultureInfo PtBr = new("pt-BR");
+
+    private readonly IPreVendaService _preVendas;
+    private readonly IClienteService _clientes;
+    private readonly ILogger<PreVendaFormViewModel> _logger;
+
+    private Guid? _id;
+    private Guid _idUsuario;
+
+    public PreVendaFormViewModel(
+        IPreVendaService preVendas,
+        IClienteService clientes,
+        ILogger<PreVendaFormViewModel> logger)
+    {
+        _preVendas = preVendas;
+        _clientes = clientes;
+        _logger = logger;
+
+        Itens.CollectionChanged += (_, _) => RecalcularTotais();
+    }
+
+    public event Action? Salvo;
+    public event Action? Cancelado;
+
+    /// <summary>Disparado ao pedir o catálogo (F2). A janela da pré-venda abre a janela seletora de
+    /// peças (Catálogo) e devolve a escolhida via <see cref="AdicionarPecaDoCatalogo"/>.</summary>
+    public event Action? AbrirCatalogoSolicitado;
+
+    /// <summary>Clientes para o combo (inclui item nulo "— (Consumidor)" para venda avulsa).</summary>
+    public ObservableCollection<ClienteListaDto?> Clientes { get; } = new();
+
+    /// <summary>Itens (linhas) da pré-venda.</summary>
+    public ObservableCollection<PreVendaItemViewModel> Itens { get; } = new();
+
+    // --- Cabeçalho ---
+    [ObservableProperty] private ClienteListaDto? _clienteSelecionado;
+    [ObservableProperty] private string? _nomeClienteAvulso;
+    [ObservableProperty] private string? _veiculoMontadora;
+    [ObservableProperty] private string? _veiculoModelo;
+    [ObservableProperty] private string? _veiculoAno;
+    [ObservableProperty] private string? _veiculoPlaca;
+    [ObservableProperty] private string? _observacao;
+    [ObservableProperty] private decimal _vlrDesconto;
+
+    [ObservableProperty] private bool _modoVisualizacao = true;
+    [ObservableProperty] private bool _carregando;
+    [ObservableProperty] private string? _mensagemErro;
+
+    /// <summary>Nome do vendedor logado (read-only no cabeçalho — quem está registrando a venda).</summary>
+    [ObservableProperty] private string _nomeVendedor = string.Empty;
+
+    /// <summary>Quando há cliente cadastrado selecionado, o nome avulso fica desabilitado.</summary>
+    public bool ClienteAvulso => ClienteSelecionado is null;
+
+    public string Titulo => _id is null ? "Nova Pré-venda" : $"Pré-venda Nº {CodPreVenda}";
+
+    [ObservableProperty] private int _codPreVenda;
+
+    /// <summary>Desconto geral como texto editável.</summary>
+    public string VlrDescontoTexto
+    {
+        get => VlrDesconto.ToString("N2", PtBr);
+        set { VlrDesconto = ParseMoeda(value); OnPropertyChanged(); }
+    }
+
+    /// <summary>Soma dos totais das linhas (antes do desconto geral).</summary>
+    public decimal SubtotalItens => Itens.Sum(i => i.VlrTotalItem);
+    public string SubtotalItensTexto => SubtotalItens.ToString("N2", PtBr);
+
+    /// <summary>Total final: subtotal − desconto geral, nunca negativo.</summary>
+    public decimal VlrTotal => Math.Max(0, SubtotalItens - VlrDesconto);
+    public string VlrTotalTexto => VlrTotal.ToString("N2", PtBr);
+
+    partial void OnClienteSelecionadoChanged(ClienteListaDto? value)
+    {
+        OnPropertyChanged(nameof(ClienteAvulso));
+        if (value is not null)
+            NomeClienteAvulso = null; // com cliente cadastrado, não usa nome avulso
+    }
+
+    partial void OnVlrDescontoChanged(decimal value)
+    {
+        OnPropertyChanged(nameof(VlrDescontoTexto));
+        OnPropertyChanged(nameof(VlrTotal));
+        OnPropertyChanged(nameof(VlrTotalTexto));
+    }
+
+    partial void OnCodPreVendaChanged(int value) => OnPropertyChanged(nameof(Titulo));
+
+    /// <summary>Prepara o formulário para uma nova pré-venda (limpa, em edição).</summary>
+    public async Task PrepararNovaAsync(Guid idUsuario, string nomeVendedor)
+    {
+        _idUsuario = idUsuario;
+        NomeVendedor = nomeVendedor;
+        await CarregarClientesAsync();
+        _id = null;
+        CodPreVenda = 0;
+        ClienteSelecionado = null;
+        NomeClienteAvulso = null;
+        VeiculoMontadora = VeiculoModelo = VeiculoAno = VeiculoPlaca = null;
+        Observacao = null;
+        VlrDesconto = 0;
+        LimparItens();
+        MensagemErro = null;
+        ModoVisualizacao = false;
+        OnPropertyChanged(nameof(Titulo));
+        RecalcularTotais();
+    }
+
+    /// <summary>Carrega uma pré-venda existente em modo visualização.</summary>
+    public async Task CarregarAsync(Guid id, Guid idUsuario, string nomeVendedor)
+    {
+        Carregando = true;
+        MensagemErro = null;
+        try
+        {
+            _idUsuario = idUsuario;
+            NomeVendedor = nomeVendedor;
+            await CarregarClientesAsync();
+
+            var resultado = await _preVendas.ObterPorIdAsync(id);
+            if (resultado.Falha)
+            {
+                MensagemErro = resultado.Erro.Mensagem;
+                return;
+            }
+
+            var p = resultado.Valor;
+            _id = p.Id;
+            CodPreVenda = p.CodPreVenda;
+
+            // Seleciona o cliente pelo Id dentro da coleção do combo (matching por referência).
+            ClienteSelecionado = Clientes.FirstOrDefault(c => c?.Id == p.IdCliente);
+            NomeClienteAvulso = p.NomeClienteAvulso;
+            VeiculoMontadora = p.VeiculoMontadora;
+            VeiculoModelo = p.VeiculoModelo;
+            VeiculoAno = p.VeiculoAno;
+            VeiculoPlaca = p.VeiculoPlaca;
+            Observacao = p.Observacao;
+            VlrDesconto = p.VlrDesconto;
+
+            LimparItens();
+            foreach (var i in p.Itens)
+                AdicionarItemVm(new PreVendaItemViewModel(i.IdProduto, i.DescricaoProduto, i.Qtd, i.VlrUnitario, i.VlrDesconto));
+
+            ModoVisualizacao = true;
+            OnPropertyChanged(nameof(Titulo));
+            RecalcularTotais();
+        }
+        catch (Exception ex)
+        {
+            MensagemErro = "Falha ao carregar a pré-venda.";
+            _logger.LogError(ex, "Erro ao carregar pré-venda {Id}.", id);
+        }
+        finally
+        {
+            Carregando = false;
+        }
+    }
+
+    [RelayCommand]
+    private void HabilitarEdicao() => ModoVisualizacao = false;
+
+    /// <summary>F2 / botão "Buscar peça": pede a janela do Catálogo. Só no modo edição.</summary>
+    [RelayCommand]
+    private void AbrirCatalogo()
+    {
+        if (!ModoVisualizacao)
+            AbrirCatalogoSolicitado?.Invoke();
+    }
+
+    /// <summary>Adiciona a peça escolhida no Catálogo como uma nova linha (preço = snapshot do
+    /// VlrVenda). Se a peça já está na lista, incrementa a quantidade. Chamado pela janela seletora.</summary>
+    public void AdicionarPecaDoCatalogo(CatalogoItemDto peca)
+    {
+        var existente = Itens.FirstOrDefault(i => i.IdProduto == peca.Id);
+        if (existente is not null)
+        {
+            existente.QtdTexto = (existente.Qtd + 1).ToString("N2", PtBr);
+            existente.Realcar(); // pisca a linha que recebeu +1
+        }
+        else
+        {
+            var novo = new PreVendaItemViewModel(peca.Id, peca.Descricao, 1, peca.VlrVenda, 0);
+            AdicionarItemVm(novo);
+            novo.Realcar(); // pisca a linha recém-adicionada
+        }
+    }
+
+    [RelayCommand]
+    private void RemoverItem(PreVendaItemViewModel? item)
+    {
+        if (item is null)
+            return;
+        item.TotalAlterado -= RecalcularTotais;
+        Itens.Remove(item);
+    }
+
+    [RelayCommand]
+    private async Task SalvarAsync()
+    {
+        Carregando = true;
+        MensagemErro = null;
+        try
+        {
+            if (Itens.Count == 0)
+            {
+                MensagemErro = "Adicione ao menos um item à pré-venda.";
+                return;
+            }
+
+            var itens = Itens
+                .Select(i => new PreVendaItemDto(i.IdProduto, i.DescricaoProduto, i.Qtd, i.VlrUnitario, i.VlrDesconto))
+                .ToList();
+
+            var dto = new SalvarPreVendaDto(
+                ClienteSelecionado?.Id, NomeClienteAvulso,
+                VeiculoMontadora, VeiculoModelo, VeiculoAno, VeiculoPlaca,
+                VlrDesconto, Observacao, itens);
+
+            var resultado = _id is null
+                ? await _preVendas.CriarAsync(_idUsuario, dto)
+                : await _preVendas.AtualizarAsync(_id.Value, dto);
+
+            if (resultado.Falha)
+            {
+                MensagemErro = resultado.Erro.Mensagem;
+                return;
+            }
+
+            Salvo?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            MensagemErro = "Falha ao salvar a pré-venda.";
+            _logger.LogError(ex, "Erro ao salvar pré-venda.");
+        }
+        finally
+        {
+            Carregando = false;
+        }
+    }
+
+    [RelayCommand]
+    private void Cancelar() => Cancelado?.Invoke();
+
+    private async Task CarregarClientesAsync()
+    {
+        var clientes = await _clientes.ListarAsync(null);
+        Clientes.Clear();
+        Clientes.Add(null); // "— (Consumidor)" — venda de balcão avulsa
+        foreach (var c in clientes) Clientes.Add(c);
+    }
+
+    private void AdicionarItemVm(PreVendaItemViewModel item)
+    {
+        item.TotalAlterado += RecalcularTotais;
+        Itens.Add(item);
+    }
+
+    private void LimparItens()
+    {
+        foreach (var i in Itens) i.TotalAlterado -= RecalcularTotais;
+        Itens.Clear();
+    }
+
+    private void RecalcularTotais()
+    {
+        OnPropertyChanged(nameof(SubtotalItens));
+        OnPropertyChanged(nameof(SubtotalItensTexto));
+        OnPropertyChanged(nameof(VlrTotal));
+        OnPropertyChanged(nameof(VlrTotalTexto));
+    }
+
+    private static decimal ParseMoeda(string? texto)
+    {
+        var limpo = (texto ?? string.Empty).Trim().Replace(".", "").Replace(",", ".");
+        return decimal.TryParse(limpo, NumberStyles.Any, CultureInfo.InvariantCulture, out var v) && v >= 0 ? v : 0;
+    }
+}

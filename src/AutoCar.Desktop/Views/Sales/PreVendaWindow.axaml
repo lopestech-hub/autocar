@@ -1,0 +1,19 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AutoCar.Desktop.ViewModels.Sales"
+        xmlns:views="using:AutoCar.Desktop.Views.Sales"
+        x:Class="AutoCar.Desktop.Views.Sales.PreVendaWindow"
+        x:DataType="vm:PreVendaFormViewModel"
+        WindowState="Maximized"
+        WindowStartupLocation="CenterScreen"
+        Title="Pré-venda"
+        Background="{DynamicResource BrushFundo}">
+
+    <!-- F2 abre o catálogo de busca de peças (mesmo comando do botão "+ Buscar peça"). -->
+    <Window.KeyBindings>
+        <KeyBinding Gesture="F2" Command="{Binding AbrirCatalogoCommand}" />
+    </Window.KeyBindings>
+
+    <!-- A janela hospeda o mesmo formulário usado antes embutido no shell. -->
+    <views:PreVendaFormView />
+</Window>

@@ -29,8 +29,8 @@ Concorrência de estoque tratada com controle otimista (`xmin`) — risco nº 1 
 | Segurança (login, perfis) | [Security](src/AutoCar.Desktop/Views/Security/MODULO.md) | ✅ Fase 1 |
 | Cadastros (Cliente ✅; Fornecedor ✅; Marca ✅; Categoria ✅; Produto ✅ + aplicação por veículo ✅) | [Registrations](src/AutoCar.Desktop/Views/Registrations/MODULO.md) | 🔄 Fase 2 |
 | Catálogo automotivo (peça → veículo) | [Catalogo](src/AutoCar.Desktop/Views/Catalogo/) — busca de peça por veículo ✅ | ✅ Fase 2 |
+| Vendas (Pré-venda) | [Sales](src/AutoCar.Desktop/Views/Sales/MODULO.md) — Pré-venda (cabeçalho + itens) ✅ | 🔄 Fase 3 |
 | Estoque (entrada por compra) | _a criar (Fase 3)_ | ⏳ |
-| Vendas / Balcão | _a criar (Fase 3)_ | ⏳ |
 | Oficina / OS | _a criar (Fase 4)_ | ⏳ |
 | Financeiro (caixa, contas) | _a criar (Fase 4)_ | ⏳ |
 | Fiscal (NCM/CFOP/CST, sem SEFAZ) | _a criar (Fase 5)_ | ⏳ |
@@ -61,6 +61,15 @@ margem % calculada. Nesta rodada também: seções de formulário ganharam **tí
 divisória** (classes `formsecao`/`formsecaoLinha` no Tema), aplicado em Cliente, Fornecedor e Produto.
 Próximo: aplicação por veículo (montadora/modelo/ano — texto livre no MVP).
 
+Produto ganhou (Fase 3) o campo **`sts_posicao`** (enum `PosicaoPeca`: NaoAplica/Dianteira/Traseira) e a
+aplicação por veículo ganhou **`motorizacao`** (texto) + **`sts_combustivel`** (enum `Combustivel`).
+
+**Fase 3 (Vendas) — em andamento.** Módulo **Pré-venda concluído** (ver [Sales](src/AutoCar.Desktop/Views/Sales/MODULO.md)):
+documento provisório de balcão (cabeçalho cliente opcional + veículo livre + itens), abre em **janela
+separada maximizada**, **F2** abre o Catálogo como seletor (clique marca, duplo-clique/Enter adiciona).
+Total calculado no domínio (item + desconto geral); ciclo Aberta→Faturada/Cancelada (UI só cria/edita
+Aberta por ora). Não baixa estoque (só no faturamento, Fase de Estoque). Testes do agregado passando.
+
 Admin de teste: usuário **`julio`** / senha `123` (trocar).
 
 ## Navegação (shell)
@@ -70,9 +79,9 @@ Layout estilo ERP (sem sidebar): menu de texto no topo + toolbar de atalhos + á
 - **Toolbar de atalhos:** Buscar, Clientes, Fornecedor, Produtos, Orçamento, Pré-venda, Ordens de Serviço.
 - **Menu de texto:** Cadastros (Clientes, Fornecedor, Produtos, Marcas, Categorias, Usuários) · Movimentos
   (Orçamento, Pré-venda, OS, Estoque) · Financeiro (Caixa, Contas a Receber, Contas a Pagar, Fiscal).
-- **Clientes, Fornecedor, Marcas e Categorias** já têm tela real (listagem + formulário). Demais módulos
-  ainda são **placeholders**.
-- "Balcão" do plano = **Pré-venda**. "Catálogo" fora da navegação por enquanto (a definir).
+- **Clientes, Fornecedor, Marcas, Categorias, Produtos, Catálogo e Pré-venda** já têm tela real. Demais
+  módulos ainda são **placeholders**.
+- "Balcão" do plano = **Pré-venda** (abre em janela separada; F2 = catálogo seletor).
 - Menu de texto corrigido: as categorias não renderizavam (gotcha do FluentTheme) — resolvido via
   `Menu.Styles` ligando Header/ItemsSource no MenuItem + cor de texto fixa.
 
@@ -87,8 +96,8 @@ Um perfil por usuário. Admin vê tudo.
 ## Roadmap
 
 - [x] Fase 1 — Setup, auth, menu, perfis
-- [ ] Fase 2 — Cadastros base + catálogo
-- [ ] Fase 3 — Estoque (entrada por compra) + Balcão + Domain Events + concorrência
+- [x] Fase 2 — Cadastros base + catálogo
+- [ ] Fase 3 — Pré-venda ✅ · Estoque (entrada por compra) + Domain Events + concorrência (pendente)
 - [ ] Fase 4 — OS + Financeiro
 - [ ] Fase 5 — Fiscal estruturado + PDF
 - [ ] Fase 6 — (pós-MVP) SEFAZ, custo médio, multi-depósito, DRE
@@ -96,14 +105,17 @@ Um perfil por usuário. Admin vê tudo.
 
 ## Próximos Passos
 
-1. **Pré-venda** (Fase 3): documento com itens (cabeçalho cliente+veículo + linhas de produto),
-   consumindo o Catálogo. Estabelece o padrão de documento reusado em Orçamento/OS/Venda.
-2. Implementar a busca global de verdade (atalho "Buscar" hoje é placeholder)
-3. Tela de troca de senha no primeiro acesso
-4. (dívida) Paginação na listagem de Produto/Catálogo quando o volume crescer (hoje sem `Take`/`Skip`)
-5. (dívida) Migrar os demais repositórios para `IDbContextFactory` quando ganharem coleção filha
-   (hoje só `ProdutoRepository` usa; os outros usam `AppDbContext` injetado)
-6. (dívida) **Remover/gear por flag o seed demo do DbInitializer antes do deploy** — hoje cria 8
+1. **Estoque** (Fase 3): entrada por compra + saldo; o **Faturar** da Pré-venda baixa estoque
+   (via Domain Event `PreVendaFaturada`). Concorrência otimista (`xmin`) — risco nº 1.
+2. **Faturar/Cancelar** na UI da Pré-venda (o domínio já tem; falta botão + fluxo) — vinculado ao Estoque.
+3. Implementar a busca global de verdade (atalho "Buscar" hoje é placeholder)
+4. Tela de troca de senha no primeiro acesso
+5. (dívida) **Padronizar seleção≠adição nas listas de cadastro** — hoje só os seletores (Catálogo) usam;
+   aplicar nas demais quando a marca tiver função (ex: habilitar Editar/Inativar). Ver padrão no system.md.
+6. (dívida) Paginação na listagem de Produto/Catálogo/Pré-venda quando o volume crescer (sem `Take`/`Skip`)
+7. (dívida) Migrar os demais repositórios para `IDbContextFactory` quando ganharem coleção filha
+   (hoje `ProdutoRepository` e `PreVendaRepository` usam; os outros usam `AppDbContext` injetado)
+8. (dívida) **Remover/gear por flag o seed demo do DbInitializer antes do deploy** — hoje cria 8
    produtos de teste em banco com ≤1 produto; inofensivo em dev, mas não pode rodar no cliente real
 
 ## Histórico de Mudanças
@@ -123,3 +135,6 @@ Um perfil por usuário. Admin vê tudo.
 | 2026-05-31 | UI: padronização das seções de formulário (título azul + linha) em Cliente/Fornecedor/Produto; hook PostToolUse lembra o system.md ao editar .axaml |
 | 2026-05-31 | Fase 2: aplicação por veículo no Produto (tabela `produto_aplicacao` 1:N, mini-grid no form). ProdutoRepository → IDbContextFactory; Produto sem xmin (incompat. com coleção filha) |
 | 2026-05-31 | Fase 2: tela **Catálogo** (busca de peça por montadora/modelo/ano, cruzando produto × aplicação) + seed demo de 8 produtos no DbInitializer |
+| 2026-06-01 | Fase 3: módulo **Pré-venda** (tabelas `pre_venda`+`pre_venda_item`, agregado com total no domínio, cliente opcional, veículo livre, snapshot de preço, desconto item+geral, ciclo Aberta/Faturada/Cancelada). Abre em **janela separada**; **F2** = Catálogo seletor (clique marca, duplo-clique/Enter adiciona) |
+| 2026-06-01 | Produto: campo **`sts_posicao`** (Dianteira/Traseira); aplicação por veículo ganhou **`motorizacao`** + **`sts_combustivel`** (migrations `PosicaoProduto`, `AplicacaoMotorCombustivel`) |
+| 2026-06-01 | UI: realces de cor com significado (faixa do TOTAL, badge com borda, célula âmbar de desconto, flash de item novo, régua azul no seletor); padrão "Seletor" registrado no system.md |

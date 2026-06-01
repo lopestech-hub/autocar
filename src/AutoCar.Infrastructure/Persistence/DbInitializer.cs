@@ -85,45 +85,45 @@ public class DbInitializer
         var nakata = ObterOuCriarMarca("NAKATA");
         _db.SaveChanges(); // garante Ids das categorias/marcas antes de referenciar nos produtos
 
-        // (descrição, categoria, marca, custo, venda, [aplicações: montadora, modelo, anoIni, anoFim, obs])
-        CriarProduto("AMORTECEDOR DIANTEIRO", suspensao, cofap, 120m, 210m, new[]
+        // (descrição, categoria, marca, posição, custo, venda, [aplicações: montadora, modelo, anoIni, anoFim, obs])
+        CriarProduto("AMORTECEDOR DIANTEIRO", suspensao, cofap, PosicaoPeca.Dianteira, 120m, 210m, new[]
         {
             ("VW", "GOL", (int?)2008, (int?)2014, (string?)"1.0/1.6"),
             ("VW", "VOYAGE", 2008, 2014, null),
             ("FIAT", "PALIO", 2004, 2012, null),
         });
 
-        CriarProduto("AMORTECEDOR TRASEIRO", suspensao, nakata, 95m, 175m, new[]
+        CriarProduto("AMORTECEDOR TRASEIRO", suspensao, nakata, PosicaoPeca.Traseira, 95m, 175m, new[]
         {
             ("VW", "GOL", (int?)2008, (int?)2014, (string?)null),
             ("CHEVROLET", "CORSA", 2002, 2012, null),
         });
 
-        CriarProduto("PASTILHA DE FREIO DIANTEIRA", freios, bosch, 45m, 89m, new[]
+        CriarProduto("PASTILHA DE FREIO DIANTEIRA", freios, bosch, PosicaoPeca.Dianteira, 45m, 89m, new[]
         {
             ("VW", "GOL", (int?)1996, (int?)2014, (string?)"todos"),
             ("FIAT", "UNO", 2010, null, "Mille/Way"),
         });
 
-        CriarProduto("DISCO DE FREIO VENTILADO", freios, cofap, 130m, 240m, new[]
+        CriarProduto("DISCO DE FREIO VENTILADO", freios, cofap, PosicaoPeca.Dianteira, 130m, 240m, new[]
         {
             ("VW", "GOL", (int?)2008, (int?)2014, (string?)null),
             ("FORD", "KA", 2008, 2014, null),
         });
 
-        CriarProduto("VELA DE IGNICAO", motor, ngk, 18m, 35m, new[]
+        CriarProduto("VELA DE IGNICAO", motor, ngk, PosicaoPeca.NaoAplica, 18m, 35m, new[]
         {
             ("VW", "GOL", (int?)1996, (int?)2020, (string?)null),
             ("FIAT", "PALIO", 1996, 2020, null),
             ("CHEVROLET", "CELTA", 2000, 2015, null),
         });
 
-        CriarProduto("CORREIA DENTADA", motor, bosch, 60m, 115m, new[]
+        CriarProduto("CORREIA DENTADA", motor, bosch, PosicaoPeca.NaoAplica, 60m, 115m, new[]
         {
             ("FIAT", "PALIO", (int?)2004, (int?)2012, (string?)"1.0 Fire"),
         });
 
-        CriarProduto("FILTRO DE OLEO", filtros, fram, 15m, 32m, new[]
+        CriarProduto("FILTRO DE OLEO", filtros, fram, PosicaoPeca.NaoAplica, 15m, 32m, new[]
         {
             ("VW", "GOL", (int?)1996, (int?)2020, (string?)null),
             ("FIAT", "UNO", 1996, 2020, null),
@@ -131,7 +131,7 @@ public class DbInitializer
             ("FORD", "KA", 2000, 2020, null),
         });
 
-        CriarProduto("FILTRO DE AR", filtros, fram, 22m, 45m, new[]
+        CriarProduto("FILTRO DE AR", filtros, fram, PosicaoPeca.NaoAplica, 22m, 45m, new[]
         {
             ("VW", "GOL", (int?)2008, (int?)2014, (string?)null),
             ("VW", "FOX", 2003, 2014, null),
@@ -167,16 +167,20 @@ public class DbInitializer
         string descricao,
         CategoriaProduto categoria,
         Marca marca,
+        PosicaoPeca posicao,
         decimal custo,
         decimal venda,
         (string montadora, string modelo, int? anoIni, int? anoFim, string? obs)[] aplicacoes)
     {
         var produto = new Produto(
             categoria.Id, descricao, descricaoComplementar: null, codBarras: null,
-            codFabricante: null, UnidadeMedida.UN, custo, venda, marca.Id, idFornecedor: null);
+            codFabricante: null, UnidadeMedida.UN, posicao, custo, venda, marca.Id, idFornecedor: null);
 
+        // Seed mantém motorização/combustível neutros (NaoAplica) — a observação do seed já cobre
+        // os detalhes de motor onde existem ("1.0/1.6", "1.0 Fire").
         produto.DefinirAplicacoes(aplicacoes.Select(a =>
-            new ProdutoAplicacao(a.montadora, a.modelo, a.anoIni, a.anoFim, a.obs)));
+            new ProdutoAplicacao(a.montadora, a.modelo, a.anoIni, a.anoFim,
+                motorizacao: null, Combustivel.NaoAplica, a.obs)));
 
         _db.Produtos.Add(produto);
     }

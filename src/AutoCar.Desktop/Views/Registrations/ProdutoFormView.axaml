@@ -3,6 +3,8 @@
              xmlns:vm="using:AutoCar.Desktop.ViewModels.Registrations"
              xmlns:dto="using:AutoCar.Application.Modules.Registrations.Produtos.DTOs"
              xmlns:b="using:AutoCar.Desktop.Behaviors"
+             xmlns:conv="using:AutoCar.Desktop.Converters"
+             xmlns:enums="using:AutoCar.Domain.Enums"
              x:Class="AutoCar.Desktop.Views.Registrations.ProdutoFormView"
              x:DataType="vm:ProdutoFormViewModel">
 
@@ -10,6 +12,14 @@
         <!-- Combo de opção (Categoria/Marca/Fornecedor): mostra a descrição; item nulo vira "—". -->
         <DataTemplate x:Key="OpcaoTemplate" x:DataType="dto:OpcaoDto">
             <TextBlock Text="{Binding Descricao, FallbackValue=—, TargetNullValue=—}" />
+        </DataTemplate>
+        <!-- Combo de posição: rótulo amigável (NaoAplica vira "—"). -->
+        <DataTemplate x:Key="PosicaoTemplate" x:DataType="enums:PosicaoPeca">
+            <TextBlock Text="{Binding Converter={x:Static conv:PosicaoPecaConverter.Instancia}}" />
+        </DataTemplate>
+        <!-- Combo de combustível: rótulo amigável (NaoAplica vira "—"). -->
+        <DataTemplate x:Key="CombustivelTemplate" x:DataType="enums:Combustivel">
+            <TextBlock Text="{Binding Converter={x:Static conv:CombustivelConverter.Instancia}}" />
         </DataTemplate>
     </UserControl.Resources>
 
@@ -108,11 +118,18 @@
                                   HorizontalAlignment="Left" Width="200" />
 
                         <TextBlock Grid.Row="1" Grid.Column="0" Classes="formlabel" Text="Unidade" />
-                        <ComboBox Grid.Row="1" Grid.Column="1"
-                                  ItemsSource="{Binding Unidades}"
-                                  SelectedItem="{Binding Unidade}"
-                                  IsEnabled="{Binding !ModoVisualizacao}"
-                                  HorizontalAlignment="Left" Width="100" />
+                        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                            <ComboBox ItemsSource="{Binding Unidades}"
+                                      SelectedItem="{Binding Unidade}"
+                                      IsEnabled="{Binding !ModoVisualizacao}"
+                                      Width="100" />
+                            <TextBlock Classes="formlabel" Text="Posição" />
+                            <ComboBox ItemsSource="{Binding Posicoes}"
+                                      SelectedItem="{Binding Posicao}"
+                                      ItemTemplate="{StaticResource PosicaoTemplate}"
+                                      IsEnabled="{Binding !ModoVisualizacao}"
+                                      Width="130" />
+                        </StackPanel>
                         <TextBlock Grid.Row="1" Grid.Column="2" Classes="formlabel" Text="Fornecedor" />
                         <ComboBox Grid.Row="1" Grid.Column="3"
                                   ItemsSource="{Binding Fornecedores}"
@@ -159,7 +176,7 @@
                     </Grid>
 
                     <!-- Cabeçalho das colunas do mini-grid -->
-                    <Grid ColumnDefinitions="150,180,70,70,*,28" Width="780" HorizontalAlignment="Left"
+                    <Grid ColumnDefinitions="140,150,60,60,90,110,*,28" Width="920" HorizontalAlignment="Left"
                           Margin="0,0,0,2"
                           IsVisible="{Binding Aplicacoes.Count}">
                         <TextBlock Grid.Column="0" Classes="formsecao" Text="Montadora" FontSize="10"
@@ -170,15 +187,19 @@
                                    Foreground="{DynamicResource BrushTextoSecundario}" />
                         <TextBlock Grid.Column="3" Classes="formsecao" Text="Ano fim" FontSize="10"
                                    Foreground="{DynamicResource BrushTextoSecundario}" />
-                        <TextBlock Grid.Column="4" Classes="formsecao" Text="Observação" FontSize="10"
+                        <TextBlock Grid.Column="4" Classes="formsecao" Text="Motor" FontSize="10"
+                                   Foreground="{DynamicResource BrushTextoSecundario}" />
+                        <TextBlock Grid.Column="5" Classes="formsecao" Text="Combustível" FontSize="10"
+                                   Foreground="{DynamicResource BrushTextoSecundario}" />
+                        <TextBlock Grid.Column="6" Classes="formsecao" Text="Observação" FontSize="10"
                                    Foreground="{DynamicResource BrushTextoSecundario}" />
                     </Grid>
 
                     <!-- Linhas editáveis -->
-                    <ItemsControl ItemsSource="{Binding Aplicacoes}" Width="780" HorizontalAlignment="Left">
+                    <ItemsControl ItemsSource="{Binding Aplicacoes}" Width="920" HorizontalAlignment="Left">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="vm:AplicacaoItemViewModel">
-                                <Grid ColumnDefinitions="150,180,70,70,*,28" Margin="0,0,0,4">
+                                <Grid ColumnDefinitions="140,150,60,60,90,110,*,28" Margin="0,0,0,4">
                                     <TextBox Grid.Column="0" Text="{Binding Montadora}"
                                              IsEnabled="{Binding $parent[ItemsControl].((vm:ProdutoFormViewModel)DataContext).ModoVisualizacao, Converter={x:Static BoolConverters.Not}}"
                                              b:MaiusculoBehavior.Ativo="True" Margin="0,0,4,0"
@@ -193,11 +214,21 @@
                                     <TextBox Grid.Column="3" Text="{Binding AnoFimTexto}"
                                              IsEnabled="{Binding $parent[ItemsControl].((vm:ProdutoFormViewModel)DataContext).ModoVisualizacao, Converter={x:Static BoolConverters.Not}}"
                                              MaxLength="4" Margin="0,0,4,0" Watermark="2014" />
-                                    <TextBox Grid.Column="4" Text="{Binding Observacao}"
+                                    <TextBox Grid.Column="4" Text="{Binding Motorizacao}"
                                              IsEnabled="{Binding $parent[ItemsControl].((vm:ProdutoFormViewModel)DataContext).ModoVisualizacao, Converter={x:Static BoolConverters.Not}}"
                                              b:MaiusculoBehavior.Ativo="True" Margin="0,0,4,0"
-                                             Watermark="motor 1.0 (opcional)" />
-                                    <Button Grid.Column="5" Classes="secundario"
+                                             Watermark="1.0" />
+                                    <ComboBox Grid.Column="5"
+                                              ItemsSource="{Binding Combustiveis}"
+                                              SelectedItem="{Binding Combustivel}"
+                                              ItemTemplate="{StaticResource CombustivelTemplate}"
+                                              IsEnabled="{Binding $parent[ItemsControl].((vm:ProdutoFormViewModel)DataContext).ModoVisualizacao, Converter={x:Static BoolConverters.Not}}"
+                                              HorizontalAlignment="Stretch" Margin="0,0,4,0" />
+                                    <TextBox Grid.Column="6" Text="{Binding Observacao}"
+                                             IsEnabled="{Binding $parent[ItemsControl].((vm:ProdutoFormViewModel)DataContext).ModoVisualizacao, Converter={x:Static BoolConverters.Not}}"
+                                             b:MaiusculoBehavior.Ativo="True" Margin="0,0,4,0"
+                                             Watermark="exceto ar (opcional)" />
+                                    <Button Grid.Column="7" Classes="secundario"
                                             Width="28" Padding="0"
                                             Command="{Binding $parent[ItemsControl].((vm:ProdutoFormViewModel)DataContext).RemoverAplicacaoCommand}"
                                             CommandParameter="{Binding}"

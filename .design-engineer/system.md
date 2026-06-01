@@ -107,6 +107,44 @@ CornerRadius: controles 2px · cards 6px · ícone-marcador 3px.
 - **Valor calculado read-only** (ex: Margem % do Produto = `(venda-custo)/custo`) como `TextBlock` em
   `FonteMono`, cinza, ao lado dos campos de valor. Recalcula via `OnXChanged` no ViewModel; "—" sem base.
 
+### Seletor de item (lista para ESCOLHER, não para abrir) — PADRÃO
+
+> Estabelecido no Catálogo aberto via F2 na Pré-venda. Para qualquer lista cujo objetivo é **escolher
+> um item para trazer para outro lugar** (seletor), separar SELEÇÃO de AÇÃO:
+
+- **Hover** (mouse) = destaque passageiro `#EFF6FF`. **Não** muda a seleção.
+- **Clique simples** = SELECIONA (marca a linha). **Setas ↑/↓** = movem a seleção. **Seleção vence o
+  hover** (a linha marcada mantém o destaque forte mesmo sob o mouse).
+- **Duplo-clique** ou **Enter** = AÇÃO (adiciona/confirma). Nunca adicionar com clique simples ou hover.
+- Linha selecionada: fundo `#DBEAFE` + **barra lateral 3px** azul-primário `#3B82F6` na borda esquerda
+  ("régua" que o olho segue). **1ª linha já vem selecionada** ao abrir (fluxo de teclado imediato).
+- Implementado via Grid único code-behind (`CatalogoView` modo seletor): lista de Borders das linhas +
+  lista de barras + `_indiceSelecionado`; `DestacarLinha(i)` repinta tudo e `BringIntoView`.
+- ⚠️ Nas **listas de cadastro** (Cliente, Produto, etc.) ainda **não** se aplica — lá o duplo-clique abre
+  o form e não há conceito de "marca". Só padronizar quando a seleção tiver função (ver dívida no CONTEXTO).
+
+### Realces de cor com significado (Pré-venda) — PADRÃO
+
+> Reforço de cor pedido para o vendedor de balcão (8h/dia), sem virar arco-íris. Cor = informação.
+
+- **Faixa do TOTAL**: o número que o vendedor mais olha vira `Border` fundo `#EFF6FF`, radius 3, valor
+  azul-primário 16px Bold. **Cinza `#94A3B8` quando zerado** (sem itens) via `TotalBrushConverter`.
+- **Badge de situação**: fundo claro + **borda 1px** da cor forte da família (Aberta azul `#3B82F6`,
+  Faturada verde `#22C55E`, Cancelada vermelho `#EF4444`) — etiqueta sólida que salta da linha.
+- **Célula âmbar**: campo de desconto do item com desconto > 0 ganha fundo `#FEF3C7` (`DescontoFundoConverter`).
+- **Flash de item novo**: linha pisca `#FEF9C3` por ~1.2s ao ser adicionada — via **`DispatcherTimer`**
+  (NUNCA `Style.Animations`: anima trava o Avalonia). Propriedade `BrushFundoLinha` no item-VM.
+- **Header de coluna**: texto `#475569` SemiBold (era `#64748B` Medium) — âncora visual mais forte.
+
+### Documento de balcão em janela separada (PreVendaWindow) — PADRÃO
+
+- Documento de venda (Pré-venda; futuro Orçamento/OS/Venda) abre em **`Window` maximizada não-modal**
+  (`Show(dono)`), não embutido no shell — o principal segue acessível (Alt+Tab).
+- A listagem dispara **evento** (`AbrirJanelaSolicitado`); a View (code-behind) abre a janela. A
+  ViewModel da listagem recebe `Func<FormViewModel>` (form novo por janela, sem estado compartilhado).
+- **F2** na janela abre o **seletor de peça** (Catálogo) via `KeyBinding` → comando do ViewModel.
+- Vendedor (usuário logado) aparece read-only no cabeçalho.
+
 ### Janela de Login (LoginWindow)
 
 - 380×440, `CanResize=False`, centralizada. Card branco central sobre fundo cinza.

@@ -121,6 +121,8 @@ estoque NÃO mora aqui** — fica no módulo de Estoque (Fase 3).
   `WHERE cod_barras IS NOT NULL`)
 - `descricao` (varchar 120), `descricao_complementar` (varchar 160), `cod_fabricante` (varchar 40)
 - `sts_unidade` (int — enum `UnidadeMedida`: UN, PC, CX, JG, PAR, KIT, L, KG, M)
+- `sts_posicao` (int — enum `PosicaoPeca`: NaoAplica=0, Dianteira=1, Traseira=2; default 0). Distingue
+  peças com versão dianteira/traseira (freio, suspensão). Migration: `PosicaoProduto`.
 - `vlr_custo`, `vlr_venda` (decimal 10,2)
 - `id_categoria` (FK **obrigatória** → `categoria_produto`, `Restrict`)
 - `id_marca`, `id_fornecedor` (FKs **opcionais** → `marca`/`fornecedor`, `Restrict`)
@@ -139,7 +141,8 @@ estoque NÃO mora aqui** — fica no módulo de Estoque (Fase 3).
   (`Include` das navegações; filtro `ILike` por descrição/cod_barras/cod_fabricante).
 - **Desktop:** `ProdutosViewModel` (listagem) + `ProdutoFormViewModel` (form em blocos de seção,
   combos de FK selecionados por Id, margem % calculada). `ProdutosView` (Grid único:
-  CÓDIGO · DESCRIÇÃO · CATEGORIA · MARCA · UN · VENDA · STATUS) + `ProdutoFormView`. Rota `produtos`.
+  CÓDIGO · DESCRIÇÃO · CATEGORIA · MARCA · UN · POSIÇÃO · VENDA · STATUS) + `ProdutoFormView`. Rota `produtos`.
+  Posição é combo na seção CLASSIFICAÇÃO (rótulo "—" para NaoAplica) via `PosicaoPecaConverter`.
 
 ### Regras de Negócio
 
@@ -156,10 +159,15 @@ normalizado de montadora/modelo). Sem `cod_` (registro filho). Migration: `Aplic
 
 - `id_aplicacao` (uuid PK), `id_produto` (FK → produto, **Cascade**)
 - `montadora`, `modelo` (varchar, CAIXA ALTA, obrigatórios), `ano_inicio`, `ano_fim` (int, opcionais —
-  ano_fim vazio = "em diante"), `observacao` (varchar 120, opcional)
+  ano_fim vazio = "em diante")
+- `motorizacao` (varchar 20, opcional, CAIXA ALTA — texto livre: "1.0", "1.6 FIRE")
+- `sts_combustivel` (int — enum `Combustivel`: NaoAplica=0, Flex, Gasolina, Diesel, Etanol, GNV; default 0)
+- `observacao` (varchar 120, opcional)
 - Índices: `ix_produto_aplicacao_veiculo` (montadora+modelo, busca), `ix_produto_aplicacao_produto` (FK)
-- **UI:** seção APLICAÇÕES no form do Produto — mini-grid editável (`AplicacaoItemViewModel`), botão
-  "+ Adicionar" e "✕" por linha; some no modo visualização. **Salva junto com o produto** (substitui
+- Migrations: `AplicacaoProduto` (inicial) + `AplicacaoMotorCombustivel` (motorização/combustível).
+- **UI:** seção APLICAÇÕES no form do Produto — mini-grid editável (`AplicacaoItemViewModel`): montadora,
+  modelo, ano ini/fim, **motor** (texto), **combustível** (combo via `CombustivelConverter`), observação;
+  botão "+ Adicionar" e "✕" por linha; some no modo visualização. **Salva junto com o produto** (substitui
   todas a cada gravação — `Produto.DefinirAplicacoes`).
 
 ### Decisões Técnicas do Produto

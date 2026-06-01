@@ -7,6 +7,9 @@ using AutoCar.Application.Modules.Registrations.Fornecedores.Validators;
 using AutoCar.Application.Modules.Registrations.Produtos;
 using AutoCar.Application.Modules.Registrations.Produtos.DTOs;
 using AutoCar.Application.Modules.Registrations.Produtos.Validators;
+using AutoCar.Application.Modules.Sales.PreVendas;
+using AutoCar.Application.Modules.Sales.PreVendas.DTOs;
+using AutoCar.Application.Modules.Sales.PreVendas.Validators;
 using AutoCar.Application.Modules.Security;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,6 +38,10 @@ public static class DependencyInjection
 
         services.AddScoped<IProdutoService, ProdutoService>();
         services.AddScoped<IValidator<SalvarProdutoDto>, SalvarProdutoValidator>();
+
+        // Vendas
+        services.AddScoped<IPreVendaService, PreVendaService>();
+        services.AddScoped<IValidator<SalvarPreVendaDto>, SalvarPreVendaValidator>();
 
         return services;
     }

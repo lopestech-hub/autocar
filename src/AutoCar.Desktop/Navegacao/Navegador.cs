@@ -1,8 +1,12 @@
 using System;
+using AutoCar.Application.Modules.Sales.PreVendas;
+using AutoCar.Application.Modules.Security.DTOs;
 using AutoCar.Desktop.ViewModels;
 using AutoCar.Desktop.ViewModels.Catalogo;
 using AutoCar.Desktop.ViewModels.Registrations;
+using AutoCar.Desktop.ViewModels.Sales;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace AutoCar.Desktop.Navegacao;
 
@@ -13,8 +17,11 @@ namespace AutoCar.Desktop.Navegacao;
 public sealed class Navegador : INavegador
 {
     private readonly IServiceProvider _sp;
+    private UsuarioLogado? _usuario;
 
     public Navegador(IServiceProvider sp) => _sp = sp;
+
+    public void DefinirUsuario(UsuarioLogado usuario) => _usuario = usuario;
 
     public ViewModelBase? Resolver(string? rota) => rota switch
     {
@@ -24,6 +31,23 @@ public sealed class Navegador : INavegador
         "catalogo" => _sp.GetRequiredService<CatalogoViewModel>(),
         "marcas" => _sp.GetRequiredService<MarcasViewModel>(),
         "categorias" => _sp.GetRequiredService<CategoriasViewModel>(),
+        "pre-vendas" => CriarPreVendas(),
         _ => null,
     };
+
+    // PreVendasViewModel depende do usuário logado (registra quem abriu a pré-venda),
+    // que só existe em runtime após o login — por isso é montado à mão, não via DI puro.
+    private PreVendasViewModel? CriarPreVendas()
+    {
+        if (_usuario is null)
+            return null;
+
+        // Factory de form: cada janela de pré-venda recebe um ViewModel novo (limpo) — permite
+        // abrir várias janelas sem compartilhar estado entre elas.
+        return new PreVendasViewModel(
+            _usuario,
+            _sp.GetRequiredService<IPreVendaService>(),
+            () => _sp.GetRequiredService<PreVendaFormViewModel>(),
+            _sp.GetRequiredService<ILogger<PreVendasViewModel>>());
+    }
 }

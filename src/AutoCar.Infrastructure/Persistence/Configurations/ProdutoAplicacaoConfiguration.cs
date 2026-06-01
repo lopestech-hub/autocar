@@ -39,6 +39,16 @@ public class ProdutoAplicacaoConfiguration : IEntityTypeConfiguration<ProdutoApl
         builder.Property(a => a.AnoFim)
             .HasColumnName("ano_fim");
 
+        builder.Property(a => a.Motorizacao)
+            .HasColumnName("motorizacao")
+            .HasMaxLength(20);
+
+        builder.Property(a => a.Combustivel)
+            .HasColumnName("sts_combustivel")
+            .HasConversion<int>()
+            .HasDefaultValue(Domain.Enums.Combustivel.NaoAplica)
+            .IsRequired();
+
         builder.Property(a => a.Observacao)
             .HasColumnName("observacao")
             .HasMaxLength(120);

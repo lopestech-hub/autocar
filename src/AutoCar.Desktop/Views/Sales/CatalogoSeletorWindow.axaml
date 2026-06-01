@@ -1,0 +1,26 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:cat="using:AutoCar.Desktop.Views.Catalogo"
+        x:Class="AutoCar.Desktop.Views.Sales.CatalogoSeletorWindow"
+        Width="980" Height="640"
+        WindowStartupLocation="CenterOwner"
+        Title="Catálogo — selecionar peça"
+        Background="{DynamicResource BrushFundo}"
+        KeyDown="AoTeclar">
+
+    <Grid RowDefinitions="*,Auto">
+        <!-- O Catálogo em modo seletor: clicar numa linha escolhe a peça (ligado no code-behind). -->
+        <cat:CatalogoView Grid.Row="0" Name="Catalogo" />
+
+        <Border Grid.Row="1" BorderBrush="{DynamicResource BrushBorda}" BorderThickness="0,1,0,0" Padding="16,10">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center"
+                           Text="Clique numa peça para adicionar à pré-venda. Esc para fechar."
+                           FontSize="11" Foreground="{DynamicResource BrushTextoMudo}" />
+                <Button Content="Fechar" Classes="secundario"
+                        HorizontalAlignment="Right" Cursor="Hand"
+                        Click="AoFechar" />
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>
