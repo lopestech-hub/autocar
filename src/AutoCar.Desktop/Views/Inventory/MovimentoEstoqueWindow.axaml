@@ -4,8 +4,9 @@
         xmlns:views="using:AutoCar.Desktop.Views.Inventory"
         x:Class="AutoCar.Desktop.Views.Inventory.MovimentoEstoqueWindow"
         x:DataType="vm:MovimentoEstoqueFormViewModel"
-        Width="640" Height="600"
-        CanResize="False"
+        Width="880" Height="600"
+        MinWidth="720" MinHeight="480"
+        CanResize="True"
         WindowStartupLocation="CenterOwner"
         Title="Movimentação de Estoque"
         Background="{DynamicResource BrushFundo}">
