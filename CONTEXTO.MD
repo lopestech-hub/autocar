@@ -121,6 +121,15 @@ Um perfil por usuário. Admin vê tudo.
 - [ ] Fase 6 — (pós-MVP) SEFAZ, custo médio, multi-depósito, DRE
 - [ ] Fase 7 — Testes, ajustes, implantação
 
+## Evolução (ideias e melhorias futuras)
+
+> Funil de ideias que surgem na conversa mas ainda não são roadmap nem dívida técnica imediata.
+> Daqui saem futuros itens de roadmap. Não duplica "Próximos Passos" (dívidas) nem o Roadmap (fases).
+
+| Ideia | Contexto / origem | Quando reavaliar |
+| --- | --- | --- |
+| **Compra atualiza custo do produto** | A entrada por compra (MVP) não toca o `vlr_custo` do produto. Evoluir para atualizar o custo (sobrescrever vs. **custo médio ponderado**) e recalcular margem. | Quando a compra estiver em uso e o custo precisar refletir a última entrada |
+
 ## Próximos Passos
 
 1. **Entrada por compra** (Fase 3): documento de compra (fornecedor + itens) que dá entrada no estoque
