@@ -6,6 +6,7 @@
         x:DataType="vm:MainWindowViewModel"
         Width="1200" Height="680"
         MinWidth="1024" MinHeight="600"
+        WindowState="Maximized"
         WindowStartupLocation="CenterScreen"
         Title="AutoCar ERP"
         Background="{DynamicResource BrushFundo}">
