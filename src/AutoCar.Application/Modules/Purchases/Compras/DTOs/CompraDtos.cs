@@ -26,3 +26,26 @@ public sealed record CompraListaDto(
     int QtdItens,
     decimal VlrTotal,
     DateTime CriadoEm);
+
+/// <summary>Item de uma compra para visualização (read-only).</summary>
+public sealed record CompraItemDetalheDto(
+    Guid IdProduto,
+    string DescricaoProduto,
+    int Qtd,
+    decimal VlrCustoUnitario,
+    decimal VlrTotalItem);
+
+/// <summary>Compra completa para reabrir em visualização (cabeçalho + fornecedor + itens).</summary>
+public sealed record CompraDetalheDto(
+    Guid Id,
+    int CodCompra,
+    Guid IdFornecedor,
+    int CodFornecedor,
+    AutoCar.Domain.Enums.TipoPessoa TipoFornecedor,
+    string DocumentoFornecedor,
+    string NomeFornecedor,
+    string? NumDocumento,
+    string? Observacao,
+    decimal VlrTotal,
+    DateTime CriadoEm,
+    IReadOnlyList<CompraItemDetalheDto> Itens);

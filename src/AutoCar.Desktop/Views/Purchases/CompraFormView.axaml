@@ -1,0 +1,231 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AutoCar.Desktop.ViewModels.Purchases"
+             xmlns:b="using:AutoCar.Desktop.Behaviors"
+             xmlns:conv="using:AutoCar.Desktop.Converters"
+             x:Class="AutoCar.Desktop.Views.Purchases.CompraFormView"
+             x:DataType="vm:CompraFormViewModel">
+
+    <Panel>
+        <Border Margin="16"
+                Background="{DynamicResource BrushFundoCard}"
+                BorderBrush="{DynamicResource BrushBorda}"
+                BorderThickness="1"
+                CornerRadius="6">
+            <Grid RowDefinitions="Auto,*,Auto,Auto">
+
+                <!-- HEADER -->
+                <Border Grid.Row="0"
+                        BorderBrush="{DynamicResource BrushBorda}"
+                        BorderThickness="0,0,0,1"
+                        Padding="16,10">
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock Text="{Binding Titulo}"
+                                   FontSize="14" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource BrushTexto}"
+                                   VerticalAlignment="Center" />
+                        <Border Background="#E0F2FE" CornerRadius="2" Padding="6,2"
+                                VerticalAlignment="Center" IsVisible="{Binding ModoVisualizacao}">
+                            <TextBlock Text="VISUALIZAÇÃO" FontSize="10" FontWeight="Medium" Foreground="#075985" />
+                        </Border>
+                        <Border Background="#FEF3C7" CornerRadius="2" Padding="6,2"
+                                VerticalAlignment="Center" IsVisible="{Binding !ModoVisualizacao}">
+                            <TextBlock Text="EDIÇÃO" FontSize="10" FontWeight="Medium" Foreground="#92400E" />
+                        </Border>
+                        <!-- Usuário logado, read-only — quem está registrando a compra. -->
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <TextBlock Text="Usuário:" FontSize="11"
+                                       Foreground="{DynamicResource BrushTextoMudo}"
+                                       VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding NomeUsuario}" FontSize="11" FontWeight="Medium"
+                                       Foreground="{DynamicResource BrushTextoSecundario}"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                        <!-- Dicas de atalho (só no modo edição). -->
+                        <Border Background="{DynamicResource BrushFundoHeader}"
+                                BorderBrush="{DynamicResource BrushBorda}" BorderThickness="1"
+                                CornerRadius="3" Padding="6,2" VerticalAlignment="Center"
+                                IsVisible="{Binding !ModoVisualizacao}">
+                            <TextBlock Text="F2 = buscar peça" FontSize="10"
+                                       Foreground="{DynamicResource BrushTextoSecundario}" />
+                        </Border>
+                        <Border Background="{DynamicResource BrushFundoHeader}"
+                                BorderBrush="{DynamicResource BrushBorda}" BorderThickness="1"
+                                CornerRadius="3" Padding="6,2" VerticalAlignment="Center"
+                                IsVisible="{Binding !ModoVisualizacao}">
+                            <TextBlock Text="F3 = buscar fornecedor" FontSize="10"
+                                       Foreground="{DynamicResource BrushTextoSecundario}" />
+                        </Border>
+                        <Border Background="{DynamicResource BrushFundoHeader}"
+                                BorderBrush="{DynamicResource BrushBorda}" BorderThickness="1"
+                                CornerRadius="3" Padding="6,2" VerticalAlignment="Center">
+                            <TextBlock Text="ESC = fechar" FontSize="10"
+                                       Foreground="{DynamicResource BrushTextoSecundario}" />
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- CORPO -->
+                <ScrollViewer Grid.Row="1" Padding="16,12" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="2" HorizontalAlignment="Left">
+
+                        <!-- ===== DADOS ===== -->
+                        <Grid ColumnDefinitions="Auto,*" Width="820" HorizontalAlignment="Left" Margin="0,0,0,4">
+                            <TextBlock Grid.Column="0" Classes="formsecao" Text="DADOS" />
+                            <Border Grid.Column="1" Classes="formsecaoLinha" />
+                        </Grid>
+                        <Grid RowSpacing="6" ColumnDefinitions="90,300,90,*">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" /><!-- 0: Fornecedor | Nº documento -->
+                                <RowDefinition Height="Auto" /><!-- 1: Observação -->
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Classes="formlabel" Text="Fornecedor" />
+                            <!-- Fornecedor: campo read-only que mostra o selecionado; F3 ou clique abre o
+                                 seletor de fornecedor (janela com busca por nome/código). Obrigatório. -->
+                            <Button Grid.Row="0" Grid.Column="1"
+                                    Classes="seletor"
+                                    Command="{Binding AbrirSeletorFornecedorCommand}"
+                                    IsEnabled="{Binding !ModoVisualizacao}"
+                                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                    Cursor="Hand" ToolTip.Tip="F3 = buscar fornecedor">
+                                <TextBlock Text="{Binding FornecedorTexto}"
+                                           Foreground="{DynamicResource BrushTexto}"
+                                           VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                            </Button>
+                            <TextBlock Grid.Row="0" Grid.Column="2" Classes="formlabel" Text="Nº doc." />
+                            <TextBox Grid.Row="0" Grid.Column="3"
+                                     Text="{Binding NumDocumento}"
+                                     IsEnabled="{Binding !ModoVisualizacao}"
+                                     HorizontalAlignment="Left" Width="200" MaxLength="40"
+                                     Watermark="Nº da nota do fornecedor (opcional)" />
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Classes="formlabel" Text="Observação" />
+                            <TextBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3"
+                                     Text="{Binding Observacao}" IsEnabled="{Binding !ModoVisualizacao}"
+                                     Watermark="Observação da compra (opcional)" />
+                        </Grid>
+
+                        <!-- ===== ITENS ===== -->
+                        <Grid ColumnDefinitions="Auto,*,Auto" Width="820" HorizontalAlignment="Left" Margin="0,12,0,4">
+                            <TextBlock Grid.Column="0" Classes="formsecao" Text="ITENS" />
+                            <Border Grid.Column="1" Classes="formsecaoLinha" />
+                            <Button Grid.Column="2" Content="+ Buscar peça (F2)" Classes="secundario"
+                                    Command="{Binding AbrirCatalogoCommand}"
+                                    IsVisible="{Binding !ModoVisualizacao}"
+                                    Margin="8,0,0,0" Cursor="Hand" />
+                        </Grid>
+
+                        <!-- Cabeçalho das colunas do grid de itens -->
+                        <Grid ColumnDefinitions="*,80,120,120,28" Width="820" HorizontalAlignment="Left"
+                              Margin="0,0,0,2"
+                              IsVisible="{Binding Itens.Count}">
+                            <TextBlock Grid.Column="0" Text="DESCRIÇÃO" FontSize="10" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource BrushTextoSecundario}" />
+                            <TextBlock Grid.Column="1" Text="QTD" FontSize="10" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource BrushTextoSecundario}" HorizontalAlignment="Right" Margin="0,0,4,0" />
+                            <TextBlock Grid.Column="2" Text="CUSTO UNIT." FontSize="10" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource BrushTextoSecundario}" HorizontalAlignment="Right" Margin="0,0,4,0" />
+                            <TextBlock Grid.Column="3" Text="TOTAL" FontSize="10" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource BrushTextoSecundario}" HorizontalAlignment="Right" Margin="0,0,4,0" />
+                        </Grid>
+
+                        <!-- Linhas editáveis -->
+                        <ItemsControl ItemsSource="{Binding Itens}" Width="820" HorizontalAlignment="Left">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:CompraItemViewModel">
+                                  <!-- Fundo da linha pisca amarelo (#FEF9C3) ao adicionar a peça. -->
+                                  <Border Background="{Binding BrushFundoLinha}" CornerRadius="2" Padding="2,0" Margin="0,0,0,2">
+                                    <Grid ColumnDefinitions="*,80,120,120,28">
+                                        <TextBox Grid.Column="0" Text="{Binding DescricaoProduto}"
+                                                 IsEnabled="False" Margin="0,0,4,0" />
+                                        <TextBox Grid.Column="1" Text="{Binding QtdTexto}"
+                                                 b:SelecionarTudoBehavior.Ativo="True"
+                                                 IsEnabled="{Binding $parent[ItemsControl].((vm:CompraFormViewModel)DataContext).ModoVisualizacao, Converter={x:Static BoolConverters.Not}}"
+                                                 TextAlignment="Right" Margin="0,0,4,0" Watermark="1" />
+                                        <TextBox Grid.Column="2" Text="{Binding VlrCustoUnitarioTexto}"
+                                                 b:SelecionarTudoBehavior.Ativo="True"
+                                                 IsEnabled="{Binding $parent[ItemsControl].((vm:CompraFormViewModel)DataContext).ModoVisualizacao, Converter={x:Static BoolConverters.Not}}"
+                                                 TextAlignment="Right" Margin="0,0,4,0" Watermark="0,00" />
+                                        <TextBlock Grid.Column="3" Text="{Binding VlrTotalItemTexto}"
+                                                   FontFamily="{DynamicResource FonteMono}" FontSize="12"
+                                                   Foreground="{DynamicResource BrushTexto}"
+                                                   VerticalAlignment="Center" HorizontalAlignment="Right"
+                                                   Margin="0,0,8,0" />
+                                        <Button Grid.Column="4" Classes="secundario"
+                                                Width="28" Padding="0"
+                                                Command="{Binding $parent[ItemsControl].((vm:CompraFormViewModel)DataContext).RemoverItemCommand}"
+                                                CommandParameter="{Binding}"
+                                                IsVisible="{Binding $parent[ItemsControl].((vm:CompraFormViewModel)DataContext).ModoVisualizacao, Converter={x:Static BoolConverters.Not}}"
+                                                ToolTip.Tip="Remover" Cursor="Hand"
+                                                Content="✕" />
+                                    </Grid>
+                                  </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- vazio -->
+                        <TextBlock Text="Nenhum item. Clique em &quot;+ Buscar peça&quot; para adicionar."
+                                   FontSize="11" Foreground="{DynamicResource BrushTextoMudo}"
+                                   Margin="0,2,0,0"
+                                   IsVisible="{Binding !Itens.Count}" />
+
+                        <!-- ===== TOTAIS ===== -->
+                        <Grid ColumnDefinitions="Auto,*" Width="820" HorizontalAlignment="Left" Margin="0,12,0,4">
+                            <TextBlock Grid.Column="0" Classes="formsecao" Text="TOTAIS" />
+                            <Border Grid.Column="1" Classes="formsecaoLinha" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto" Width="820" HorizontalAlignment="Left">
+                            <StackPanel Grid.Column="1" Spacing="4" Width="280" HorizontalAlignment="Right">
+                                <!-- Faixa de destaque do TOTAL da compra. -->
+                                <Border Background="#EFF6FF" CornerRadius="3" Padding="8,4">
+                                    <Grid ColumnDefinitions="*,120">
+                                        <TextBlock Grid.Column="0" Text="TOTAL" FontSize="12" FontWeight="Bold"
+                                                   Foreground="{DynamicResource BrushTexto}"
+                                                   HorizontalAlignment="Left" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="1" Text="{Binding VlrTotalTexto}"
+                                                   FontFamily="{DynamicResource FonteMono}" FontSize="16" FontWeight="Bold"
+                                                   Foreground="{Binding VlrTotal, Converter={x:Static conv:TotalBrushConverter.Instancia}}"
+                                                   HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                    </Grid>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- mensagem de erro -->
+                        <TextBlock Text="{Binding MensagemErro}"
+                                   IsVisible="{Binding MensagemErro, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                   Foreground="{DynamicResource BrushErro}" FontSize="11"
+                                   TextWrapping="Wrap" Margin="0,12,0,0" />
+                    </StackPanel>
+                </ScrollViewer>
+
+                <ProgressBar Grid.Row="2" IsIndeterminate="True" Height="2"
+                             IsVisible="{Binding Carregando}" />
+
+                <!-- RODAPÉ dois modos -->
+                <Border Grid.Row="3"
+                        BorderBrush="{DynamicResource BrushBorda}"
+                        BorderThickness="0,1,0,0"
+                        Padding="16,12">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                        <!-- Visualização: só Fechar (compra registrada não se edita no MVP). -->
+                        <Button Content="Fechar" Classes="secundario"
+                                Command="{Binding CancelarCommand}"
+                                IsVisible="{Binding ModoVisualizacao}" Cursor="Hand" />
+                        <!-- Edição: Cancelar / Registrar compra. -->
+                        <Button Content="Cancelar" Classes="secundario"
+                                Command="{Binding CancelarCommand}"
+                                IsVisible="{Binding !ModoVisualizacao}"
+                                IsEnabled="{Binding !Carregando}" Cursor="Hand" />
+                        <Button Content="Registrar compra" Classes="primario"
+                                Command="{Binding SalvarCommand}"
+                                IsVisible="{Binding !ModoVisualizacao}"
+                                IsEnabled="{Binding !Carregando}" Cursor="Hand" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+    </Panel>
+</UserControl>

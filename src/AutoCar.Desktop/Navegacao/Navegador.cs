@@ -1,10 +1,12 @@
 using System;
 using AutoCar.Application.Modules.Estoque;
+using AutoCar.Application.Modules.Purchases.Compras;
 using AutoCar.Application.Modules.Sales.PreVendas;
 using AutoCar.Application.Modules.Security.DTOs;
 using AutoCar.Desktop.ViewModels;
 using AutoCar.Desktop.ViewModels.Catalogo;
 using AutoCar.Desktop.ViewModels.Inventory;
+using AutoCar.Desktop.ViewModels.Purchases;
 using AutoCar.Desktop.ViewModels.Registrations;
 using AutoCar.Desktop.ViewModels.Sales;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,6 +37,7 @@ public sealed class Navegador : INavegador
         "categorias" => _sp.GetRequiredService<CategoriasViewModel>(),
         "pre-vendas" => CriarPreVendas(),
         "estoque" => CriarEstoque(),
+        "compras" => CriarCompras(),
         _ => null,
     };
 
@@ -65,5 +68,18 @@ public sealed class Navegador : INavegador
             _sp.GetRequiredService<IEstoqueService>(),
             () => _sp.GetRequiredService<MovimentoEstoqueFormViewModel>(),
             _sp.GetRequiredService<ILogger<EstoqueViewModel>>());
+    }
+
+    // ComprasViewModel também depende do usuário logado (registra quem fez a compra) — montado à mão.
+    private ComprasViewModel? CriarCompras()
+    {
+        if (_usuario is null)
+            return null;
+
+        return new ComprasViewModel(
+            _usuario,
+            _sp.GetRequiredService<ICompraService>(),
+            () => _sp.GetRequiredService<CompraFormViewModel>(),
+            _sp.GetRequiredService<ILogger<ComprasViewModel>>());
     }
 }

@@ -94,6 +94,32 @@ public sealed class CompraService : ICompraService
         return Result.Ok<IReadOnlyList<CompraListaDto>>(lista);
     }
 
+    public async Task<Result<CompraDetalheDto>> ObterPorIdAsync(Guid id, CancellationToken ct = default)
+    {
+        var compra = await _compras.ObterPorIdAsync(id, ct);
+        if (compra is null)
+            return Result.Falhar<CompraDetalheDto>(Error.NaoEncontrado("Compra não encontrada."));
+
+        var f = compra.Fornecedor;
+        var itens = compra.Itens
+            .Select(i => new CompraItemDetalheDto(i.IdProduto, i.DescricaoProduto, i.Qtd, i.VlrCustoUnitario, i.VlrTotalItem))
+            .ToList();
+
+        return Result.Ok(new CompraDetalheDto(
+            compra.Id,
+            compra.CodCompra,
+            compra.IdFornecedor,
+            f?.CodFornecedor ?? 0,
+            f?.TipoPessoa ?? default,
+            f?.Documento ?? string.Empty,
+            NomeFornecedor(compra),
+            compra.NumDocumento,
+            compra.Observacao,
+            compra.VlrTotal,
+            compra.CriadoEm,
+            itens));
+    }
+
     // Nome de exibição do fornecedor: fantasia quando houver, senão razão social.
     private static string NomeFornecedor(Compra compra)
     {

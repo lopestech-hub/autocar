@@ -18,4 +18,7 @@ public interface ICompraRepository
 
     /// <summary>Lista as compras (cabeçalho + contagem de itens) para a tela de listagem, mais recentes primeiro.</summary>
     Task<IReadOnlyList<Compra>> ListarAsync(CancellationToken ct = default);
+
+    /// <summary>Obtém uma compra com fornecedor e itens carregados (para reabrir em visualização). Null se não existir.</summary>
+    Task<Compra?> ObterPorIdAsync(Guid id, CancellationToken ct = default);
 }

@@ -6,6 +6,7 @@ using AutoCar.Desktop.ViewModels;
 using AutoCar.Desktop.ViewModels.Catalogo;
 using AutoCar.Desktop.ViewModels.Inventory;
 using AutoCar.Desktop.ViewModels.Registrations;
+using AutoCar.Desktop.ViewModels.Purchases;
 using AutoCar.Desktop.ViewModels.Sales;
 using AutoCar.Infrastructure;
 using Microsoft.Extensions.Configuration;
@@ -72,6 +73,9 @@ public static class Bootstrap
         // EstoqueViewModel não entra no DI: depende do UsuarioLogado (runtime, registra quem
         // movimentou). É montado pelo Navegador. O form de movimentação, sim, vem do DI.
         services.AddTransient<MovimentoEstoqueFormViewModel>();
+        // ComprasViewModel não entra no DI: depende do UsuarioLogado (runtime, registra quem
+        // fez a compra). É montado pelo Navegador. O form, sim, vem do DI.
+        services.AddTransient<CompraFormViewModel>();
 
         return services.BuildServiceProvider();
     }

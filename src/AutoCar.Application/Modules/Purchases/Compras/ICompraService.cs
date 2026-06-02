@@ -12,4 +12,7 @@ public interface ICompraService
 
     /// <summary>Lista as compras registradas (cabeçalho + contagem de itens), mais recentes primeiro.</summary>
     Task<Result<IReadOnlyList<CompraListaDto>>> ListarAsync(CancellationToken ct = default);
+
+    /// <summary>Obtém uma compra registrada para reabrir em visualização (cabeçalho + fornecedor + itens).</summary>
+    Task<Result<CompraDetalheDto>> ObterPorIdAsync(Guid id, CancellationToken ct = default);
 }

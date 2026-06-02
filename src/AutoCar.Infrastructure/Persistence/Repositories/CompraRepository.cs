@@ -67,4 +67,15 @@ public class CompraRepository : ICompraRepository
             .OrderByDescending(c => c.CriadoEm)
             .ToListAsync(ct);
     }
+
+    public async Task<Compra?> ObterPorIdAsync(Guid id, CancellationToken ct = default)
+    {
+        await using var db = await _factory.CreateDbContextAsync(ct);
+
+        return await db.Compras
+            .AsNoTracking()
+            .Include(c => c.Fornecedor)
+            .Include(c => c.Itens)
+            .FirstOrDefaultAsync(c => c.Id == id, ct);
+    }
 }
