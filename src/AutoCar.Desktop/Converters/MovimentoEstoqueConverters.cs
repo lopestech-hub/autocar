@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
@@ -9,29 +8,38 @@ using AutoCar.Domain.Enums;
 
 namespace AutoCar.Desktop.Converters;
 
-/// <summary>
-/// (Origem, CodDocumentoOrigem) → rótulo da origem do movimento no histórico: "Venda nº 1",
-/// "Compra nº 5", "Devolução nº 2" ou "Manual". MultiBinding porque combina o tipo da origem com o
-/// número do documento. Dado estruturado — não se confunde com a observação livre.
-/// </summary>
-public sealed class OrigemMovimentoRotuloConverter : IMultiValueConverter
+/// <summary>OrigemMovimento → rótulo só do TIPO da origem ("Venda", "Compra", "Devolução", "Manual").
+/// O número do documento fica em coluna própria (ver <see cref="DocumentoOrigemConverter"/>).</summary>
+public sealed class OrigemMovimentoRotuloConverter : IValueConverter
 {
     public static readonly OrigemMovimentoRotuloConverter Instancia = new();
 
-    public object Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
-    {
-        if (values.Count < 2 || values[0] is not OrigemMovimento origem)
-            return string.Empty;
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        value is OrigemMovimento origem
+            ? origem switch
+            {
+                OrigemMovimento.Venda => "Venda",
+                OrigemMovimento.Compra => "Compra",
+                OrigemMovimento.Devolucao => "Devolução",
+                _ => "Manual",
+            }
+            : string.Empty;
 
-        var cod = values[1] as int?;
-        return origem switch
-        {
-            OrigemMovimento.Venda => cod is int v ? $"Venda nº {v}" : "Venda",
-            OrigemMovimento.Compra => cod is int c ? $"Compra nº {c}" : "Compra",
-            OrigemMovimento.Devolucao => cod is int d ? $"Devolução nº {d}" : "Devolução",
-            _ => "Manual",
-        };
-    }
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        throw new NotSupportedException();
+}
+
+/// <summary>CodDocumentoOrigem (int?) → número do documento da movimentação para a coluna DOCUMENTO.
+/// Vazio quando não há documento (ex: movimento manual). Mostra só o número, sem prefixo de tipo.</summary>
+public sealed class DocumentoOrigemConverter : IValueConverter
+{
+    public static readonly DocumentoOrigemConverter Instancia = new();
+
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        value is int cod ? cod.ToString() : string.Empty;
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        throw new NotSupportedException();
 }
 
 /// <summary>TipoMovimentoEstoque → rótulo amigável para o histórico (Entrada/Saída/Ajuste +/−).</summary>
