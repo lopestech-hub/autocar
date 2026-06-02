@@ -44,7 +44,8 @@ public sealed class EstoqueService : IEstoqueService
     {
         var movimentos = await _estoque.ListarMovimentosAsync(idProduto, ct);
         return movimentos.Select(m => new MovimentoEstoqueDto(
-            m.Id, m.CodMovimento, m.Tipo, m.Qtd, m.QtdSaldoApos, m.Observacao, m.CriadoEm)).ToList();
+            m.Id, m.CodMovimento, m.Tipo, m.Qtd, m.QtdSaldoApos,
+            m.Origem, m.CodDocumentoOrigem, m.Observacao, m.CriadoEm)).ToList();
     }
 
     public async Task<Result> MovimentarAsync(

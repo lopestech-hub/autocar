@@ -49,6 +49,8 @@ CornerRadius: controles 2px · cards 6px · ícone-marcador 3px.
 
 - `Button.primario` / `Button.primario.grande` — botão de ação principal (azul sólido). Use no "+ Novo".
 - `Button.secundario` — botão de ação secundária (branco + borda). Use no "Buscar".
+- `Button.faturar` — botão verde (`#22C55E`, família da situação Faturada), 26px, mesma forma do primário.
+  Ação de **confirmar venda/faturar** (cor com significado, não decoração). Estados redefinem `Foreground`.
 - `Button.toolbaritem` — atalho da toolbar do shell (ícone grande + legenda, 76×64, alinhado ao topo)
 - `Menu.topo` / `Menu.topo > MenuItem` — menu superior de texto
 - `TextBox.login` — input de 28px da tela de login
@@ -158,6 +160,18 @@ CornerRadius: controles 2px · cards 6px · ícone-marcador 3px.
   ViewModel da listagem recebe `Func<FormViewModel>` (form novo por janela, sem estado compartilhado).
 - **F2** na janela abre o **seletor de peça** (Catálogo) via `KeyBinding` → comando do ViewModel.
 - Vendedor (usuário logado) aparece read-only no cabeçalho.
+
+### Confirmação de ação irreversível (ConfirmacaoWindow) — PADRÃO
+
+> Janela modal genérica para confirmar ações sem volta (faturar, futuramente inativar/cancelar).
+> Reutilizável — não criar diálogo one-off por tela.
+
+- `Views/ConfirmacaoWindow` (400px, `SizeToContent=Height`, `CenterOwner`): título + mensagem +
+  Cancelar (`IsCancel`, ESC) / Confirmar (`IsDefault`, Enter). Botão confirmar com rótulo customizável.
+- Uso: `await ConfirmacaoWindow.MostrarAsync(dono, titulo, mensagem, textoConfirmar)` → `bool`.
+- A janela-pai (ex: PreVendaWindow) escuta um **evento** do ViewModel (`ConfirmacaoXSolicitada`), abre a
+  confirmação e, se `true`, chama o método assíncrono do VM que efetiva a ação. O VM não abre janela.
+- Ex: faturar a Pré-venda — botão `Button.faturar` → evento → ConfirmacaoWindow → `ConfirmarFaturamentoAsync`.
 
 ### Janela de Login (LoginWindow)
 

@@ -57,17 +57,23 @@ Orçamento, OS e Venda. Não baixa estoque ao salvar — o saldo só sai quando 
   `Σ itens − desconto geral` (≥0). Desconto geral ajusta para baixo se exceder o subtotal.
 - **Ciclo de vida**: nasce Aberta (editável). `Faturar()` exige ≥1 item e torna imutável. `Cancelar()`
   encerra. Documento Faturado/Cancelado não aceita mais alterações (invariante no agregado).
-  *Nesta rodada a UI só cria/edita Aberta — Faturar/Cancelar existem no domínio, sem botão ainda.*
+- **Faturar baixa estoque** (✅): ao faturar, cada item gera uma **Saída** no estoque, com origem
+  rastreável (`Venda nº X`). Tudo numa **transação única** (ver Decisões). Falha se algum item não
+  tiver saldo (a venda continua Aberta). UI: botão verde **Faturar** (perfil só em pré-venda Aberta
+  salva, em visualização) → **ConfirmacaoWindow** (ação irreversível) → fatura. Badge **FATURADA** no
+  header quando imutável. `Cancelar()` existe no domínio (sem botão ainda; cancelar NÃO mexe em estoque).
 
 ## Camadas
 
 - **Domain:** `PreVenda` (agregado raiz, backing field `_itens`), `PreVendaItem`, enums
   `SituacaoPreVenda`, `IPreVendaRepository`.
 - **Application:** `Modules/Sales/PreVendas` — `IPreVendaService`/`PreVendaService` (CRUD + Faturar/
-  Cancelar com `Result<T>`; converte exceção de invariante do domínio em `Error.Validacao`), DTOs,
-  `SalvarPreVendaValidator` (≥1 item, descontos ≥0).
+  Cancelar com `Result<T>`; converte invariante do domínio em `Error.Validacao`, `ConcorrenciaException`
+  em `Error.Conflito`, `NaoEncontradoException` em `Error.NaoEncontrado`), DTOs, `SalvarPreVendaValidator`.
+  `FaturarAsync(id, idUsuario)` — o usuário fatura (registrado nos movimentos de estoque).
 - **Infrastructure:** `PreVendaConfiguration` + `PreVendaItemConfiguration` (Cascade, sem xmin),
-  `PreVendaRepository` (`IDbContextFactory`; itens novos forçados a `State=Added`).
+  `PreVendaRepository` (`IDbContextFactory`; itens novos forçados a `State=Added`). **`FaturamentoRepository`**
+  (`IFaturamentoRepository`): operação transacional cross-agregado Pré-venda + Estoque.
 
 ## Decisões Técnicas
 
@@ -82,9 +88,18 @@ Orçamento, OS e Venda. Não baixa estoque ao salvar — o saldo só sai quando 
   hover ≠ seleção, clique simples marca, duplo-clique/Enter adiciona. Preço entra como snapshot.
 - **Realces de cor** (ver system.md): faixa do TOTAL, badge com borda, célula âmbar de desconto, flash
   do item recém-adicionado (via `DispatcherTimer`, nunca animação).
+- **Faturar = transação única atômica** (não Domain Event ainda). `FaturamentoRepository` abre UM
+  `DbContext`, fatura a pré-venda e baixa o estoque de todos os itens, com **um único `SaveChanges`**
+  (transação implícita do EF — tudo ou nada; saldo insuficiente lança e faz rollback). Domain Event
+  `PreVendaFaturada` adiado: N=1 consumidor, e o evento in-process precisaria compartilhar a mesma
+  transação de qualquer forma. Reavaliar quando surgir 2º consumidor (título a receber, comissão, NFC-e).
+- **Confirmação via evento**: o VM dispara `ConfirmacaoFaturamentoSolicitada`; a janela mostra a
+  `ConfirmacaoWindow` e, se confirmado, chama `ConfirmarFaturamentoAsync` — o VM não conhece a janela.
+- **Saída do estoque carrega a origem** (`OrigemMovimento.Venda` + id/nº da pré-venda) — rastreável no
+  histórico de estoque como "Venda nº X". Ver [Inventory](../Inventory/MODULO.md).
 
 ## Dependências
 
-- Depende de: Cadastros (Cliente, Produto/Catálogo), Security (usuário logado = vendedor), Shared (`Result<T>`).
-- Será base de: Orçamento, OS e Venda (mesmo padrão de documento). A baixa de estoque no **Faturar**
-  pluga na Fase de Estoque (via futuro Domain Event `PreVendaFaturada`).
+- Depende de: Cadastros (Cliente, Produto/Catálogo), Security (usuário logado = vendedor), Shared (`Result<T>`),
+  e **Estoque** (a baixa ao faturar — `IFaturamentoRepository` orquestra os dois agregados).
+- Será base de: Orçamento, OS e Venda (mesmo padrão de documento).

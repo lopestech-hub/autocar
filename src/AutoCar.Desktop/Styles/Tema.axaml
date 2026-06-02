@@ -392,6 +392,38 @@
         <Setter Property="HorizontalAlignment" Value="Stretch" />
     </Style>
 
+    <!-- Botão Faturar — verde da família "Faturada" (#22C55E). Cor com significado: confirma a venda
+         e baixa o estoque. Mesma altura/forma do primário; só a cor muda. -->
+    <Style Selector="Button.faturar">
+        <Setter Property="Height" Value="26" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="FontFamily" Value="{DynamicResource FonteInterface}" />
+        <Setter Property="Padding" Value="12,0" />
+        <Setter Property="Background" Value="#22C55E" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushTextoInverso}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="2" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="Button.faturar:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="#16A34A" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushTextoInverso}" />
+    </Style>
+
+    <Style Selector="Button.faturar:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="#15803D" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushTextoInverso}" />
+    </Style>
+
+    <Style Selector="Button.faturar:disabled /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource BrushBorda}" />
+        <Setter Property="Opacity" Value="0.6" />
+    </Style>
+
     <!-- Botão secundário -->
     <Style Selector="Button.secundario">
         <Setter Property="Height" Value="26" />

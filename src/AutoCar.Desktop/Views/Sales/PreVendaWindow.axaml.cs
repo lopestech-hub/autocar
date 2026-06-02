@@ -3,6 +3,7 @@ using Avalonia.Markup.Xaml;
 using AutoCar.Application.Modules.Registrations.Clientes;
 using AutoCar.Desktop.ViewModels.Catalogo;
 using AutoCar.Desktop.ViewModels.Sales;
+using AutoCar.Desktop.Views;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AutoCar.Desktop.Views.Sales;
@@ -27,8 +28,10 @@ public partial class PreVendaWindow : Window
         DataContext = viewModel;
         viewModel.Salvo += Close;
         viewModel.Cancelado += Close;
+        viewModel.Faturado += Close;
         viewModel.AbrirCatalogoSolicitado += AbrirCatalogo;
         viewModel.AbrirSeletorClienteSolicitado += AbrirSeletorCliente;
+        viewModel.ConfirmacaoFaturamentoSolicitada += ConfirmarFaturamento;
     }
 
     private void InitializeComponent() => AvaloniaXamlLoader.Load(this);
@@ -60,5 +63,24 @@ public partial class PreVendaWindow : Window
         var clientes = App.Services.GetRequiredService<IClienteService>();
         var seletor = new ClienteSeletorWindow(clientes, cli => _vm.DefinirCliente(cli));
         seletor.ShowDialog(this);
+    }
+
+    /// <summary>
+    /// Confirmação antes de faturar (ação irreversível que baixa o estoque). Se o usuário confirmar,
+    /// o ViewModel efetiva o faturamento; em sucesso, ele dispara Faturado e a janela fecha.
+    /// </summary>
+    private async void ConfirmarFaturamento()
+    {
+        if (_vm is null)
+            return;
+
+        var confirmado = await ConfirmacaoWindow.MostrarAsync(
+            this,
+            "Faturar pré-venda",
+            "Ao faturar, o estoque dos itens será baixado e o documento não poderá mais ser alterado. Deseja continuar?",
+            textoConfirmar: "Faturar");
+
+        if (confirmado)
+            await _vm.ConfirmarFaturamentoAsync();
     }
 }

@@ -25,7 +25,10 @@ public class MovimentoEstoque : EntidadeBase
         int qtd,
         int qtdSaldoApos,
         Guid idUsuario,
-        string? observacao)
+        string? observacao,
+        OrigemMovimento origem,
+        Guid? idDocumentoOrigem,
+        int? codDocumentoOrigem)
     {
         IdProduto = idProduto;
         Tipo = tipo;
@@ -33,6 +36,9 @@ public class MovimentoEstoque : EntidadeBase
         QtdSaldoApos = qtdSaldoApos;
         IdUsuario = idUsuario;
         Observacao = string.IsNullOrWhiteSpace(observacao) ? null : observacao.Trim();
+        Origem = origem;
+        IdDocumentoOrigem = idDocumentoOrigem;
+        CodDocumentoOrigem = codDocumentoOrigem;
     }
 
     /// <summary>Código legível autoincrement, gerado pelo banco.</summary>
@@ -55,4 +61,15 @@ public class MovimentoEstoque : EntidadeBase
 
     /// <summary>Observação livre (motivo do ajuste, nº da nota, etc.). Opcional.</summary>
     public string? Observacao { get; protected set; }
+
+    /// <summary>Origem do movimento (Manual, Venda, Compra...). Dado estruturado, não texto livre.</summary>
+    public OrigemMovimento Origem { get; protected set; }
+
+    /// <summary>Id do documento que originou o movimento (ex: a pré-venda faturada). Null se Manual —
+    /// permite rastrear a venda/compra a partir do estoque.</summary>
+    public Guid? IdDocumentoOrigem { get; protected set; }
+
+    /// <summary>Número legível do documento de origem (ex: nº da pré-venda) — para exibir "Venda nº 1"
+    /// no histórico sem precisar de join cross-módulo. Null se Manual.</summary>
+    public int? CodDocumentoOrigem { get; protected set; }
 }

@@ -22,29 +22,37 @@ NÃO inclui ainda documento de compra nem a baixa pelo Faturar da Pré-venda (pr
 - `id_produto` (FK → `produto`, `Restrict`), `id_usuario` (FK → `usuario`, `Restrict` — quem movimentou)
 - `sts_tipo` (int — enum `TipoMovimentoEstoque`: Entrada=1, Saida=2, AjustePositivo=3, AjusteNegativo=4)
 - `qtd` (int, **sempre positiva** — o tipo diz a direção), `qtd_saldo_apos` (int — foto do saldo p/ auditoria)
-- `observacao` (varchar 255, opcional), `dat_criacao` (UTC). **Sem `xmin`** (registro imutável).
-- Índices: `ix_movimento_estoque_cod` (único), `ix_movimento_estoque_produto`, `ix_movimento_estoque_data`.
+- `observacao` (varchar 255, opcional — observação livre do operador, **separada da origem**), `dat_criacao` (UTC)
+- **Origem** (dado estruturado, não texto livre — migration `OrigemMovimentoEstoque`): `sts_origem` (enum
+  `OrigemMovimento`: Manual=1, Venda=2, Compra=3, Devolucao=4), `id_documento_origem` (uuid, rastreável,
+  null se Manual), `cod_documento_origem` (int, nº legível p/ exibir "Venda nº X" sem join). **Sem `xmin`** (imutável).
+- Índices: `ix_movimento_estoque_cod` (único), `ix_movimento_estoque_produto`, `ix_movimento_estoque_data`,
+  `ix_movimento_estoque_documento_origem`.
 
 > **Quantidades inteiras.** No setor automotivo a peça é unidade fechada (UN/PC/PAR/JG/KIT/CX); óleo
 > e mangueira vendem em embalagem fechada. Não há saldo fracionado — `int`, não `decimal`.
 
 ## Camadas
 
-- **Domain:** `EstoqueProduto` (raiz do agregado — `Movimentar(tipo, qtd, idUsuario, obs)` valida saldo
-  não-negativo e devolve o `MovimentoEstoque`), `MovimentoEstoque` (imutável, construtor `internal`),
-  enum `TipoMovimentoEstoque`, `IEstoqueRepository` (+ projeção de leitura `SaldoProdutoLeitura`),
-  `ConcorrenciaException` (exceção neutra de domínio).
+- **Domain:** `EstoqueProduto` (raiz do agregado — `Movimentar(tipo, qtd, idUsuario, obs, origem, idDoc, codDoc)`
+  valida saldo não-negativo e devolve o `MovimentoEstoque`; origem default `Manual`), `MovimentoEstoque`
+  (imutável, construtor `internal`), enums `TipoMovimentoEstoque` e `OrigemMovimento`, `IEstoqueRepository`
+  (+ projeção `SaldoProdutoLeitura`), `ConcorrenciaException` (neutra).
 - **Application:** `Modules/Estoque` — `IEstoqueService`/`EstoqueService` (`Result`; converte invariante
   do domínio em `Error.Validacao` e `ConcorrenciaException` em `Error.Conflito`), DTOs
-  (`MovimentarEstoqueDto`, `SaldoEstoqueListaDto`, `MovimentoEstoqueDto`), `MovimentarEstoqueValidator`.
+  (`MovimentarEstoqueDto`, `SaldoEstoqueListaDto`, `MovimentoEstoqueDto` com origem), `MovimentarEstoqueValidator`.
 - **Infrastructure:** `EstoqueProdutoConfiguration` (xmin via `IsRowVersion`), `MovimentoEstoqueConfiguration`,
   `EstoqueRepository` (`IDbContextFactory`). `ListarSaldosAsync` **projeta `SaldoProdutoLeitura` direto na
-  query** (left join produto×saldo numa única consulta — sem N+1). Migration `CadastroEstoque` (aditiva).
+  query** (left join produto×saldo numa única consulta — sem N+1). **`EstoquePersistencia`** (helper interno):
+  `ObterOuCriarSaldoRastreadoAsync` + `SalvarTraduzindoConcorrenciaAsync`, compartilhado com o
+  `FaturamentoRepository` (uma fonte única das invariantes de saldo/concorrência). Migrations
+  `CadastroEstoque` e `OrigemMovimentoEstoque` (ambas aditivas).
 - **Desktop:** `Views/Inventory` + `ViewModels/Inventory` — `EstoqueViewModel` (listagem) +
   `MovimentoEstoqueFormViewModel` (janela). `EstoqueView` (Grid único: CÓDIGO·PRODUTO·UN·SALDO·DISPONÍVEL,
   saldo zero em cinza), `MovimentoEstoqueWindow` (não-modal, ESC fecha), `MovimentoEstoqueFormView` (saldo
-  em faixa azul + tipo/qtd/observação + histórico com OBS. e cor por direção). Rota `estoque` (perfil
-  Vendedor). Conversores em `Converters/MovimentoEstoqueConverters.cs`.
+  em faixa azul + tipo/qtd/observação + histórico Nº·DATA·TIPO·QTD·SALDO·**ORIGEM**·OBS., cor por direção).
+  Rota `estoque` (perfil Vendedor). Conversores em `Converters/MovimentoEstoqueConverters.cs`
+  (incl. `OrigemMovimentoRotuloConverter` — "Venda nº X"/"Manual").
 
 ## Regras de Negócio
 
@@ -71,16 +79,17 @@ NÃO inclui ainda documento de compra nem a baixa pelo Faturar da Pré-venda (pr
 
 ## Dívidas / Pendências
 
-- **Race no primeiro movimento.** Dois terminais movimentando ao mesmo tempo um produto que ainda não tem
-  registro de saldo: ambos tentam INSERT. O `xmin` não cobre INSERT concorrente — quem garante é o índice
-  único `ix_estoque_produto_produto` (o 2º INSERT lança `DbUpdateException`, não `DbUpdateConcurrencyException`,
+- **Race no primeiro movimento.** Dois terminais movimentando/faturando ao mesmo tempo um produto que ainda
+  não tem registro de saldo: ambos tentam INSERT. O `xmin` não cobre INSERT concorrente — quem garante é o
+  índice único `ix_estoque_produto_produto` (o 2º INSERT lança `DbUpdateException`, não `DbUpdateConcurrencyException`,
   e cai na mensagem genérica do ViewModel). **Integridade preservada** (nunca cria saldo duplicado); só a
-  mensagem fica genérica nesse caso estreito. Tratar `DbUpdateException` por unique-violation se virar incômodo.
+  mensagem fica genérica nesse caso estreito. Vale tanto para a movimentação manual quanto para o faturamento.
+  Tratar `DbUpdateException` por unique-violation (no `EstoquePersistencia`) se virar incômodo.
 - **Coluna DISPONÍVEL = SALDO no MVP** (reservado sempre 0) — só ganha sentido quando a reserva existir.
 - **Sem paginação** na listagem (mesma dívida dos demais cadastros).
 
 ## Dependências
 
 - Depende de: Produto (FK), Security (usuário logado = quem movimentou), Shared (`Result`).
-- Será consumido por: **Faturar da Pré-venda** (baixa estoque — próximo passo, via futuro evento
-  `PreVendaFaturada`), entrada por compra/documento (próximo passo), e relatórios de estoque.
+- Consumido por: **Faturar da Pré-venda** ✅ (baixa estoque via `FaturamentoRepository`, origem `Venda`).
+  Próximos: entrada por compra/documento (origem `Compra`) e relatórios de estoque.

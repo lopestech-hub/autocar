@@ -9,6 +9,7 @@ using AutoCar.Application.Modules.Registrations.Clientes.DTOs;
 using AutoCar.Application.Modules.Registrations.Produtos.DTOs;
 using AutoCar.Application.Modules.Sales.PreVendas;
 using AutoCar.Application.Modules.Sales.PreVendas.DTOs;
+using AutoCar.Domain.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
@@ -47,6 +48,10 @@ public partial class PreVendaFormViewModel : ViewModelBase
     public event Action? Salvo;
     public event Action? Cancelado;
 
+    /// <summary>Disparado quando a pré-venda é faturada com sucesso (baixou estoque). A janela fecha
+    /// e a listagem recarrega — mesmo tratamento de <see cref="Salvo"/>.</summary>
+    public event Action? Faturado;
+
     /// <summary>Disparado ao pedir o catálogo (F2). A janela da pré-venda abre a janela seletora de
     /// peças (Catálogo) e devolve a escolhida via <see cref="AdicionarPecaDoCatalogo"/>.</summary>
     public event Action? AbrirCatalogoSolicitado;
@@ -67,6 +72,33 @@ public partial class PreVendaFormViewModel : ViewModelBase
     [ObservableProperty] private bool _modoVisualizacao = true;
     [ObservableProperty] private bool _carregando;
     [ObservableProperty] private string? _mensagemErro;
+
+    /// <summary>Situação atual do documento carregado (Aberta enquanto nova/em edição).</summary>
+    [ObservableProperty] private SituacaoPreVenda _situacao = SituacaoPreVenda.Aberta;
+
+    /// <summary>Faturar só faz sentido numa pré-venda já salva (tem Id), Aberta e em visualização —
+    /// mesma porta do botão "Editar". Faturar baixa o estoque e torna o documento imutável.</summary>
+    public bool PodeFaturar => _id is not null && Situacao == SituacaoPreVenda.Aberta && ModoVisualizacao;
+
+    /// <summary>Documento já faturado — exibe um aviso/estado somente-leitura, sem ações de alteração.</summary>
+    public bool EstaFaturada => Situacao == SituacaoPreVenda.Faturada;
+
+    /// <summary>Mostra o selo "VISUALIZAÇÃO" — só quando em visualização e ainda não faturada (faturada
+    /// tem o próprio selo). Evita os dois selos competindo no header.</summary>
+    public bool EmVisualizacaoNaoFaturada => ModoVisualizacao && !EstaFaturada;
+
+    partial void OnSituacaoChanged(SituacaoPreVenda value)
+    {
+        OnPropertyChanged(nameof(PodeFaturar));
+        OnPropertyChanged(nameof(EstaFaturada));
+        OnPropertyChanged(nameof(EmVisualizacaoNaoFaturada));
+    }
+
+    partial void OnModoVisualizacaoChanged(bool value)
+    {
+        OnPropertyChanged(nameof(PodeFaturar));
+        OnPropertyChanged(nameof(EmVisualizacaoNaoFaturada));
+    }
 
     /// <summary>Nome do vendedor logado (read-only no cabeçalho — quem está registrando a venda).</summary>
     [ObservableProperty] private string _nomeVendedor = string.Empty;
@@ -126,6 +158,7 @@ public partial class PreVendaFormViewModel : ViewModelBase
         NomeVendedor = nomeVendedor;
         _id = null;
         CodPreVenda = 0;
+        Situacao = SituacaoPreVenda.Aberta;
         ClienteSelecionado = null;
         NomeClienteAvulso = null;
         VeiculoMontadora = VeiculoModelo = VeiculoAno = VeiculoPlaca = null;
@@ -159,6 +192,7 @@ public partial class PreVendaFormViewModel : ViewModelBase
             var p = resultado.Valor;
             _id = p.Id;
             CodPreVenda = p.CodPreVenda;
+            Situacao = p.Situacao;
 
             // Carrega o cliente vinculado (se houver) para exibir no campo-seletor.
             ClienteSelecionado = await ObterClienteResumoAsync(p.IdCliente);
@@ -176,6 +210,7 @@ public partial class PreVendaFormViewModel : ViewModelBase
 
             ModoVisualizacao = true;
             OnPropertyChanged(nameof(Titulo));
+            OnPropertyChanged(nameof(PodeFaturar));
             RecalcularTotais();
         }
         catch (Exception ex)
@@ -286,6 +321,51 @@ public partial class PreVendaFormViewModel : ViewModelBase
 
     [RelayCommand]
     private void Cancelar() => Cancelado?.Invoke();
+
+    /// <summary>Disparado ao clicar em Faturar. A janela mostra a confirmação (faturar é irreversível e
+    /// baixa estoque) e, se o usuário confirmar, chama <see cref="ConfirmarFaturamentoAsync"/>.</summary>
+    public event Action? ConfirmacaoFaturamentoSolicitada;
+
+    /// <summary>Botão Faturar: pede a confirmação à janela. O faturamento de fato roda em
+    /// <see cref="ConfirmarFaturamentoAsync"/> só após o usuário confirmar.</summary>
+    [RelayCommand]
+    private void Faturar()
+    {
+        if (PodeFaturar)
+            ConfirmacaoFaturamentoSolicitada?.Invoke();
+    }
+
+    /// <summary>Efetiva o faturamento (após confirmado na janela): fatura a pré-venda e baixa o estoque
+    /// de todos os itens numa única transação. Em sucesso, dispara <see cref="Faturado"/> (a janela
+    /// fecha e a lista recarrega). Falhas (saldo insuficiente, concorrência) viram mensagem na tela.</summary>
+    public async Task ConfirmarFaturamentoAsync()
+    {
+        if (_id is null)
+            return;
+
+        Carregando = true;
+        MensagemErro = null;
+        try
+        {
+            var resultado = await _preVendas.FaturarAsync(_id.Value, _idUsuario);
+            if (resultado.Falha)
+            {
+                MensagemErro = resultado.Erro.Mensagem;
+                return;
+            }
+
+            Faturado?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            MensagemErro = "Falha ao faturar a pré-venda.";
+            _logger.LogError(ex, "Erro ao faturar pré-venda {Id}.", _id);
+        }
+        finally
+        {
+            Carregando = false;
+        }
+    }
 
     // Busca o resumo de um cliente pelo Id (para exibir no campo ao reabrir uma pré-venda).
     // Retorna null se não houver cliente vinculado (venda avulsa) ou se não encontrar.

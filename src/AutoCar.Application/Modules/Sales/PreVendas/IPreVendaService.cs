@@ -15,8 +15,10 @@ public interface IPreVendaService
     /// <summary>Atualiza uma pré-venda Aberta (cabeçalho + itens). Falha se já Faturada/Cancelada.</summary>
     Task<Result<PreVendaDto>> AtualizarAsync(Guid id, SalvarPreVendaDto dto, CancellationToken ct = default);
 
-    /// <summary>Fatura a pré-venda (vira venda — torna o documento imutável). Falha se não Aberta ou sem itens.</summary>
-    Task<Result> FaturarAsync(Guid id, CancellationToken ct = default);
+    /// <summary>Fatura a pré-venda (vira venda — torna o documento imutável) e baixa o estoque de todos
+    /// os itens numa única transação. Falha se não Aberta, sem itens, ou se faltar saldo de algum item.
+    /// O <paramref name="idUsuario"/> é quem fatura (registrado nos movimentos de estoque).</summary>
+    Task<Result> FaturarAsync(Guid id, Guid idUsuario, CancellationToken ct = default);
 
     /// <summary>Cancela a pré-venda. Falha se não estiver Aberta.</summary>
     Task<Result> CancelarAsync(Guid id, CancellationToken ct = default);

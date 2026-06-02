@@ -50,11 +50,17 @@ public class EstoqueProduto : EntidadeBase
     /// <param name="qtd">Quantidade positiva a movimentar.</param>
     /// <param name="idUsuario">Usuário que registra o movimento.</param>
     /// <param name="observacao">Observação opcional (motivo, nº da nota).</param>
+    /// <param name="origem">Origem do movimento (Manual por padrão; Venda/Compra quando vem de um documento).</param>
+    /// <param name="idDocumentoOrigem">Id do documento de origem (ex: pré-venda faturada). Null se Manual.</param>
+    /// <param name="codDocumentoOrigem">Número legível do documento de origem (ex: nº da venda). Null se Manual.</param>
     public MovimentoEstoque Movimentar(
         TipoMovimentoEstoque tipo,
         int qtd,
         Guid idUsuario,
-        string? observacao = null)
+        string? observacao = null,
+        OrigemMovimento origem = OrigemMovimento.Manual,
+        Guid? idDocumentoOrigem = null,
+        int? codDocumentoOrigem = null)
     {
         if (qtd <= 0)
             throw new ArgumentException("A quantidade do movimento deve ser maior que zero.", nameof(qtd));
@@ -74,6 +80,8 @@ public class EstoqueProduto : EntidadeBase
         QtdSaldo = saldoResultante;
         MarcarAtualizada();
 
-        return new MovimentoEstoque(IdProduto, tipo, qtd, QtdSaldo, idUsuario, observacao);
+        return new MovimentoEstoque(
+            IdProduto, tipo, qtd, QtdSaldo, idUsuario, observacao,
+            origem, idDocumentoOrigem, codDocumentoOrigem);
     }
 }

@@ -70,8 +70,9 @@ public partial class PreVendasView : UserControl
     /// </summary>
     private void AbrirJanelaPreVenda(PreVendaFormViewModel form)
     {
-        // Recarrega a lista quando a pré-venda é salva (a janela fecha sozinha — ver PreVendaWindow).
+        // Recarrega a lista quando a pré-venda é salva ou faturada (a janela fecha sozinha — ver PreVendaWindow).
         form.Salvo += () => _vm?.RecarregarAsync();
+        form.Faturado += () => _vm?.RecarregarAsync();
 
         var janela = new PreVendaWindow(form);
         var dono = TopLevel.GetTopLevel(this) as Window;

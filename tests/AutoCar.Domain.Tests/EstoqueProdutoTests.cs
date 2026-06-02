@@ -111,4 +111,30 @@ public class EstoqueProdutoTests
         // Reservado é 0 no MVP, então disponível = saldo.
         Assert.Equal(10, estoque.QtdDisponivel);
     }
+
+    [Fact]
+    public void Movimento_sem_origem_nasce_manual()
+    {
+        var estoque = NovoSaldo();
+        var mov = estoque.Movimentar(TipoMovimentoEstoque.Entrada, 5, Usuario);
+
+        Assert.Equal(OrigemMovimento.Manual, mov.Origem);
+        Assert.Null(mov.IdDocumentoOrigem);
+        Assert.Null(mov.CodDocumentoOrigem);
+    }
+
+    [Fact]
+    public void Movimento_de_venda_carrega_documento_de_origem()
+    {
+        var estoque = NovoSaldo();
+        estoque.Movimentar(TipoMovimentoEstoque.Entrada, 5, Usuario);
+
+        var idVenda = Guid.NewGuid();
+        var mov = estoque.Movimentar(TipoMovimentoEstoque.Saida, 2, Usuario,
+            observacao: null, origem: OrigemMovimento.Venda, idDocumentoOrigem: idVenda, codDocumentoOrigem: 7);
+
+        Assert.Equal(OrigemMovimento.Venda, mov.Origem);
+        Assert.Equal(idVenda, mov.IdDocumentoOrigem);
+        Assert.Equal(7, mov.CodDocumentoOrigem);
+    }
 }

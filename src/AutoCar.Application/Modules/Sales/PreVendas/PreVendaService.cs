@@ -1,4 +1,5 @@
 using AutoCar.Application.Modules.Sales.PreVendas.DTOs;
+using AutoCar.Domain.Common;
 using AutoCar.Domain.Entities;
 using AutoCar.Domain.Interfaces;
 using AutoCar.Shared.Results;
@@ -17,17 +18,20 @@ public sealed class PreVendaService : IPreVendaService
     private readonly IPreVendaRepository _preVendas;
     private readonly IClienteRepository _clientes;
     private readonly IProdutoRepository _produtos;
+    private readonly IFaturamentoRepository _faturamento;
     private readonly IValidator<SalvarPreVendaDto> _validator;
 
     public PreVendaService(
         IPreVendaRepository preVendas,
         IClienteRepository clientes,
         IProdutoRepository produtos,
+        IFaturamentoRepository faturamento,
         IValidator<SalvarPreVendaDto> validator)
     {
         _preVendas = preVendas;
         _clientes = clientes;
         _produtos = produtos;
+        _faturamento = faturamento;
         _validator = validator;
     }
 
@@ -85,19 +89,28 @@ public sealed class PreVendaService : IPreVendaService
         return Result.Ok(Mapear(atualizada!));
     }
 
-    public async Task<Result> FaturarAsync(Guid id, CancellationToken ct = default)
+    public async Task<Result> FaturarAsync(Guid id, Guid idUsuario, CancellationToken ct = default)
     {
-        var preVenda = await _preVendas.ObterPorIdAsync(id, ct);
-        if (preVenda is null)
-            return Result.Falhar(Error.NaoEncontrado("Pré-venda não encontrada."));
-
         try
         {
-            await _preVendas.AtualizarAsync(id, pv => pv.Faturar(), ct);
+            // Fatura e baixa o estoque de todos os itens numa única transação (atômico). O repositório
+            // carrega a pré-venda e lança se não existir — sem consulta prévia de existência (evita ler
+            // a pré-venda duas vezes).
+            await _faturamento.FaturarComBaixaEstoqueAsync(id, idUsuario, ct);
             return Result.Ok();
         }
-        catch (InvalidOperationException ex)
+        catch (NaoEncontradoException ex)
         {
+            return Result.Falhar(Error.NaoEncontrado(ex.Message));
+        }
+        catch (ConcorrenciaException)
+        {
+            return Result.Falhar(Error.Conflito(
+                "O saldo de um produto foi alterado por outro terminal. Recarregue e tente novamente."));
+        }
+        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
+        {
+            // Invariante violada: pré-venda não-Aberta, sem itens, ou item sem saldo suficiente.
             return Result.Falhar(Error.Validacao(ex.Message));
         }
     }

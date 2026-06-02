@@ -19,12 +19,15 @@ public sealed record SaldoEstoqueListaDto(
     int QtdReservada,
     int QtdDisponivel);
 
-/// <summary>Movimento do histórico de um produto (livro-razão), com o tipo e o saldo resultante.</summary>
+/// <summary>Movimento do histórico de um produto (livro-razão), com o tipo, o saldo resultante e a
+/// origem (Manual, Venda nº X, etc.). A observação livre é separada da origem.</summary>
 public sealed record MovimentoEstoqueDto(
     Guid Id,
     int CodMovimento,
     TipoMovimentoEstoque Tipo,
     int Qtd,
     int QtdSaldoApos,
+    OrigemMovimento Origem,
+    int? CodDocumentoOrigem,
     string? Observacao,
     DateTime DataCriacao);

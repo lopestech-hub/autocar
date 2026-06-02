@@ -27,12 +27,18 @@
                                    Foreground="{DynamicResource BrushTexto}"
                                    VerticalAlignment="Center" />
                         <Border Background="#E0F2FE" CornerRadius="2" Padding="6,2"
-                                VerticalAlignment="Center" IsVisible="{Binding ModoVisualizacao}">
+                                VerticalAlignment="Center" IsVisible="{Binding EmVisualizacaoNaoFaturada}">
                             <TextBlock Text="VISUALIZAÇÃO" FontSize="10" FontWeight="Medium" Foreground="#075985" />
                         </Border>
                         <Border Background="#FEF3C7" CornerRadius="2" Padding="6,2"
                                 VerticalAlignment="Center" IsVisible="{Binding !ModoVisualizacao}">
                             <TextBlock Text="EDIÇÃO" FontSize="10" FontWeight="Medium" Foreground="#92400E" />
+                        </Border>
+                        <!-- Documento faturado: estado imutável (verde, família da situação Faturada). -->
+                        <Border Background="#DCFCE7" BorderBrush="#22C55E" BorderThickness="1"
+                                CornerRadius="2" Padding="6,2"
+                                VerticalAlignment="Center" IsVisible="{Binding EstaFaturada}">
+                            <TextBlock Text="FATURADA" FontSize="10" FontWeight="SemiBold" Foreground="#166534" />
                         </Border>
                         <!-- Vendedor (usuário logado), read-only — quem está registrando a venda. -->
                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
@@ -270,6 +276,10 @@
                         <Button Content="Fechar" Classes="secundario"
                                 Command="{Binding CancelarCommand}"
                                 IsVisible="{Binding ModoVisualizacao}" Cursor="Hand" />
+                        <Button Content="Faturar" Classes="faturar"
+                                Command="{Binding FaturarCommand}"
+                                IsVisible="{Binding PodeFaturar}"
+                                IsEnabled="{Binding !Carregando}" Cursor="Hand" />
                         <Button Content="Editar" Classes="primario"
                                 Command="{Binding HabilitarEdicaoCommand}"
                                 IsVisible="{Binding ModoVisualizacao}" Cursor="Hand" />

@@ -1,4 +1,3 @@
-using AutoCar.Domain.Common;
 using AutoCar.Domain.Entities;
 using AutoCar.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -73,33 +72,16 @@ public class EstoqueRepository : IEstoqueRepository
     {
         await using var db = await _factory.CreateDbContextAsync(ct);
 
-        // Carrega o saldo RASTREADO (sem AsNoTracking) — o xmin lido aqui é o que o UPDATE vai
-        // comparar no save. Se ainda não existe registro de saldo, cria zerado e marca como Added.
-        var estoque = await db.EstoqueProdutos
-            .FirstOrDefaultAsync(e => e.IdProduto == idProduto, ct);
-
-        if (estoque is null)
-        {
-            estoque = new EstoqueProduto(idProduto);
-            await db.EstoqueProdutos.AddAsync(estoque, ct);
-        }
+        // Saldo rastreado (cria zerado se não existir) — o xmin lido aqui é o comparado no UPDATE.
+        var estoque = await EstoquePersistencia.ObterOuCriarSaldoRastreadoAsync(db, idProduto, ct);
 
         // Aplica a regra de domínio (valida saldo, ajusta a quantidade) e obtém o movimento gerado.
         var movimento = movimentar(estoque);
         await db.MovimentosEstoque.AddAsync(movimento, ct);
 
-        // Salva saldo (UPDATE com WHERE xmin) + movimento (INSERT) atomicamente. Concorrência: se
-        // outro terminal alterou o saldo desde a leitura, o UPDATE afeta 0 linhas → DbUpdate-
-        // ConcurrencyException. Traduz para a exceção neutra de domínio (ConcorrenciaException) —
-        // a Application trata sem conhecer o EF Core (Clean Architecture).
-        try
-        {
-            await db.SaveChangesAsync(ct);
-        }
-        catch (DbUpdateConcurrencyException ex)
-        {
-            throw new ConcorrenciaException(
-                "O saldo deste produto foi alterado por outro terminal.", ex);
-        }
+        // Salva saldo (UPDATE com WHERE xmin) + movimento (INSERT) atomicamente; conflito de xmin vira
+        // ConcorrenciaException (a Application trata sem conhecer o EF Core).
+        await EstoquePersistencia.SalvarTraduzindoConcorrenciaAsync(
+            db, "O saldo deste produto foi alterado por outro terminal.", ct);
     }
 }

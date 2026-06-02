@@ -49,6 +49,22 @@ public class MovimentoEstoqueConfiguration : IEntityTypeConfiguration<MovimentoE
             .HasColumnName("observacao")
             .HasMaxLength(255);
 
+        // Origem do movimento (dado estruturado): tipo + documento que o gerou. Manual quando avulso.
+        builder.Property(m => m.Origem)
+            .HasColumnName("sts_origem")
+            .HasConversion<int>()
+            .HasDefaultValue(Domain.Enums.OrigemMovimento.Manual)
+            .IsRequired();
+
+        builder.Property(m => m.IdDocumentoOrigem)
+            .HasColumnName("id_documento_origem");
+
+        builder.Property(m => m.CodDocumentoOrigem)
+            .HasColumnName("cod_documento_origem");
+
+        builder.HasIndex(m => m.IdDocumentoOrigem)
+            .HasDatabaseName("ix_movimento_estoque_documento_origem");
+
         builder.Property(m => m.CriadoEm)
             .HasColumnName("dat_criacao")
             .IsRequired();

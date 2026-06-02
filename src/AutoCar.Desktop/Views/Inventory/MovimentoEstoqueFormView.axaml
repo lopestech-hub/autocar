@@ -108,7 +108,7 @@
             <!-- Header do histórico. Colunas fixas + OBS. na coluna * (única que estica). -->
             <Border Grid.Row="1" Background="{DynamicResource BrushFundoHeader}"
                     BorderBrush="#CBD5E1" BorderThickness="0,0,0,1" Height="28">
-                <Grid ColumnDefinitions="70,130,110,70,80,*">
+                <Grid ColumnDefinitions="60,125,95,55,70,120,*">
                     <TextBlock Grid.Column="0" Text="Nº" FontSize="11" FontWeight="SemiBold"
                                Foreground="#475569" VerticalAlignment="Center" Margin="8,0" />
                     <TextBlock Grid.Column="1" Text="DATA/HORA" FontSize="11" FontWeight="SemiBold"
@@ -121,7 +121,9 @@
                     <TextBlock Grid.Column="4" Text="SALDO" FontSize="11" FontWeight="SemiBold"
                                Foreground="#475569" VerticalAlignment="Center"
                                HorizontalAlignment="Right" Margin="8,0" />
-                    <TextBlock Grid.Column="5" Text="OBS." FontSize="11" FontWeight="SemiBold"
+                    <TextBlock Grid.Column="5" Text="ORIGEM" FontSize="11" FontWeight="SemiBold"
+                               Foreground="#475569" VerticalAlignment="Center" Margin="8,0" />
+                    <TextBlock Grid.Column="6" Text="OBS." FontSize="11" FontWeight="SemiBold"
                                Foreground="#475569" VerticalAlignment="Center" Margin="8,0" />
                 </Grid>
             </Border>
@@ -137,7 +139,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="dtos:MovimentoEstoqueDto">
                                 <Border BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Height="26">
-                                    <Grid ColumnDefinitions="70,130,110,70,80,*">
+                                    <Grid ColumnDefinitions="60,125,95,55,70,120,*">
                                         <TextBlock Grid.Column="0" Text="{Binding CodMovimento}"
                                                    FontSize="12" FontFamily="{DynamicResource FonteMono}"
                                                    Foreground="{DynamicResource BrushTexto}"
@@ -163,7 +165,19 @@
                                                    Foreground="{DynamicResource BrushTexto}"
                                                    VerticalAlignment="Center"
                                                    HorizontalAlignment="Right" Margin="8,0" />
-                                        <TextBlock Grid.Column="5" Text="{Binding Observacao}"
+                                        <TextBlock Grid.Column="5"
+                                                   FontSize="12"
+                                                   Foreground="{DynamicResource BrushTexto}"
+                                                   VerticalAlignment="Center"
+                                                   TextTrimming="CharacterEllipsis" Margin="8,0">
+                                            <TextBlock.Text>
+                                                <MultiBinding Converter="{x:Static conv:OrigemMovimentoRotuloConverter.Instancia}">
+                                                    <Binding Path="Origem" />
+                                                    <Binding Path="CodDocumentoOrigem" />
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
+                                        <TextBlock Grid.Column="6" Text="{Binding Observacao}"
                                                    FontSize="12"
                                                    Foreground="{DynamicResource BrushTextoSecundario}"
                                                    VerticalAlignment="Center"
