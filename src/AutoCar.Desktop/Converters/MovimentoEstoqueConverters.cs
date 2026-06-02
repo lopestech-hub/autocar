@@ -70,8 +70,8 @@ public sealed class TipoMovimentoRotuloConverter : IValueConverter
 public sealed class TipoMovimentoCorConverter : IValueConverter
 {
     public static readonly TipoMovimentoCorConverter Instancia = new();
-    private static readonly IBrush Verde = new SolidColorBrush(Color.Parse("#166534"));
-    private static readonly IBrush Vermelho = new SolidColorBrush(Color.Parse("#991B1B"));
+    private static readonly IBrush Verde = new SolidColorBrush(Color.Parse("#22C55E"));
+    private static readonly IBrush Vermelho = new SolidColorBrush(Color.Parse("#EF4444"));
 
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
         value is TipoMovimentoEstoque t
