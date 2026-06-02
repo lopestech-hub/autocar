@@ -1,3 +1,4 @@
+using System;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using AutoCar.Application.Modules.Registrations.Clientes;
@@ -32,6 +33,7 @@ public partial class PreVendaWindow : Window
         viewModel.AbrirCatalogoSolicitado += AbrirCatalogo;
         viewModel.AbrirSeletorClienteSolicitado += AbrirSeletorCliente;
         viewModel.ConfirmacaoFaturamentoSolicitada += ConfirmarFaturamento;
+        viewModel.AbrirDevolucaoSolicitada += AbrirDevolucao;
     }
 
     private void InitializeComponent() => AvaloniaXamlLoader.Load(this);
@@ -82,5 +84,22 @@ public partial class PreVendaWindow : Window
 
         if (confirmado)
             await _vm.ConfirmarFaturamentoAsync();
+    }
+
+    /// <summary>
+    /// Abre a tela de devolução da venda faturada numa janela separada (não-modal). A pré-venda
+    /// permanece aberta (a venda continua Faturada — a devolução é um documento à parte). A janela de
+    /// devolução fecha sozinha ao concluir (ela mesma trata isso).
+    /// </summary>
+    private async void AbrirDevolucao()
+    {
+        if (_vm?.IdPreVenda is not Guid idPreVenda)
+            return;
+
+        var devolucaoVm = App.Services.GetRequiredService<DevolucaoFormViewModel>();
+        await devolucaoVm.PrepararAsync(idPreVenda, _vm.CodPreVenda, _vm.IdUsuarioLogado);
+
+        var janela = new DevolucaoWindow(devolucaoVm);
+        janela.Show(this);
     }
 }

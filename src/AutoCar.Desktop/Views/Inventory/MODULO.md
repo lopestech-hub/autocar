@@ -44,9 +44,10 @@ NÃO inclui ainda documento de compra nem a baixa pelo Faturar da Pré-venda (pr
 - **Infrastructure:** `EstoqueProdutoConfiguration` (xmin via `IsRowVersion`), `MovimentoEstoqueConfiguration`,
   `EstoqueRepository` (`IDbContextFactory`). `ListarSaldosAsync` **projeta `SaldoProdutoLeitura` direto na
   query** (left join produto×saldo numa única consulta — sem N+1). **`EstoquePersistencia`** (helper interno):
-  `ObterOuCriarSaldoRastreadoAsync` + `SalvarTraduzindoConcorrenciaAsync`, compartilhado com o
-  `FaturamentoRepository` (uma fonte única das invariantes de saldo/concorrência). Migrations
-  `CadastroEstoque` e `OrigemMovimentoEstoque` (ambas aditivas).
+  `ObterOuCriarSaldoRastreadoAsync` (com sobrecarga com cache p/ operações multi-item) e
+  `SalvarTraduzindoConcorrenciaAsync`, compartilhado com `FaturamentoRepository` e `DevolucaoRepository`
+  (fonte única das invariantes de saldo/concorrência). Migrations `CadastroEstoque` e `OrigemMovimentoEstoque`
+  (ambas aditivas).
 - **Desktop:** `Views/Inventory` + `ViewModels/Inventory` — `EstoqueViewModel` (listagem) +
   `MovimentoEstoqueFormViewModel` (janela). `EstoqueView` (Grid único: CÓDIGO·PRODUTO·UN·SALDO·DISPONÍVEL,
   saldo zero em cinza), `MovimentoEstoqueWindow` (não-modal, ESC fecha), `MovimentoEstoqueFormView` (saldo
@@ -91,5 +92,7 @@ NÃO inclui ainda documento de compra nem a baixa pelo Faturar da Pré-venda (pr
 ## Dependências
 
 - Depende de: Produto (FK), Security (usuário logado = quem movimentou), Shared (`Result`).
-- Consumido por: **Faturar da Pré-venda** ✅ (baixa estoque via `FaturamentoRepository`, origem `Venda`).
-  Próximos: entrada por compra/documento (origem `Compra`) e relatórios de estoque.
+- Consumido por: **Faturar da Pré-venda** ✅ (saída, origem `Venda`, via `FaturamentoRepository`) e
+  **Devolução de venda** ✅ (entrada, origem `Devolucao`, via `DevolucaoRepository` — ver [Sales](../Sales/MODULO.md)).
+  Ambos reusam `EstoquePersistencia` (obter-ou-criar saldo com cache + tradução de concorrência) e
+  `QuantidadeEstoque.DeDocumento` (decimal do documento → int, rejeitando fração). Próximo: entrada por compra.

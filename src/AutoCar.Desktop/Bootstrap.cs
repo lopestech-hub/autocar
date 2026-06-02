@@ -68,6 +68,7 @@ public static class Bootstrap
         // PreVendasViewModel não entra no DI: depende do UsuarioLogado (runtime). É montado
         // pelo Navegador. O form, sim, vem do DI (não depende do usuário diretamente).
         services.AddTransient<PreVendaFormViewModel>();
+        services.AddTransient<DevolucaoFormViewModel>();
         // EstoqueViewModel não entra no DI: depende do UsuarioLogado (runtime, registra quem
         // movimentou). É montado pelo Navegador. O form de movimentação, sim, vem do DI.
         services.AddTransient<MovimentoEstoqueFormViewModel>();

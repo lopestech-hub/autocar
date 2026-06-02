@@ -80,7 +80,13 @@ Cada movimento tem **origem rastreável** (`Manual`/`Venda nº X`...), separada 
 **Faturar da Pré-venda baixa estoque concluído**: ao faturar, cada item gera uma **Saída** (origem
 `Venda nº X`) numa **transação única atômica** (`FaturamentoRepository` — fatura + baixa todos os itens
 num só `SaveChanges`; saldo insuficiente bloqueia e dá rollback). UI: botão **Faturar** + confirmação
-(`ConfirmacaoWindow`) + badge **FATURADA**. Falta: **entrada por compra/documento** (próximo passo).
+(`ConfirmacaoWindow`) + badge **FATURADA**.
+
+**Devolução de venda concluída**: a partir de uma venda **Faturada**, devolve itens ao estoque
+(parcial por item), gerando **Entrada** (origem `Devolução nº X`). Documento `devolucao`+`devolucao_item`
+à parte (não desfatura a venda). Valida **saldo devolvível** (vendido − já devolvido). Transação explícita
+com 2 saves (`cod_devolucao` identity precede os movimentos). UI: botão **Devolver** na venda faturada →
+`DevolucaoWindow`. Falta: **entrada por compra/documento** (próximo passo).
 
 Admin de teste: usuário **`julio`** / senha `123` (trocar).
 
@@ -109,7 +115,7 @@ Um perfil por usuário. Admin vê tudo.
 
 - [x] Fase 1 — Setup, auth, menu, perfis
 - [x] Fase 2 — Cadastros base + catálogo
-- [ ] Fase 3 — Pré-venda ✅ · Estoque saldo + movimentação + concorrência `xmin` ✅ · Faturar baixa estoque ✅ · entrada por compra (pendente)
+- [ ] Fase 3 — Pré-venda ✅ · Estoque saldo + movimentação + concorrência `xmin` ✅ · Faturar baixa estoque ✅ · Devolução ✅ · entrada por compra (pendente)
 - [ ] Fase 4 — OS + Financeiro
 - [ ] Fase 5 — Fiscal estruturado + PDF
 - [ ] Fase 6 — (pós-MVP) SEFAZ, custo médio, multi-depósito, DRE
@@ -119,9 +125,10 @@ Um perfil por usuário. Admin vê tudo.
 
 1. **Entrada por compra** (Fase 3): documento de compra (fornecedor + itens) que dá entrada no estoque
    (origem `Compra`), espelhando o padrão da Pré-venda. É a peça que falta fechar o ciclo do estoque
-   (hoje a entrada só é manual pela tela de movimentação). Dívida menor: tratar `DbUpdateException` por
-   unique-violation no 1º movimento concorrente (hoje cai em mensagem genérica; integridade já garantida
-   pelo índice único) — vale para movimentação manual e faturamento.
+   (hoje a entrada só é manual pela tela de movimentação). Dívidas menores de estoque: (a) tratar
+   `DbUpdateException` por unique-violation no 1º movimento concorrente (mensagem genérica; integridade
+   já garantida pelo índice único) — vale p/ movimentação manual, faturamento e devolução; (b) TOCTOU no
+   saldo devolvível da Devolução (duas devoluções simultâneas da mesma venda sem lock; estoque nunca negativo).
 2. **Cancelar** na UI da Pré-venda (o domínio já tem `Cancelar()`; falta botão — cancelar NÃO mexe em estoque).
 3. Implementar a busca global de verdade (atalho "Buscar" hoje é placeholder)
 4. Tela de troca de senha no primeiro acesso
@@ -156,3 +163,4 @@ Um perfil por usuário. Admin vê tudo.
 | 2026-06-01 | UX Pré-venda: seleção-tudo ao focar campos numéricos (`SelecionarTudoBehavior`); borda de campo mais forte (#1E293B); cliente vira **seletor por janela** (F3, busca nome/código) — AutoCompleteBox descartado (quebrado no Avalonia 11); tooltip azul-ardósia padronizado |
 | 2026-06-01 | Fase 3: módulo **Estoque** (fundação do saldo) — tabelas `estoque_produto` (**com `xmin`**) + `movimento_estoque` (livro-razão imutável); movimentação Entrada/Saída/Ajuste com saldo nunca negativo e **concorrência otimista** (risco nº 1); quantidades **inteiras**; `ConcorrenciaException` neutra (Clean Architecture); tela listagem + janela de movimentação. Migration `CadastroEstoque` (aditiva). 9 testes do agregado |
 | 2026-06-01 | Fase 3: **Faturar da Pré-venda baixa estoque** — `FaturamentoRepository` (transação única atômica: fatura + Saída de todos os itens num `SaveChanges`; saldo insuficiente faz rollback). Botão Faturar + `ConfirmacaoWindow` (diálogo reutilizável) + badge FATURADA. Movimento ganhou **origem** rastreável (`sts_origem`/id/cod — "Venda nº X" separado da observação; migration `OrigemMovimentoEstoque`, aditiva). Helper `EstoquePersistencia` compartilhado entre os repos de estoque |
+| 2026-06-02 | Fase 3: **Devolução de venda** — tabelas `devolucao`+`devolucao_item` (migration `CadastroDevolucao`, aditiva); devolve itens de venda Faturada ao estoque (parcial por item, **Entrada** origem `Devolução nº X`), valida saldo devolvível (vendido − já devolvido); `DevolucaoRepository` com transação explícita (2 saves — `cod` identity precede os movimentos). Botão Devolver + `DevolucaoWindow`. Histórico de estoque: colunas **ORIGEM** e **DOCUMENTO** separadas. Helper `QuantidadeEstoque.DeDocumento` (decimal→int, rejeita fração) compartilhado faturamento+devolução |

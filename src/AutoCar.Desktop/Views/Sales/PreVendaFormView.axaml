@@ -280,6 +280,10 @@
                                 Command="{Binding FaturarCommand}"
                                 IsVisible="{Binding PodeFaturar}"
                                 IsEnabled="{Binding !Carregando}" Cursor="Hand" />
+                        <Button Content="Devolver" Classes="secundario"
+                                Command="{Binding DevolverCommand}"
+                                IsVisible="{Binding PodeDevolver}"
+                                IsEnabled="{Binding !Carregando}" Cursor="Hand" />
                         <Button Content="Editar" Classes="primario"
                                 Command="{Binding HabilitarEdicaoCommand}"
                                 IsVisible="{Binding ModoVisualizacao}" Cursor="Hand" />

@@ -39,10 +39,11 @@ public class FaturamentoRepository : IFaturamentoRepository
 
         foreach (var item in preVenda.Itens)
         {
-            var estoque = await ObterOuCriarSaldoAsync(db, saldosPorProduto, item.IdProduto, ct);
+            var estoque = await EstoquePersistencia.ObterOuCriarSaldoRastreadoAsync(
+                db, saldosPorProduto, item.IdProduto, ct);
 
             // Qtd da pré-venda é decimal (modelo do documento); estoque é inteiro (autopeça não fraciona).
-            var qtd = ConverterParaInteiro(item.Qtd, item.DescricaoProduto);
+            var qtd = QuantidadeEstoque.DeDocumento(item.Qtd, item.DescricaoProduto);
 
             // Saída com origem rastreável (Venda + documento). O número e o id vêm da pré-venda — o
             // histórico de estoque mostra "Venda nº X" e permite chegar ao documento. A observação
@@ -60,32 +61,5 @@ public class FaturamentoRepository : IFaturamentoRepository
         // + INSERT movimento_estoque). Qualquer falha aborta tudo; conflito de xmin vira ConcorrenciaException.
         await EstoquePersistencia.SalvarTraduzindoConcorrenciaAsync(
             db, "O saldo de um dos produtos foi alterado por outro terminal durante o faturamento.", ct);
-    }
-
-    // Carrega o saldo rastreado do produto reusando o que já foi carregado nesta operação — assim
-    // itens repetidos do mesmo produto compartilham o saldo (a 2ª linha vê a baixa da 1ª). Sem o cache,
-    // dois itens de um produto AINDA SEM saldo gerariam dois EstoqueProduto novos → INSERT duplicado.
-    private static async Task<EstoqueProduto> ObterOuCriarSaldoAsync(
-        AppDbContext db,
-        Dictionary<Guid, EstoqueProduto> cache,
-        Guid idProduto,
-        CancellationToken ct)
-    {
-        if (cache.TryGetValue(idProduto, out var existente))
-            return existente;
-
-        var estoque = await EstoquePersistencia.ObterOuCriarSaldoRastreadoAsync(db, idProduto, ct);
-        cache[idProduto] = estoque;
-        return estoque;
-    }
-
-    // Converte a quantidade decimal do item para inteiro. No setor automotivo a peça é unidade fechada,
-    // então a fração não deveria existir; se existir, falha explicitamente em vez de truncar silenciosamente.
-    private static int ConverterParaInteiro(decimal qtd, string descricaoItem)
-    {
-        if (qtd != Math.Truncate(qtd))
-            throw new InvalidOperationException(
-                $"O item \"{descricaoItem}\" tem quantidade fracionada ({qtd}); o estoque trabalha com unidades inteiras.");
-        return (int)qtd;
     }
 }

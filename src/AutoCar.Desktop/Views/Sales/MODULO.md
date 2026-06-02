@@ -98,6 +98,26 @@ Orçamento, OS e Venda. Não baixa estoque ao salvar — o saldo só sai quando 
 - **Saída do estoque carrega a origem** (`OrigemMovimento.Venda` + id/nº da pré-venda) — rastreável no
   histórico de estoque como "Venda nº X". Ver [Inventory](../Inventory/MODULO.md).
 
+## Devolução de venda
+
+Documento que devolve itens de uma **venda faturada** ao estoque (parcial por item). Não "desfatura" a
+venda — é um documento à parte que aponta para ela (histórico preservado).
+
+- **Tabelas:** `devolucao` (id, `cod_devolucao`, `id_pre_venda` Restrict, `id_usuario`, motivo, vlr_total)
+  e `devolucao_item` (produto, qtd **int**, vlr_unitario snapshot, vlr_total_item; Cascade). Sem `xmin`
+  (coleção filha). Migration `CadastroDevolucao` (aditiva).
+- **Domain:** `Devolucao` (raiz, total no domínio, ≥1 item) + `DevolucaoItem` (imutável). `IDevolucaoRepository`.
+- **Application:** `Modules/Sales/Devolucoes` — `DevolucaoService`: `ListarItensDevolviveisAsync` (mostra
+  vendido/já devolvido/devolvível por produto) e `CriarAsync` (valida **saldo devolvível** = vendido − já
+  devolvido; a regra é inter-agregado, por isso vive no caso de uso, não no agregado). DTOs + validator.
+- **Infra:** `DevolucaoRepository` — **transação explícita com 2 SaveChanges** (o `cod_devolucao` identity só
+  existe após o 1º INSERT, e os movimentos de estoque precisam dele para a origem "Devolução nº X"); cada
+  item gera **ENTRADA** no estoque (`OrigemMovimento.Devolucao`). Reusa `EstoquePersistencia` + `QuantidadeEstoque`.
+- **Desktop:** botão **Devolver** na Pré-venda faturada (`PodeDevolver`) → `DevolucaoWindow` (grid de itens
+  com qtd a devolver editável, limitada ao devolvível) → `ConfirmacaoWindow` → registra. A venda segue Faturada.
+- **Dívida (MVP):** TOCTOU — duas devoluções simultâneas da mesma venda podem ambas passar na validação de
+  devolvível (sem lock). Integridade do estoque preservada (devolução só soma). Aceitável; revisar se virar problema.
+
 ## Dependências
 
 - Depende de: Cadastros (Cliente, Produto/Catálogo), Security (usuário logado = vendedor), Shared (`Result<T>`),

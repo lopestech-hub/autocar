@@ -35,6 +35,10 @@ public class AppDbContext : DbContext
 
     public DbSet<MovimentoEstoque> MovimentosEstoque => Set<MovimentoEstoque>();
 
+    public DbSet<Devolucao> Devolucoes => Set<Devolucao>();
+
+    public DbSet<DevolucaoItem> DevolucaoItens => Set<DevolucaoItem>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

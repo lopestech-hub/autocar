@@ -28,6 +28,23 @@ internal static class EstoquePersistencia
         return estoque;
     }
 
+    /// <summary>
+    /// Versão com cache para operações que movimentam vários itens (faturamento, devolução): reusa o
+    /// saldo já carregado nesta operação. Sem o cache, dois itens do MESMO produto ainda sem registro
+    /// de saldo gerariam dois INSERT de EstoqueProduto (violação do índice único). O cache também faz a
+    /// 2ª linha do produto enxergar o saldo já alterado pela 1ª.
+    /// </summary>
+    public static async Task<EstoqueProduto> ObterOuCriarSaldoRastreadoAsync(
+        AppDbContext db, Dictionary<Guid, EstoqueProduto> cache, Guid idProduto, CancellationToken ct)
+    {
+        if (cache.TryGetValue(idProduto, out var existente))
+            return existente;
+
+        var estoque = await ObterOuCriarSaldoRastreadoAsync(db, idProduto, ct);
+        cache[idProduto] = estoque;
+        return estoque;
+    }
+
     /// <summary>Salva traduzindo a colisão de concorrência otimista (xmin) numa exceção neutra de domínio —
     /// a Application trata sem conhecer o EF Core (Clean Architecture).</summary>
     public static async Task SalvarTraduzindoConcorrenciaAsync(

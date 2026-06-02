@@ -52,6 +52,10 @@ public partial class PreVendaFormViewModel : ViewModelBase
     /// e a listagem recarrega — mesmo tratamento de <see cref="Salvo"/>.</summary>
     public event Action? Faturado;
 
+    /// <summary>Disparado ao clicar em Devolver (venda faturada). A janela abre a DevolucaoWindow
+    /// passando esta pré-venda. Devolver itens só faz sentido depois de faturada.</summary>
+    public event Action? AbrirDevolucaoSolicitada;
+
     /// <summary>Disparado ao pedir o catálogo (F2). A janela da pré-venda abre a janela seletora de
     /// peças (Catálogo) e devolve a escolhida via <see cref="AdicionarPecaDoCatalogo"/>.</summary>
     public event Action? AbrirCatalogoSolicitado;
@@ -87,11 +91,15 @@ public partial class PreVendaFormViewModel : ViewModelBase
     /// tem o próprio selo). Evita os dois selos competindo no header.</summary>
     public bool EmVisualizacaoNaoFaturada => ModoVisualizacao && !EstaFaturada;
 
+    /// <summary>Devolver itens só faz sentido numa venda já faturada (que baixou estoque).</summary>
+    public bool PodeDevolver => _id is not null && Situacao == SituacaoPreVenda.Faturada;
+
     partial void OnSituacaoChanged(SituacaoPreVenda value)
     {
         OnPropertyChanged(nameof(PodeFaturar));
         OnPropertyChanged(nameof(EstaFaturada));
         OnPropertyChanged(nameof(EmVisualizacaoNaoFaturada));
+        OnPropertyChanged(nameof(PodeDevolver));
     }
 
     partial void OnModoVisualizacaoChanged(bool value)
@@ -334,6 +342,20 @@ public partial class PreVendaFormViewModel : ViewModelBase
         if (PodeFaturar)
             ConfirmacaoFaturamentoSolicitada?.Invoke();
     }
+
+    /// <summary>Botão Devolver (venda faturada): pede à janela para abrir a tela de devolução desta venda.</summary>
+    [RelayCommand]
+    private void Devolver()
+    {
+        if (PodeDevolver)
+            AbrirDevolucaoSolicitada?.Invoke();
+    }
+
+    /// <summary>Id da pré-venda carregada (para a janela montar a devolução). Null se nova.</summary>
+    public Guid? IdPreVenda => _id;
+
+    /// <summary>Usuário logado (vendedor) — usado ao abrir a devolução.</summary>
+    public Guid IdUsuarioLogado => _idUsuario;
 
     /// <summary>Efetiva o faturamento (após confirmado na janela): fatura a pré-venda e baixa o estoque
     /// de todos os itens numa única transação. Em sucesso, dispara <see cref="Faturado"/> (a janela

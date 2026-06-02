@@ -32,6 +32,7 @@ public static class DependencyInjection
         services.AddScoped<IPreVendaRepository, PreVendaRepository>();
         services.AddScoped<IEstoqueRepository, EstoqueRepository>();
         services.AddScoped<IFaturamentoRepository, FaturamentoRepository>();
+        services.AddScoped<IDevolucaoRepository, DevolucaoRepository>();
         services.AddSingleton<IHashSenha, HashSenhaBCrypt>();
         services.AddScoped<DbInitializer>();
 
