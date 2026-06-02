@@ -7,6 +7,8 @@
 - Localização: local/LAN — PostgreSQL em localhost:5432
 - Banco: `autocar` · usuário dev: `postgres` / senha dev: `postgres`
 - Tabelas: snake_case em português — prefixos id_, cod_, dat_, vlr_, qtd_, sts_, flg_, per_
+- **Colunas `sts_` = enums C#** (fonte da verdade em `Domain/Enums/`; significado dos valores em
+  [docs/dominios.md](../../docs/dominios.md)). Ativo/inativo é `flg_ativo` (bool), não `sts_`.
 - ORM: EF Core 9 — migrations via `dotnet ef` (projeto e startup = AutoCar.Infrastructure)
 - Migrations: `InicialSecurity` (cria `usuario`) → `LoginPorUsuario` (coluna `email`→`usuario`)
 
