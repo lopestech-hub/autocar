@@ -109,6 +109,36 @@ Cadastros mestre **auxiliares do Produto** (FK futura). Enxutos: só descrição
 - Descrição única (case-insensitive) e obrigatória; salva em CAIXA ALTA.
 - Inativar em vez de excluir (`flg_ativo`).
 
+## Serviço (catálogo de mão de obra) — Fase 4
+
+Cadastro mestre **auxiliar da Ordem de Serviço** (FK em `ordem_servico_item` quando a linha é do tipo
+Serviço). Mesmo molde enxuto de Marca/Categoria, com um campo a mais: o valor padrão sugerido.
+
+### Tabela `servico`
+
+- `id_servico` (uuid PK), `cod_servico` (int identity)
+- `descricao` (varchar 120, CAIXA ALTA, **única case-insensitive**)
+- `vlr_padrao` (decimal 10,2) — valor sugerido da mão de obra (snapshot editável na OS)
+- `flg_ativo`, `dat_criacao`, `dat_atualizacao` (UTC), `xmin` (concorrência — cadastro sem coleção filha)
+- Índices únicos: `ix_servico_cod`, `ix_servico_descricao` (lower). Migration: `CatalogoServico`.
+
+### Camadas / Telas
+
+- **Domain:** `Servico` (descrição normalizada em CAIXA ALTA; `vlr_padrao` não-negativo).
+- **Application:** módulo `Registrations/Servicos` — `ServicoService` (CRUD com `Result<T>` + `ListarAtivosAsync`
+  para o seletor da OS), DTOs, `SalvarServicoValidator`.
+- **Infrastructure:** `ServicoConfiguration` + `ServicoRepository`. Unicidade case-insensitive via `ILike`.
+- **Desktop:** listagem Grid único (CÓDIGO · DESCRIÇÃO · VALOR PADRÃO · STATUS) + form denso (descrição +
+  valor padrão). Menu de texto (Cadastros), perfil Vendedor. Rota `servicos`.
+
+### Regras
+
+- Descrição única (case-insensitive) e obrigatória; salva em CAIXA ALTA.
+- `vlr_padrao` ≥ 0 (pode ser 0 — serviço de cortesia/diagnóstico).
+- Inativar em vez de excluir (`flg_ativo`).
+- Consumido pela **Ordem de Serviço** (linha tipo Serviço traz descrição + `vlr_padrao` como snapshot,
+  ambos editáveis na linha). Ver [Service](../Service/MODULO.md).
+
 ## Produto
 
 Cadastro mestre central do catálogo. Consome Marca, Categoria e Fornecedor via FK. **Saldo de

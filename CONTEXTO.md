@@ -27,13 +27,13 @@ Concorrência de estoque tratada com controle otimista (`xmin`) — risco nº 1 
 | Módulo | Pasta (MODULO.md) | Estado |
 |--------|-------------------|--------|
 | Segurança (login, perfis) | [Security](src/AutoCar.Desktop/Views/Security/MODULO.md) | ✅ Fase 1 |
-| Cadastros (Cliente ✅; Fornecedor ✅; Marca ✅; Categoria ✅; Produto ✅ + aplicação por veículo ✅) | [Registrations](src/AutoCar.Desktop/Views/Registrations/MODULO.md) | 🔄 Fase 2 |
+| Cadastros (Cliente ✅; Fornecedor ✅; Marca ✅; Categoria ✅; Produto ✅ + aplicação por veículo ✅; Serviço ⏳ Fase 4) | [Registrations](src/AutoCar.Desktop/Views/Registrations/MODULO.md) | 🔄 |
 | Catálogo automotivo (peça → veículo) | [Catalogo](src/AutoCar.Desktop/Views/Catalogo/) — busca de peça por veículo ✅ | ✅ Fase 2 |
 | Vendas (Pré-venda) | [Sales](src/AutoCar.Desktop/Views/Sales/MODULO.md) — Pré-venda (cabeçalho + itens) ✅ | 🔄 Fase 3 |
 | Estoque (saldo + movimentação) | [Inventory](src/AutoCar.Desktop/Views/Inventory/MODULO.md) — saldo, livro-razão, concorrência `xmin` ✅ | ✅ Fase 3 |
 | Compras (entrada por compra) | [Purchases](src/AutoCar.Desktop/Views/Purchases/MODULO.md) — documento fornecedor + itens → entrada no estoque ✅ | ✅ Fase 3 |
-| Oficina / OS | _a criar (Fase 4)_ | ⏳ |
-| Financeiro (caixa, contas) | _a criar (Fase 4)_ | ⏳ |
+| Ordem de Serviço (peças + mão de obra, mecânico, ciclo) | [Service](src/AutoCar.Desktop/Views/Service/MODULO.md) — _a criar (Fase 4)_ | 🔄 Fase 4 |
+| Financeiro (receber, pagar, caixa, formas pgto) | _a criar (Fase 4, após a OS)_ | ⏳ |
 | Fiscal (NCM/CFOP/CST, sem SEFAZ) | _a criar (Fase 5)_ | ⏳ |
 
 ## Estado atual
@@ -97,6 +97,16 @@ saves (`cod_compra` identity precede os movimentos), reusa `CompraRepository` + 
 espelha a Devolução. UI: listagem + janela maximizada (**F2** = catálogo, **F3** = seletor de fornecedor);
 reabre em visualização read-only. **Não atualiza o custo do produto** no MVP (ver Evolução).
 
+**Fase 4 (OS + Financeiro) — em andamento.** Começando pela **Ordem de Serviço**: documento de
+oficina que reusa o padrão Pré-venda, com **dois tipos de linha** (peça → baixa estoque;
+serviço/mão de obra → sem estoque), **mecânico responsável** (opcional ao abrir, exigido para
+Concluir), **ciclo** Aberta→EmAndamento→Concluída→Faturada/Cancelada, e **catálogo de serviços**
+(cadastro auxiliar `servico`). Baixa estoque **ao faturar** (origem `OrdemServico`), em transação
+atômica que espelha o `FaturamentoRepository`. Faturar emitirá um gancho (Domain Event) para o
+Financeiro consumir depois. Financeiro (contas a receber/pagar, caixa, formas de pagamento) vem na
+sequência. Planejado em 2026-06-02 (Theo Desktop). Implementação por sub-fases: 4.1 catálogo de
+serviços · 4.2 OS backend · 4.3 OS UI · 4.4 faturar baixa estoque · 4.5 gancho Financeiro.
+
 Admin de teste: usuário **`julio`** / senha `123` (trocar).
 
 ## Navegação (shell)
@@ -125,7 +135,7 @@ Um perfil por usuário. Admin vê tudo.
 - [x] Fase 1 — Setup, auth, menu, perfis
 - [x] Fase 2 — Cadastros base + catálogo
 - [x] Fase 3 — Pré-venda ✅ · Estoque saldo + movimentação + concorrência `xmin` ✅ · Faturar baixa estoque ✅ · Devolução ✅ · entrada por compra ✅
-- [ ] Fase 4 — OS + Financeiro
+- [ ] Fase 4 — OS (peças + mão de obra + mecânico + ciclo + cat. serviços) 🔄 · Financeiro (a seguir)
 - [ ] Fase 5 — Fiscal estruturado + PDF
 - [ ] Fase 6 — (pós-MVP) SEFAZ, custo médio, multi-depósito, DRE
 - [ ] Fase 7 — Testes, ajustes, implantação
@@ -139,6 +149,7 @@ Um perfil por usuário. Admin vê tudo.
 | --- | --- | --- |
 | **Compra atualiza custo do produto** | A entrada por compra (MVP) não toca o `vlr_custo` do produto. Evoluir para atualizar o custo (sobrescrever vs. **custo médio ponderado**) e recalcular margem. | Quando a compra estiver em uso e o custo precisar refletir a última entrada |
 | **Importar NF-e (XML) → Compra** | Importar o XML da NF-e do fornecedor para gerar a Compra automaticamente (em vez de digitar item a item). O XML **desemboca na Compra atual** (mesmo documento + entrada de estoque). 3 complexidades: (1) **de-para de produto** — código do produto na NF ≠ `cod_produto`, exige tabela `produto_fornecedor` (idProduto+idFornecedor+codNoFornecedor), aprendida na 1ª importação; (2) **parsing SEFAZ** (`nfeProc`/`infNFe`, ~40 campos/item, CST/CFOP/NCM); (3) **custo real** = vProd + rateio de frete/ST/IPI, não só o valor do item. | **Fase 5 (Fiscal)** — decidido em 2026-06-02 adiar para nascer junto das tabelas fiscais (NCM/CFOP/CST), sem duplicar. Construir o XML agora puxaria meio módulo fiscal para a Fase 3. |
+| **Estorno de OS faturada** | OS faturada baixou a peça do estoque; cancelar depois exige estornar (devolver a peça). No MVP, OS Faturada **não cancela** (igual pré-venda). Evoluir para um documento de estorno/devolução de OS, análogo à Devolução de venda. | Quando a OS estiver em uso e surgir o caso real de estorno pós-faturamento |
 
 ## Próximos Passos
 
@@ -181,3 +192,4 @@ Um perfil por usuário. Admin vê tudo.
 | 2026-06-01 | Fase 3: **Faturar da Pré-venda baixa estoque** — `FaturamentoRepository` (transação única atômica: fatura + Saída de todos os itens num `SaveChanges`; saldo insuficiente faz rollback). Botão Faturar + `ConfirmacaoWindow` (diálogo reutilizável) + badge FATURADA. Movimento ganhou **origem** rastreável (`sts_origem`/id/cod — "Venda nº X" separado da observação; migration `OrigemMovimentoEstoque`, aditiva). Helper `EstoquePersistencia` compartilhado entre os repos de estoque |
 | 2026-06-02 | Fase 3: **Devolução de venda** — tabelas `devolucao`+`devolucao_item` (migration `CadastroDevolucao`, aditiva); devolve itens de venda Faturada ao estoque (parcial por item, **Entrada** origem `Devolução nº X`), valida saldo devolvível (vendido − já devolvido); `DevolucaoRepository` com transação explícita (2 saves — `cod` identity precede os movimentos). Botão Devolver + `DevolucaoWindow`. Histórico de estoque: colunas **ORIGEM** e **DOCUMENTO** separadas. Helper `QuantidadeEstoque.DeDocumento` (decimal→int, rejeita fração) compartilhado faturamento+devolução |
 | 2026-06-02 | Fase 3 (fecha): **Entrada por compra** (backend `b072be6` + UI `4486025`) — tabelas `compra`+`compra_item` (migration `CadastroCompra`, aditiva); documento fornecedor + itens dá **Entrada** no estoque ao salvar (origem `Compra nº X`), fornecedor obrigatório, entrada imediata (sem ciclo), qtd inteira, custo por item. `CompraRepository` transação explícita (2 saves), reusa `EstoquePersistencia`, espelha a Devolução. UI: listagem + janela maximizada (F2=catálogo, F3=seletor de fornecedor), reabre read-only; menu Movimentos (perfil Vendedor). Não atualiza custo do produto (ver Evolução). 7 testes do agregado. Smoke test ok (saldo subiu) |
+| 2026-06-02 | Fase 4 **planejada** (Theo Desktop): **Ordem de Serviço** primeiro. Decisões: linha única com discriminador `sts_tipo_item` (Peca/Servico); baixa estoque **ao faturar**; serviço do catálogo + editável; um mecânico por OS (opcional ao abrir, exigido p/ Concluir). Tabelas novas `servico`, `ordem_servico`, `ordem_servico_item`; enums `SituacaoOrdemServico`, `TipoItemOrdemServico` + `OrdemServico` no `OrigemMovimento`. MODULO.md do Service criado. Implementação em sub-fases 4.1→4.5. Financeiro a seguir |
