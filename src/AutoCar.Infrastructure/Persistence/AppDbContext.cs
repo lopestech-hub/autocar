@@ -43,6 +43,8 @@ public class AppDbContext : DbContext
 
     public DbSet<CompraItem> CompraItens => Set<CompraItem>();
 
+    public DbSet<Servico> Servicos => Set<Servico>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
