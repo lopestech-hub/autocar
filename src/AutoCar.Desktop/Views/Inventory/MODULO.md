@@ -92,7 +92,8 @@ NÃO inclui ainda documento de compra nem a baixa pelo Faturar da Pré-venda (pr
 ## Dependências
 
 - Depende de: Produto (FK), Security (usuário logado = quem movimentou), Shared (`Result`).
-- Consumido por: **Faturar da Pré-venda** ✅ (saída, origem `Venda`, via `FaturamentoRepository`) e
-  **Devolução de venda** ✅ (entrada, origem `Devolucao`, via `DevolucaoRepository` — ver [Sales](../Sales/MODULO.md)).
-  Ambos reusam `EstoquePersistencia` (obter-ou-criar saldo com cache + tradução de concorrência) e
-  `QuantidadeEstoque.DeDocumento` (decimal do documento → int, rejeitando fração). Próximo: entrada por compra.
+- Consumido por: **Faturar da Pré-venda** ✅ (saída, origem `Venda`, via `FaturamentoRepository`),
+  **Devolução de venda** ✅ (entrada, origem `Devolucao`, via `DevolucaoRepository` — ver [Sales](../Sales/MODULO.md))
+  e **Compra** ✅ (entrada, origem `Compra`, via `CompraRepository` — ver [Purchases](../Purchases/MODULO.md)).
+  Os três reusam `EstoquePersistencia` (obter-ou-criar saldo com cache + tradução de concorrência); faturamento
+  e devolução também usam `QuantidadeEstoque.DeDocumento` (decimal do documento → int, rejeitando fração).
