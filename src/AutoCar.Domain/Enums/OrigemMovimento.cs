@@ -18,4 +18,7 @@ public enum OrigemMovimento
 
     /// <summary>Devolução (entrada por devolução de cliente / Fase futura).</summary>
     Devolucao = 4,
+
+    /// <summary>Baixa gerada pelo faturamento de uma Ordem de Serviço (saída das peças aplicadas).</summary>
+    OrdemServico = 5,
 }

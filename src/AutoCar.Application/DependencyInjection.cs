@@ -13,6 +13,9 @@ using AutoCar.Application.Modules.Registrations.Servicos.Validators;
 using AutoCar.Application.Modules.Sales.PreVendas;
 using AutoCar.Application.Modules.Sales.PreVendas.DTOs;
 using AutoCar.Application.Modules.Sales.PreVendas.Validators;
+using AutoCar.Application.Modules.Service.OrdensServico;
+using AutoCar.Application.Modules.Service.OrdensServico.DTOs;
+using AutoCar.Application.Modules.Service.OrdensServico.Validators;
 using AutoCar.Application.Modules.Sales.Devolucoes;
 using AutoCar.Application.Modules.Sales.Devolucoes.DTOs;
 using AutoCar.Application.Modules.Sales.Devolucoes.Validators;
@@ -63,6 +66,10 @@ public static class DependencyInjection
 
         services.AddScoped<ICompraService, CompraService>();
         services.AddScoped<IValidator<CriarCompraDto>, CriarCompraValidator>();
+
+        // Ordem de Serviço (oficina)
+        services.AddScoped<IOrdemServicoService, OrdemServicoService>();
+        services.AddScoped<IValidator<SalvarOrdemServicoDto>, SalvarOrdemServicoValidator>();
 
         // Estoque
         services.AddScoped<IEstoqueService, EstoqueService>();
