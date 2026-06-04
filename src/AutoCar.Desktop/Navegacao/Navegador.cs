@@ -36,6 +36,7 @@ public sealed class Navegador : INavegador
         "marcas" => _sp.GetRequiredService<MarcasViewModel>(),
         "categorias" => _sp.GetRequiredService<CategoriasViewModel>(),
         "servicos" => _sp.GetRequiredService<ServicosViewModel>(),
+        "mecanicos" => _sp.GetRequiredService<MecanicosViewModel>(),
         "pre-vendas" => CriarPreVendas(),
         "estoque" => CriarEstoque(),
         "compras" => CriarCompras(),

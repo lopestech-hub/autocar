@@ -45,6 +45,8 @@ public class AppDbContext : DbContext
 
     public DbSet<Servico> Servicos => Set<Servico>();
 
+    public DbSet<Mecanico> Mecanicos => Set<Mecanico>();
+
     public DbSet<OrdemServico> OrdensServico => Set<OrdemServico>();
 
     public DbSet<OrdemServicoItem> OrdemServicoItens => Set<OrdemServicoItem>();

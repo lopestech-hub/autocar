@@ -65,6 +65,8 @@ public static class Bootstrap
         services.AddTransient<CategoriaFormViewModel>();
         services.AddTransient<ServicosViewModel>();
         services.AddTransient<ServicoFormViewModel>();
+        services.AddTransient<MecanicosViewModel>();
+        services.AddTransient<MecanicoFormViewModel>();
         services.AddTransient<ProdutosViewModel>();
         services.AddTransient<ProdutoFormViewModel>();
         services.AddTransient<CatalogoViewModel>();

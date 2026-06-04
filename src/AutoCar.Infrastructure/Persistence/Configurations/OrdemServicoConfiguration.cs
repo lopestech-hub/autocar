@@ -36,8 +36,8 @@ public class OrdemServicoConfiguration : IEntityTypeConfiguration<OrdemServico>
             .HasColumnName("nome_cliente_avulso")
             .HasMaxLength(120);
 
-        builder.Property(o => o.IdUsuarioMecanico)
-            .HasColumnName("id_usuario_mecanico");
+        builder.Property(o => o.IdMecanico)
+            .HasColumnName("id_mecanico");
 
         builder.Property(o => o.VeiculoMontadora)
             .HasColumnName("veiculo_montadora")
@@ -99,10 +99,11 @@ public class OrdemServicoConfiguration : IEntityTypeConfiguration<OrdemServico>
             .OnDelete(DeleteBehavior.Restrict)
             .IsRequired();
 
-        // Mecânico responsável (opcional) — Restrict, sem navegação. FK distinta do atendente.
-        builder.HasOne<Usuario>()
+        // Mecânico responsável (opcional) — FK para o cadastro próprio de mecânico (não usuário),
+        // Restrict, sem navegação.
+        builder.HasOne<Mecanico>()
             .WithMany()
-            .HasForeignKey(o => o.IdUsuarioMecanico)
+            .HasForeignKey(o => o.IdMecanico)
             .OnDelete(DeleteBehavior.Restrict)
             .IsRequired(false);
 
@@ -116,7 +117,7 @@ public class OrdemServicoConfiguration : IEntityTypeConfiguration<OrdemServico>
         builder.HasIndex(o => o.Situacao)
             .HasDatabaseName("ix_ordem_servico_situacao");
 
-        builder.HasIndex(o => o.IdUsuarioMecanico)
+        builder.HasIndex(o => o.IdMecanico)
             .HasDatabaseName("ix_ordem_servico_mecanico");
 
         builder.HasIndex(o => o.CriadoEm)

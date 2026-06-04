@@ -27,7 +27,7 @@ public class OrdemServico : EntidadeBase
         Guid idUsuario,
         Guid? idCliente,
         string? nomeClienteAvulso,
-        Guid? idUsuarioMecanico,
+        Guid? idMecanico,
         string? veiculoMontadora,
         string? veiculoModelo,
         string? veiculoAno,
@@ -37,7 +37,7 @@ public class OrdemServico : EntidadeBase
         IdUsuario = idUsuario;
         Situacao = SituacaoOrdemServico.Aberta;
         FlgAtivo = true;
-        AlterarCabecalho(idCliente, nomeClienteAvulso, idUsuarioMecanico, veiculoMontadora,
+        AlterarCabecalho(idCliente, nomeClienteAvulso, idMecanico, veiculoMontadora,
             veiculoModelo, veiculoAno, veiculoPlaca, observacao);
         Recalcular();
     }
@@ -59,8 +59,9 @@ public class OrdemServico : EntidadeBase
 
     // --- Mecânico responsável (opcional ao abrir, obrigatório para concluir) ---
 
-    /// <summary>FK para o usuário mecânico responsável pela OS (opcional até a conclusão).</summary>
-    public Guid? IdUsuarioMecanico { get; protected set; }
+    /// <summary>FK para o mecânico responsável pela OS (cadastro próprio, não usuário do sistema —
+    /// o mecânico não loga). Opcional até a conclusão.</summary>
+    public Guid? IdMecanico { get; protected set; }
 
     // --- Veículo (texto livre no MVP) ---
 
@@ -102,7 +103,7 @@ public class OrdemServico : EntidadeBase
     public void AlterarCabecalho(
         Guid? idCliente,
         string? nomeClienteAvulso,
-        Guid? idUsuarioMecanico,
+        Guid? idMecanico,
         string? veiculoMontadora,
         string? veiculoModelo,
         string? veiculoAno,
@@ -113,7 +114,7 @@ public class OrdemServico : EntidadeBase
         IdCliente = idCliente;
         // Nome avulso só faz sentido sem cliente cadastrado.
         NomeClienteAvulso = idCliente.HasValue ? null : NormalizarNome(nomeClienteAvulso);
-        IdUsuarioMecanico = idUsuarioMecanico;
+        IdMecanico = idMecanico;
         VeiculoMontadora = NormalizarTexto(veiculoMontadora);
         VeiculoModelo = NormalizarTexto(veiculoModelo);
         VeiculoAno = NormalizarCodigo(veiculoAno);
@@ -162,7 +163,7 @@ public class OrdemServico : EntidadeBase
         if (Situacao != SituacaoOrdemServico.Aberta && Situacao != SituacaoOrdemServico.EmAndamento)
             throw new InvalidOperationException(
                 $"Só é possível concluir uma OS Aberta ou Em andamento (situação atual: {Situacao}).");
-        if (IdUsuarioMecanico is null)
+        if (IdMecanico is null)
             throw new InvalidOperationException("Defina o mecânico responsável antes de concluir a OS.");
         if (_itens.Count == 0)
             throw new InvalidOperationException("Não é possível concluir uma OS sem itens.");

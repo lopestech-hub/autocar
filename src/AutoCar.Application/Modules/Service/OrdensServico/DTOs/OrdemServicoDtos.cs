@@ -19,7 +19,7 @@ public sealed record OrdemServicoItemDto(
 public sealed record SalvarOrdemServicoDto(
     Guid? IdCliente,
     string? NomeClienteAvulso,
-    Guid? IdUsuarioMecanico,
+    Guid? IdMecanico,
     string? VeiculoMontadora,
     string? VeiculoModelo,
     string? VeiculoAno,
@@ -47,7 +47,7 @@ public sealed record OrdemServicoDto(
     SituacaoOrdemServico Situacao,
     Guid? IdCliente,
     string? NomeClienteAvulso,
-    Guid? IdUsuarioMecanico,
+    Guid? IdMecanico,
     string? VeiculoMontadora,
     string? VeiculoModelo,
     string? VeiculoAno,
@@ -68,7 +68,7 @@ public sealed record OrdemServicoListaDto(
     SituacaoOrdemServico Situacao,
     string Cliente,
     string? VeiculoPlaca,
-    Guid? IdUsuarioMecanico,
+    Guid? IdMecanico,
     int QtdItens,
     decimal VlrTotal,
     DateTime DataCriacao);

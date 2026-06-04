@@ -21,7 +21,7 @@ public class OrdemServicoTests
     private static readonly Guid ServicoId = Guid.NewGuid();
 
     private static OrdemServico NovaAberta(Guid? mecanico = null) =>
-        new(Usuario, idCliente: null, nomeClienteAvulso: "CONSUMIDOR", idUsuarioMecanico: mecanico,
+        new(Usuario, idCliente: null, nomeClienteAvulso: "CONSUMIDOR", idMecanico: mecanico,
             veiculoMontadora: null, veiculoModelo: null, veiculoAno: null, veiculoPlaca: null,
             observacao: null);
 
@@ -221,7 +221,7 @@ public class OrdemServicoTests
         var os = NovaAberta();
         var idCliente = Guid.NewGuid();
 
-        os.AlterarCabecalho(idCliente, nomeClienteAvulso: "IGNORADO", idUsuarioMecanico: null,
+        os.AlterarCabecalho(idCliente, nomeClienteAvulso: "IGNORADO", idMecanico: null,
             null, null, null, null, observacao: null);
 
         Assert.Equal(idCliente, os.IdCliente);
@@ -232,7 +232,7 @@ public class OrdemServicoTests
     public void Veiculo_texto_livre_e_normalizado_em_caixa_alta()
     {
         var os = NovaAberta();
-        os.AlterarCabecalho(idCliente: null, nomeClienteAvulso: null, idUsuarioMecanico: null,
+        os.AlterarCabecalho(idCliente: null, nomeClienteAvulso: null, idMecanico: null,
             veiculoMontadora: "vw", veiculoModelo: "gol", veiculoAno: "2018", veiculoPlaca: "abc1d23",
             observacao: null);
 

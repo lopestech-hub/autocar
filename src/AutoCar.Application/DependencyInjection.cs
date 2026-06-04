@@ -10,6 +10,9 @@ using AutoCar.Application.Modules.Registrations.Produtos.Validators;
 using AutoCar.Application.Modules.Registrations.Servicos;
 using AutoCar.Application.Modules.Registrations.Servicos.DTOs;
 using AutoCar.Application.Modules.Registrations.Servicos.Validators;
+using AutoCar.Application.Modules.Registrations.Mecanicos;
+using AutoCar.Application.Modules.Registrations.Mecanicos.DTOs;
+using AutoCar.Application.Modules.Registrations.Mecanicos.Validators;
 using AutoCar.Application.Modules.Sales.PreVendas;
 using AutoCar.Application.Modules.Sales.PreVendas.DTOs;
 using AutoCar.Application.Modules.Sales.PreVendas.Validators;
@@ -56,6 +59,9 @@ public static class DependencyInjection
 
         services.AddScoped<IServicoService, ServicoService>();
         services.AddScoped<IValidator<SalvarServicoDto>, SalvarServicoValidator>();
+
+        services.AddScoped<IMecanicoService, MecanicoService>();
+        services.AddScoped<IValidator<SalvarMecanicoDto>, SalvarMecanicoValidator>();
 
         // Vendas
         services.AddScoped<IPreVendaService, PreVendaService>();

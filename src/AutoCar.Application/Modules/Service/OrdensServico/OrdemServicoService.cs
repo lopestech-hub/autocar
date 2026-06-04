@@ -20,7 +20,7 @@ public sealed class OrdemServicoService : IOrdemServicoService
     private readonly IClienteRepository _clientes;
     private readonly IProdutoRepository _produtos;
     private readonly IServicoRepository _servicos;
-    private readonly IUsuarioRepository _usuarios;
+    private readonly IMecanicoRepository _mecanicos;
     private readonly IValidator<SalvarOrdemServicoDto> _validator;
 
     public OrdemServicoService(
@@ -28,14 +28,14 @@ public sealed class OrdemServicoService : IOrdemServicoService
         IClienteRepository clientes,
         IProdutoRepository produtos,
         IServicoRepository servicos,
-        IUsuarioRepository usuarios,
+        IMecanicoRepository mecanicos,
         IValidator<SalvarOrdemServicoDto> validator)
     {
         _ordens = ordens;
         _clientes = clientes;
         _produtos = produtos;
         _servicos = servicos;
-        _usuarios = usuarios;
+        _mecanicos = mecanicos;
         _validator = validator;
     }
 
@@ -48,7 +48,7 @@ public sealed class OrdemServicoService : IOrdemServicoService
         try
         {
             var os = new OrdemServico(
-                idUsuario, dto.IdCliente, dto.NomeClienteAvulso, dto.IdUsuarioMecanico,
+                idUsuario, dto.IdCliente, dto.NomeClienteAvulso, dto.IdMecanico,
                 dto.VeiculoMontadora, dto.VeiculoModelo, dto.VeiculoAno, dto.VeiculoPlaca, dto.Observacao);
             os.DefinirItens(MapearItens(dto.Itens));
             os.AplicarDescontoGeral(dto.VlrDesconto);
@@ -78,7 +78,7 @@ public sealed class OrdemServicoService : IOrdemServicoService
         {
             await _ordens.AtualizarAsync(id, os =>
             {
-                os.AlterarCabecalho(dto.IdCliente, dto.NomeClienteAvulso, dto.IdUsuarioMecanico,
+                os.AlterarCabecalho(dto.IdCliente, dto.NomeClienteAvulso, dto.IdMecanico,
                     dto.VeiculoMontadora, dto.VeiculoModelo, dto.VeiculoAno, dto.VeiculoPlaca, dto.Observacao);
                 os.DefinirItens(MapearItens(dto.Itens));
                 os.AplicarDescontoGeral(dto.VlrDesconto);
@@ -107,7 +107,7 @@ public sealed class OrdemServicoService : IOrdemServicoService
         var ordens = await _ordens.ListarAsync(filtro, ct);
         return ordens.Select(o => new OrdemServicoListaDto(
             o.Id, o.CodOrdemServico, o.Situacao, NomeCliente(o), o.VeiculoPlaca,
-            o.IdUsuarioMecanico, o.Itens.Count, o.VlrTotal, o.CriadoEm)).ToList();
+            o.IdMecanico, o.Itens.Count, o.VlrTotal, o.CriadoEm)).ToList();
     }
 
     public async Task<Result<OrdemServicoDto>> ObterPorIdAsync(Guid id, CancellationToken ct = default)
@@ -148,7 +148,7 @@ public sealed class OrdemServicoService : IOrdemServicoService
         if (dto.IdCliente is Guid idCliente && await _clientes.ObterPorIdAsync(idCliente, ct) is null)
             return Error.Validacao("Selecione um cliente válido.");
 
-        if (dto.IdUsuarioMecanico is Guid idMecanico && await _usuarios.ObterPorIdAsync(idMecanico, ct) is null)
+        if (dto.IdMecanico is Guid idMecanico && await _mecanicos.ObterPorIdAsync(idMecanico, ct) is null)
             return Error.Validacao("Selecione um mecânico válido.");
 
         foreach (var item in dto.Itens)
@@ -180,7 +180,7 @@ public sealed class OrdemServicoService : IOrdemServicoService
         o.Cliente?.RazaoSocial ?? o.NomeClienteAvulso ?? "CONSUMIDOR";
 
     private static OrdemServicoDto Mapear(OrdemServico o) => new(
-        o.Id, o.CodOrdemServico, o.Situacao, o.IdCliente, o.NomeClienteAvulso, o.IdUsuarioMecanico,
+        o.Id, o.CodOrdemServico, o.Situacao, o.IdCliente, o.NomeClienteAvulso, o.IdMecanico,
         o.VeiculoMontadora, o.VeiculoModelo, o.VeiculoAno, o.VeiculoPlaca,
         o.SubtotalItens, o.SubtotalPecas, o.SubtotalServicos, o.VlrDesconto, o.VlrTotal, o.Observacao, o.FlgAtivo,
         o.Itens.Select(i => new OrdemServicoItemDetalheDto(
