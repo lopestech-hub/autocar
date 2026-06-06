@@ -139,6 +139,37 @@ Serviço). Mesmo molde enxuto de Marca/Categoria, com um campo a mais: o valor p
 - Consumido pela **Ordem de Serviço** (linha tipo Serviço traz descrição + `vlr_padrao` como snapshot,
   ambos editáveis na linha). Ver [Service](../Service/MODULO.md).
 
+## Mecânico (quem executa o serviço) — Fase 4
+
+Cadastro mestre **auxiliar da Ordem de Serviço** (FK `id_mecanico` em `ordem_servico`). **Não é
+usuário do sistema** — o mecânico não loga, não tem perfil nem senha; é só a identificação de quem
+executou o trabalho na OS (base para produtividade/comissão futura). Molde enxuto de Marca/Categoria.
+
+### Tabela `mecanico`
+
+- `id_mecanico` (uuid PK), `cod_mecanico` (int identity)
+- `nome` (varchar 120, CAIXA ALTA, **único case-insensitive**)
+- `telefone` (varchar 20, opcional — texto livre, sem CAIXA ALTA)
+- `flg_ativo`, `dat_criacao`, `dat_atualizacao` (UTC), `xmin` (concorrência — cadastro sem coleção filha)
+- Índices únicos: `ix_mecanico_cod`, `ix_mecanico_nome`. Migration: `CadastroMecanico`.
+
+### Camadas / Telas
+
+- **Domain:** `Mecanico` (nome em CAIXA ALTA, telefone opcional).
+- **Application:** módulo `Registrations/Mecanicos` — `MecanicoService` (CRUD com `Result<T>` +
+  `ListarAsync` para o seletor da OS), DTOs, `SalvarMecanicoValidator`.
+- **Infrastructure:** `MecanicoConfiguration` + `MecanicoRepository` (unicidade `ILike`).
+- **Desktop:** listagem Grid único (CÓDIGO · NOME · TELEFONE · STATUS) + form denso (nome + telefone).
+  Menu de texto (Cadastros), perfil Vendedor. Rota `mecanicos`.
+
+### Regras
+
+- Nome único (case-insensitive) e obrigatório; salva em CAIXA ALTA. Telefone opcional.
+- Inativar em vez de excluir (`flg_ativo`).
+- **Decisão de modelo:** mecânico é entidade própria, não usuário — a 4.2 inicialmente modelou como FK
+  para `usuario` (`id_usuario_mecanico`); a 4.1b corrigiu para FK ao cadastro de mecânico (`id_mecanico`),
+  via migration por **rename** (não-destrutiva). Consumido pela OS, ver [Service](../Service/MODULO.md).
+
 ## Produto
 
 Cadastro mestre central do catálogo. Consome Marca, Categoria e Fornecedor via FK. **Saldo de

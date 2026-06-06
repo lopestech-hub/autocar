@@ -24,7 +24,10 @@ de extensão, sem implementar o Financeiro.
 - `veiculo_montadora`/`veiculo_modelo` (varchar 60), `veiculo_ano` (varchar 9), `veiculo_placa` (varchar 8)
   — **texto livre** (CAIXA ALTA; ano só `Trim`), igual à Pré-venda
 - `id_usuario` (FK → `usuario`, `Restrict`) — atendente/vendedor que abriu a OS
-- `id_usuario_mecanico` (uuid FK **opcional** → `usuario`, `Restrict`) — mecânico responsável
+- `id_mecanico` (uuid FK **opcional** → `mecanico`, `Restrict`) — mecânico responsável. **Mecânico é
+  cadastro próprio, NÃO usuário do sistema** (ver [Registrations](../Registrations/MODULO.md)). A 4.2
+  modelou isto como `id_usuario_mecanico`→`usuario`; a 4.1b corrigiu (migration `CadastroMecanico`, rename).
+- `qtd_km` (int, **opcional**) — quilometragem do veículo no momento da OS (migration `KmOrdemServico`, aditiva)
 - `vlr_desconto`, `vlr_total` (decimal 10,2 — total persistido, calculado no domínio)
 - `observacao` (varchar 255)
 - `flg_ativo`, `dat_criacao`, `dat_atualizacao` (UTC). **Sem `xmin`** (coleção filha no mesmo save).
@@ -57,21 +60,27 @@ Tabela mestre auxiliar — ver [Registrations](../Registrations/MODULO.md), seç
 ## Telas (Views) e ViewModels
 
 - `OrdensServicoView` + `OrdensServicoViewModel` — **listagem** (Grid único): Nº · DATA · CLIENTE ·
-  VEÍCULO · MECÂNICO · TOTAL · SITUAÇÃO (badge com borda colorida por status). Busca por cliente/número/
-  placa (debounce), contador. "Nova"/duplo-clique **abrem janela separada** (evento `AbrirJanelaSolicitado`).
+  **VEÍCULO** (modelo + placa; sem placa só o modelo) · ITENS · TOTAL · SITUAÇÃO (badge com borda colorida
+  pelas **5 situações**). Busca por cliente/número/placa (debounce), contador. "Nova"/duplo-clique **abrem
+  janela separada** (evento `AbrirJanelaSolicitado`).
 - `OrdemServicoWindow` — **janela maximizada não-modal** (shell segue acessível). Hospeda o form.
   **F2** = catálogo de peça (`CatalogoSeletorWindow`), **F3** = seletor de cliente (`ClienteSeletorWindow`),
-  **F4** = seletor de serviço (`ServicoSeletorWindow`). Fecha ao Salvar/Cancelar.
-- `OrdemServicoFormView` + `OrdemServicoFormViewModel` — form dois modos: DADOS (cliente opcional + veículo
-  livre + **mecânico** + atendente read-only) · ITENS (**um grid** com coluna TIPO distinguindo peça/serviço;
-  F2 add peça, F4 add serviço) · TOTAIS (subtotal peças + subtotal serviços + desconto + TOTAL em faixa).
-  Botões por status: Salvar · **Iniciar** · **Concluir** · **Faturar** · Cancelar (habilitam conforme o ciclo).
-- `OrdemServicoItemViewModel` — linha do grid (tipo, descrição, qtd, unitário, desconto, total recalcula).
-- `ServicoSeletorWindow` — janela seletora de serviço no **F4** (busca por descrição/código; setas;
-  Enter/duplo-clique adiciona; traz `vlr_padrao` como snapshot). Reusa o padrão "Seletor" do system.md.
+  **F4** = seletor de serviço (`ServicoSeletorWindow`), **F5** = seletor de mecânico (`MecanicoSeletorWindow`).
+  Orquestra também a `ConfirmacaoWindow` ao cancelar a OS. Fecha ao Salvar/Cancelar.
+- `OrdemServicoFormView` + `OrdemServicoFormViewModel` — form dois modos: DADOS (cliente opcional [seletor F3] +
+  **mecânico** [seletor F5] + veículo livre + **KM** + atendente read-only) · ITENS (**um grid** com coluna TIPO
+  distinguindo peça/serviço, mini-badge azul/índigo; F2 add peça, F4 add serviço) · TOTAIS (subtotal peças +
+  subtotal serviços + subtotal itens + desconto + TOTAL em faixa). Rodapé: ação destrutiva **"Cancelar OS
+  (encerrar)"** (vermelha, isolada, com confirmação) ≠ **"Fechar"** (só fecha a janela); botões de ciclo
+  Iniciar/Concluir/Faturar/Editar conforme o status.
+- `OrdemServicoItemViewModel` — linha do grid (tipo, descrição, qtd **inteira**, unitário, desconto, total recalcula).
+- `ServicoSeletorWindow` (F4) e `MecanicoSeletorWindow` (F5) — janelas seletoras (molde do `ClienteSeletorWindow`:
+  busca por descrição/nome ou código, setas, Enter/duplo-clique seleciona, Esc fecha). O serviço traz `vlr_padrao`
+  como snapshot; o seletor de mecânico tem botão **"Sem mecânico"** (limpa). Padrão "Seletor" do system.md.
 
-Mecânico é um **combo simples** (não seletor por janela) — o volume de mecânicos é baixo, diferente de
-cliente/produto. Reusa `CatalogoSeletorWindow`, `ClienteSeletorWindow` e `ConfirmacaoWindow` (faturar/cancelar).
+> **Mecânico vira botão-seletor por janela** (não combo). O planejamento previa combo "por volume baixo", mas o
+> Julio pediu o mesmo padrão do cliente (F5) — mais consistente e evita o gotcha do ComboBox no FluentTheme.
+> Reusa `CatalogoSeletorWindow`, `ClienteSeletorWindow` e `ConfirmacaoWindow` (cancelar; faturar virá na 4.4).
 
 ## Regras de Negócio
 
@@ -86,9 +95,13 @@ cliente/produto. Reusa `CatalogoSeletorWindow`, `ClienteSeletorWindow` e `Confir
   torna imutável). **Cancelar** encerra (só antes de faturar; não mexe em estoque). Documento Faturado/
   Cancelado não aceita mais alterações (invariante no agregado).
 - **Mecânico:** opcional ao abrir/editar; **obrigatório para Concluir** (não se conclui trabalho sem responsável).
-- **Faturar baixa estoque:** ao faturar, **cada linha do tipo Peça** gera uma **Saída** no estoque, origem
-  `OrdemServico` ("OS nº X"), numa **transação única atômica**. Linhas de Serviço não tocam estoque. Falha se
-  alguma peça não tiver saldo (a OS continua no status anterior, rollback). Espelha o `FaturamentoRepository`.
+- **Quilometragem (`qtd_km`):** opcional; registra a km do veículo na OS (não-negativa, validada no domínio).
+  Dado de oficina para histórico/revisões por km. Não aparece na listagem (só no form).
+- **Faturar baixa estoque** (⏳ **4.4** — botão pronto, mas o faturamento real ainda não está implementado;
+  hoje o botão Faturar só avisa que será habilitado): ao faturar, **cada linha do tipo Peça** gerará uma
+  **Saída** no estoque, origem `OrdemServico` ("OS nº X"), numa **transação única atômica**. Linhas de Serviço
+  não tocam estoque. Falha se alguma peça não tiver saldo (a OS continua no status anterior, rollback). Espelhará
+  o `FaturamentoRepository`.
 
 ## Cálculos
 

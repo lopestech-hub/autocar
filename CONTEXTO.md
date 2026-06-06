@@ -27,12 +27,12 @@ Concorrência de estoque tratada com controle otimista (`xmin`) — risco nº 1 
 | Módulo | Pasta (MODULO.md) | Estado |
 |--------|-------------------|--------|
 | Segurança (login, perfis) | [Security](src/AutoCar.Desktop/Views/Security/MODULO.md) | ✅ Fase 1 |
-| Cadastros (Cliente ✅; Fornecedor ✅; Marca ✅; Categoria ✅; Produto ✅ + aplicação por veículo ✅; Serviço ⏳ Fase 4) | [Registrations](src/AutoCar.Desktop/Views/Registrations/MODULO.md) | 🔄 |
+| Cadastros (Cliente ✅; Fornecedor ✅; Marca ✅; Categoria ✅; Produto ✅ + aplicação ✅; Serviço ✅; Mecânico ✅) | [Registrations](src/AutoCar.Desktop/Views/Registrations/MODULO.md) | 🔄 |
 | Catálogo automotivo (peça → veículo) | [Catalogo](src/AutoCar.Desktop/Views/Catalogo/) — busca de peça por veículo ✅ | ✅ Fase 2 |
 | Vendas (Pré-venda) | [Sales](src/AutoCar.Desktop/Views/Sales/MODULO.md) — Pré-venda (cabeçalho + itens) ✅ | 🔄 Fase 3 |
 | Estoque (saldo + movimentação) | [Inventory](src/AutoCar.Desktop/Views/Inventory/MODULO.md) — saldo, livro-razão, concorrência `xmin` ✅ | ✅ Fase 3 |
 | Compras (entrada por compra) | [Purchases](src/AutoCar.Desktop/Views/Purchases/MODULO.md) — documento fornecedor + itens → entrada no estoque ✅ | ✅ Fase 3 |
-| Ordem de Serviço (peças + mão de obra, mecânico, ciclo) | [Service](src/AutoCar.Desktop/Views/Service/MODULO.md) — _a criar (Fase 4)_ | 🔄 Fase 4 |
+| Ordem de Serviço (peças + mão de obra, mecânico, ciclo) | [Service](src/AutoCar.Desktop/Views/Service/MODULO.md) — backend + UI ✅; faltam faturar (4.4) e gancho financeiro (4.5) | 🔄 Fase 4 |
 | Financeiro (receber, pagar, caixa, formas pgto) | _a criar (Fase 4, após a OS)_ | ⏳ |
 | Fiscal (NCM/CFOP/CST, sem SEFAZ) | _a criar (Fase 5)_ | ⏳ |
 
@@ -97,15 +97,19 @@ saves (`cod_compra` identity precede os movimentos), reusa `CompraRepository` + 
 espelha a Devolução. UI: listagem + janela maximizada (**F2** = catálogo, **F3** = seletor de fornecedor);
 reabre em visualização read-only. **Não atualiza o custo do produto** no MVP (ver Evolução).
 
-**Fase 4 (OS + Financeiro) — em andamento.** Começando pela **Ordem de Serviço**: documento de
-oficina que reusa o padrão Pré-venda, com **dois tipos de linha** (peça → baixa estoque;
-serviço/mão de obra → sem estoque), **mecânico responsável** (opcional ao abrir, exigido para
-Concluir), **ciclo** Aberta→EmAndamento→Concluída→Faturada/Cancelada, e **catálogo de serviços**
-(cadastro auxiliar `servico`). Baixa estoque **ao faturar** (origem `OrdemServico`), em transação
-atômica que espelha o `FaturamentoRepository`. Faturar emitirá um gancho (Domain Event) para o
-Financeiro consumir depois. Financeiro (contas a receber/pagar, caixa, formas de pagamento) vem na
-sequência. Planejado em 2026-06-02 (Theo Desktop). Implementação por sub-fases: 4.1 catálogo de
-serviços · 4.2 OS backend · 4.3 OS UI · 4.4 faturar baixa estoque · 4.5 gancho Financeiro.
+**Fase 4 (OS + Financeiro) — em andamento.** **Ordem de Serviço** quase completa (falta só faturar).
+Pronto: **catálogo de serviços** (`servico` ✅) e **cadastro de mecânico** (`mecanico` — entidade
+**própria**, NÃO usuário do sistema: não loga, é só quem executa o serviço ✅); **agregado da OS**
+(tabelas `ordem_servico`+`ordem_servico_item`) com **dois tipos de linha** (peça → baixa estoque;
+serviço → sem estoque, discriminador `sts_tipo_item`), **mecânico responsável** (opcional ao abrir,
+exigido para Concluir), **ciclo** Aberta→EmAndamento→Concluída→Faturada/Cancelada, **quilometragem**
+(`qtd_km`, opcional), 22 testes do agregado; e a **UI completa** (listagem com badge das 5 situações;
+janela maximizada com F2=peça/F3=cliente/F4=serviço/F5=mecânico, todos seletores por janela;
+form com grid peça+serviço, totais por tipo, botões de ciclo; "Cancelar OS" com confirmação).
+**Falta:** 4.4 — faturar a OS baixa estoque das peças (origem `OrdemServico`, transação atômica que
+espelha o `FaturamentoRepository`); 4.5 — gancho (Domain Event) para o Financeiro. Depois o
+**Financeiro** (contas a receber/pagar, caixa, formas de pagamento). Sub-fases: 4.1 ✅ catálogo de
+serviços · 4.1b ✅ mecânico · 4.2 ✅ OS backend · 4.3 ✅ OS UI · 4.4 faturar · 4.5 gancho Financeiro.
 
 Admin de teste: usuário **`julio`** / senha `123` (trocar).
 
@@ -135,7 +139,7 @@ Um perfil por usuário. Admin vê tudo.
 - [x] Fase 1 — Setup, auth, menu, perfis
 - [x] Fase 2 — Cadastros base + catálogo
 - [x] Fase 3 — Pré-venda ✅ · Estoque saldo + movimentação + concorrência `xmin` ✅ · Faturar baixa estoque ✅ · Devolução ✅ · entrada por compra ✅
-- [ ] Fase 4 — OS (peças + mão de obra + mecânico + ciclo + cat. serviços) 🔄 · Financeiro (a seguir)
+- [ ] Fase 4 — OS: cat. serviços ✅ · mecânico ✅ · backend ✅ · UI ✅ · faturar baixa estoque (4.4) ⏳ · gancho financeiro (4.5) ⏳ · depois Financeiro (receber/pagar/caixa/formas pgto)
 - [ ] Fase 5 — Fiscal estruturado + PDF
 - [ ] Fase 6 — (pós-MVP) SEFAZ, custo médio, multi-depósito, DRE
 - [ ] Fase 7 — Testes, ajustes, implantação
@@ -193,3 +197,6 @@ Um perfil por usuário. Admin vê tudo.
 | 2026-06-02 | Fase 3: **Devolução de venda** — tabelas `devolucao`+`devolucao_item` (migration `CadastroDevolucao`, aditiva); devolve itens de venda Faturada ao estoque (parcial por item, **Entrada** origem `Devolução nº X`), valida saldo devolvível (vendido − já devolvido); `DevolucaoRepository` com transação explícita (2 saves — `cod` identity precede os movimentos). Botão Devolver + `DevolucaoWindow`. Histórico de estoque: colunas **ORIGEM** e **DOCUMENTO** separadas. Helper `QuantidadeEstoque.DeDocumento` (decimal→int, rejeita fração) compartilhado faturamento+devolução |
 | 2026-06-02 | Fase 3 (fecha): **Entrada por compra** (backend `b072be6` + UI `4486025`) — tabelas `compra`+`compra_item` (migration `CadastroCompra`, aditiva); documento fornecedor + itens dá **Entrada** no estoque ao salvar (origem `Compra nº X`), fornecedor obrigatório, entrada imediata (sem ciclo), qtd inteira, custo por item. `CompraRepository` transação explícita (2 saves), reusa `EstoquePersistencia`, espelha a Devolução. UI: listagem + janela maximizada (F2=catálogo, F3=seletor de fornecedor), reabre read-only; menu Movimentos (perfil Vendedor). Não atualiza custo do produto (ver Evolução). 7 testes do agregado. Smoke test ok (saldo subiu) |
 | 2026-06-02 | Fase 4 **planejada** (Theo Desktop): **Ordem de Serviço** primeiro. Decisões: linha única com discriminador `sts_tipo_item` (Peca/Servico); baixa estoque **ao faturar**; serviço do catálogo + editável; um mecânico por OS (opcional ao abrir, exigido p/ Concluir). Tabelas novas `servico`, `ordem_servico`, `ordem_servico_item`; enums `SituacaoOrdemServico`, `TipoItemOrdemServico` + `OrdemServico` no `OrigemMovimento`. MODULO.md do Service criado. Implementação em sub-fases 4.1→4.5. Financeiro a seguir |
+| 2026-06-03 | Fase 4.1 (`da1db2f`): **catálogo de serviços** (`servico` — mão de obra: descrição + valor padrão, molde Marca/Categoria). 4.2 (`5d1d321`): **OS backend** — agregado `OrdemServico`+`OrdemServicoItem` (factories DePeca/DeServico garantem a invariante "uma FK por tipo"), ciclo Iniciar/Concluir/Cancelar/Faturar, subtotais por tipo, `OrdemServicoRepository` (separou `AtualizarAsync` de `AplicarTransicaoAsync` — transição não refaz o swap da coleção filha), 22 testes |
+| 2026-06-03 | Fase 4.1b (`4da5dcd`): **cadastro de Mecânico** como entidade própria (não usuário — correção de modelo); FK da OS `id_usuario_mecanico`→`id_mecanico` (migration por rename, não-destrutiva) |
+| 2026-06-06 | Fase 4.3 (`beee975`): **UI completa da OS** — listagem (badge das 5 situações, coluna VEÍCULO=modelo+placa), janela maximizada (F2/F3/F4/F5 todos seletores por janela), form (grid peça+serviço, totais por tipo, botões de ciclo). Mecânico vira **botão-seletor por janela** (era combo). UX: "Cancelar OS (encerrar)" com confirmação ≠ "Fechar" (evita cancelar por engano). Feature **KM** (`qtd_km`, opcional; migration aditiva). Seletores `ServicoSeletorWindow`/`MecanicoSeletorWindow` (molde do Cliente) |
