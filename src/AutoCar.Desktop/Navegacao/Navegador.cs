@@ -2,6 +2,7 @@ using System;
 using AutoCar.Application.Modules.Estoque;
 using AutoCar.Application.Modules.Purchases.Compras;
 using AutoCar.Application.Modules.Sales.PreVendas;
+using AutoCar.Application.Modules.Service.OrdensServico;
 using AutoCar.Application.Modules.Security.DTOs;
 using AutoCar.Desktop.ViewModels;
 using AutoCar.Desktop.ViewModels.Catalogo;
@@ -9,6 +10,7 @@ using AutoCar.Desktop.ViewModels.Inventory;
 using AutoCar.Desktop.ViewModels.Purchases;
 using AutoCar.Desktop.ViewModels.Registrations;
 using AutoCar.Desktop.ViewModels.Sales;
+using AutoCar.Desktop.ViewModels.Service;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -40,6 +42,7 @@ public sealed class Navegador : INavegador
         "pre-vendas" => CriarPreVendas(),
         "estoque" => CriarEstoque(),
         "compras" => CriarCompras(),
+        "ordens-servico" => CriarOrdensServico(),
         _ => null,
     };
 
@@ -83,5 +86,18 @@ public sealed class Navegador : INavegador
             _sp.GetRequiredService<ICompraService>(),
             () => _sp.GetRequiredService<CompraFormViewModel>(),
             _sp.GetRequiredService<ILogger<ComprasViewModel>>());
+    }
+
+    // OrdensServicoViewModel também depende do usuário logado (registra o atendente) — montado à mão.
+    private OrdensServicoViewModel? CriarOrdensServico()
+    {
+        if (_usuario is null)
+            return null;
+
+        return new OrdensServicoViewModel(
+            _usuario,
+            _sp.GetRequiredService<IOrdemServicoService>(),
+            () => _sp.GetRequiredService<OrdemServicoFormViewModel>(),
+            _sp.GetRequiredService<ILogger<OrdensServicoViewModel>>());
     }
 }

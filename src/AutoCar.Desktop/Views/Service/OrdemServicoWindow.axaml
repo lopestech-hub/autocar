@@ -1,0 +1,22 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AutoCar.Desktop.ViewModels.Service"
+        xmlns:views="using:AutoCar.Desktop.Views.Service"
+        x:Class="AutoCar.Desktop.Views.Service.OrdemServicoWindow"
+        x:DataType="vm:OrdemServicoFormViewModel"
+        WindowState="Maximized"
+        WindowStartupLocation="CenterScreen"
+        Title="Ordem de Serviço"
+        Background="{DynamicResource BrushFundo}">
+
+    <!-- F2 = peça (Catálogo); F3 = cliente; F4 = serviço; ESC fecha. -->
+    <Window.KeyBindings>
+        <KeyBinding Gesture="F2" Command="{Binding AbrirCatalogoCommand}" />
+        <KeyBinding Gesture="F3" Command="{Binding AbrirSeletorClienteCommand}" />
+        <KeyBinding Gesture="F4" Command="{Binding AbrirSeletorServicoCommand}" />
+        <KeyBinding Gesture="F5" Command="{Binding AbrirSeletorMecanicoCommand}" />
+        <KeyBinding Gesture="Escape" Command="{Binding CancelarCommand}" />
+    </Window.KeyBindings>
+
+    <views:OrdemServicoFormView />
+</Window>

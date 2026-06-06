@@ -1,0 +1,375 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AutoCar.Desktop.ViewModels.Service"
+             xmlns:b="using:AutoCar.Desktop.Behaviors"
+             xmlns:conv="using:AutoCar.Desktop.Converters"
+             x:Class="AutoCar.Desktop.Views.Service.OrdemServicoFormView"
+             x:DataType="vm:OrdemServicoFormViewModel">
+
+    <Panel>
+        <Border Margin="16"
+                Background="{DynamicResource BrushFundoCard}"
+                BorderBrush="{DynamicResource BrushBorda}"
+                BorderThickness="1"
+                CornerRadius="6">
+            <Grid RowDefinitions="Auto,*,Auto,Auto">
+
+                <!-- HEADER -->
+                <Border Grid.Row="0"
+                        BorderBrush="{DynamicResource BrushBorda}"
+                        BorderThickness="0,0,0,1"
+                        Padding="16,10">
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock Text="{Binding Titulo}"
+                                   FontSize="14" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource BrushTexto}"
+                                   VerticalAlignment="Center" />
+                        <!-- Selo da situação atual da OS (só para OS já salva). -->
+                        <Border Background="{DynamicResource BrushFundoHeader}"
+                                BorderBrush="{DynamicResource BrushBorda}" BorderThickness="1"
+                                CornerRadius="2" Padding="6,2" VerticalAlignment="Center"
+                                IsVisible="{Binding MostrarSelo}">
+                            <TextBlock Text="{Binding SituacaoRotulo}" FontSize="10" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource BrushTextoSecundario}" />
+                        </Border>
+                        <!-- Selo de edição (quando em modo edição). -->
+                        <Border Background="#FEF3C7" CornerRadius="2" Padding="6,2"
+                                VerticalAlignment="Center" IsVisible="{Binding !ModoVisualizacao}">
+                            <TextBlock Text="EDIÇÃO" FontSize="10" FontWeight="Medium" Foreground="#92400E" />
+                        </Border>
+                        <!-- Atendente (usuário logado), read-only. -->
+                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <TextBlock Text="Atendente:" FontSize="11"
+                                       Foreground="{DynamicResource BrushTextoMudo}"
+                                       VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding NomeAtendente}" FontSize="11" FontWeight="Medium"
+                                       Foreground="{DynamicResource BrushTextoSecundario}"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                        <!-- Dicas de atalho (só no modo edição). -->
+                        <Border Background="{DynamicResource BrushFundoHeader}"
+                                BorderBrush="{DynamicResource BrushBorda}" BorderThickness="1"
+                                CornerRadius="3" Padding="6,2" VerticalAlignment="Center"
+                                IsVisible="{Binding !ModoVisualizacao}">
+                            <TextBlock Text="F2 = peça" FontSize="10"
+                                       Foreground="{DynamicResource BrushTextoSecundario}" />
+                        </Border>
+                        <Border Background="{DynamicResource BrushFundoHeader}"
+                                BorderBrush="{DynamicResource BrushBorda}" BorderThickness="1"
+                                CornerRadius="3" Padding="6,2" VerticalAlignment="Center"
+                                IsVisible="{Binding !ModoVisualizacao}">
+                            <TextBlock Text="F3 = cliente" FontSize="10"
+                                       Foreground="{DynamicResource BrushTextoSecundario}" />
+                        </Border>
+                        <Border Background="{DynamicResource BrushFundoHeader}"
+                                BorderBrush="{DynamicResource BrushBorda}" BorderThickness="1"
+                                CornerRadius="3" Padding="6,2" VerticalAlignment="Center"
+                                IsVisible="{Binding !ModoVisualizacao}">
+                            <TextBlock Text="F4 = serviço" FontSize="10"
+                                       Foreground="{DynamicResource BrushTextoSecundario}" />
+                        </Border>
+                        <Border Background="{DynamicResource BrushFundoHeader}"
+                                BorderBrush="{DynamicResource BrushBorda}" BorderThickness="1"
+                                CornerRadius="3" Padding="6,2" VerticalAlignment="Center"
+                                IsVisible="{Binding !ModoVisualizacao}">
+                            <TextBlock Text="F5 = mecânico" FontSize="10"
+                                       Foreground="{DynamicResource BrushTextoSecundario}" />
+                        </Border>
+                        <Border Background="{DynamicResource BrushFundoHeader}"
+                                BorderBrush="{DynamicResource BrushBorda}" BorderThickness="1"
+                                CornerRadius="3" Padding="6,2" VerticalAlignment="Center">
+                            <TextBlock Text="ESC = fechar" FontSize="10"
+                                       Foreground="{DynamicResource BrushTextoSecundario}" />
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- CORPO -->
+                <ScrollViewer Grid.Row="1" Padding="16,12" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="2" HorizontalAlignment="Left">
+
+                        <!-- ===== DADOS ===== -->
+                        <Grid ColumnDefinitions="Auto,*" Width="860" HorizontalAlignment="Left" Margin="0,0,0,4">
+                            <TextBlock Grid.Column="0" Classes="formsecao" Text="DADOS" />
+                            <Border Grid.Column="1" Classes="formsecaoLinha" />
+                        </Grid>
+                        <Grid RowSpacing="6" ColumnDefinitions="90,300,90,*">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" /><!-- 0: Cliente | Nome avulso -->
+                                <RowDefinition Height="Auto" /><!-- 1: Mecânico -->
+                                <RowDefinition Height="Auto" /><!-- 2: Montadora | Modelo -->
+                                <RowDefinition Height="Auto" /><!-- 3: Ano | Placa -->
+                                <RowDefinition Height="Auto" /><!-- 4: KM -->
+                                <RowDefinition Height="Auto" /><!-- 5: Observação -->
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Classes="formlabel" Text="Cliente" />
+                            <Button Grid.Row="0" Grid.Column="1"
+                                    Classes="seletor"
+                                    Command="{Binding AbrirSeletorClienteCommand}"
+                                    IsEnabled="{Binding !ModoVisualizacao}"
+                                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                    Cursor="Hand" ToolTip.Tip="F3 = buscar cliente">
+                                <TextBlock Text="{Binding ClienteTexto}"
+                                           Foreground="{DynamicResource BrushTexto}"
+                                           VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                            </Button>
+                            <TextBlock Grid.Row="0" Grid.Column="2" Classes="formlabel" Text="Avulso" />
+                            <TextBox Grid.Row="0" Grid.Column="3"
+                                     Text="{Binding NomeClienteAvulso}"
+                                     IsEnabled="{Binding ClienteAvulso}"
+                                     b:MaiusculoBehavior.Ativo="True"
+                                     Watermark="Nome do consumidor (sem cadastro)" />
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Classes="formlabel" Text="Mecânico" />
+                            <!-- Mecânico: campo-seletor (F5 ou clique abre a janela de busca, igual ao Cliente). -->
+                            <Button Grid.Row="1" Grid.Column="1"
+                                    Classes="seletor"
+                                    Command="{Binding AbrirSeletorMecanicoCommand}"
+                                    IsEnabled="{Binding !ModoVisualizacao}"
+                                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                    Cursor="Hand" ToolTip.Tip="F5 = buscar mecânico">
+                                <TextBlock Text="{Binding MecanicoTexto}"
+                                           Foreground="{DynamicResource BrushTexto}"
+                                           VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                            </Button>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Classes="formlabel" Text="Montadora" />
+                            <TextBox Grid.Row="2" Grid.Column="1"
+                                     Text="{Binding VeiculoMontadora}" IsEnabled="{Binding !ModoVisualizacao}"
+                                     b:MaiusculoBehavior.Ativo="True"
+                                     HorizontalAlignment="Left" Width="200"
+                                     Watermark="VW, FIAT... (opcional)" />
+                            <TextBlock Grid.Row="2" Grid.Column="2" Classes="formlabel" Text="Modelo" />
+                            <TextBox Grid.Row="2" Grid.Column="3"
+                                     Text="{Binding VeiculoModelo}" IsEnabled="{Binding !ModoVisualizacao}"
+                                     b:MaiusculoBehavior.Ativo="True"
+                                     HorizontalAlignment="Left" Width="200"
+                                     Watermark="GOL, PALIO... (opcional)" />
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Classes="formlabel" Text="Ano" />
+                            <TextBox Grid.Row="3" Grid.Column="1"
+                                     Text="{Binding VeiculoAno}" IsEnabled="{Binding !ModoVisualizacao}"
+                                     HorizontalAlignment="Left" Width="90" MaxLength="9"
+                                     Watermark="2018" />
+                            <TextBlock Grid.Row="3" Grid.Column="2" Classes="formlabel" Text="Placa" />
+                            <TextBox Grid.Row="3" Grid.Column="3"
+                                     Text="{Binding VeiculoPlaca}" IsEnabled="{Binding !ModoVisualizacao}"
+                                     b:MaiusculoBehavior.Ativo="True"
+                                     HorizontalAlignment="Left" Width="110" MaxLength="8"
+                                     Watermark="ABC1D23" />
+
+                            <TextBlock Grid.Row="4" Grid.Column="0" Classes="formlabel" Text="KM" />
+                            <TextBox Grid.Row="4" Grid.Column="1"
+                                     Text="{Binding QtdKmTexto}" IsEnabled="{Binding !ModoVisualizacao}"
+                                     HorizontalAlignment="Left" Width="110" MaxLength="7"
+                                     Watermark="Km atual (opcional)" />
+
+                            <TextBlock Grid.Row="5" Grid.Column="0" Classes="formlabel" Text="Observação" />
+                            <TextBox Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="3"
+                                     Text="{Binding Observacao}" IsEnabled="{Binding !ModoVisualizacao}"
+                                     Watermark="Observação da OS (opcional)" />
+                        </Grid>
+
+                        <!-- ===== ITENS ===== -->
+                        <Grid ColumnDefinitions="Auto,*,Auto,Auto" Width="860" HorizontalAlignment="Left" Margin="0,12,0,4">
+                            <TextBlock Grid.Column="0" Classes="formsecao" Text="ITENS" />
+                            <Border Grid.Column="1" Classes="formsecaoLinha" />
+                            <Button Grid.Column="2" Content="+ Peça (F2)" Classes="secundario"
+                                    Command="{Binding AbrirCatalogoCommand}"
+                                    IsVisible="{Binding !ModoVisualizacao}"
+                                    Margin="8,0,0,0" Cursor="Hand" />
+                            <Button Grid.Column="3" Content="+ Serviço (F4)" Classes="secundario"
+                                    Command="{Binding AbrirSeletorServicoCommand}"
+                                    IsVisible="{Binding !ModoVisualizacao}"
+                                    Margin="8,0,0,0" Cursor="Hand" />
+                        </Grid>
+
+                        <!-- Cabeçalho das colunas do grid de itens -->
+                        <Grid ColumnDefinitions="70,*,70,100,90,100,28" Width="860" HorizontalAlignment="Left"
+                              Margin="0,0,0,2"
+                              IsVisible="{Binding Itens.Count}">
+                            <TextBlock Grid.Column="0" Text="TIPO" FontSize="10" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource BrushTextoSecundario}" />
+                            <TextBlock Grid.Column="1" Text="DESCRIÇÃO" FontSize="10" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource BrushTextoSecundario}" />
+                            <TextBlock Grid.Column="2" Text="QTD" FontSize="10" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource BrushTextoSecundario}" HorizontalAlignment="Right" Margin="0,0,4,0" />
+                            <TextBlock Grid.Column="3" Text="UNITÁRIO" FontSize="10" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource BrushTextoSecundario}" HorizontalAlignment="Right" Margin="0,0,4,0" />
+                            <TextBlock Grid.Column="4" Text="DESCONTO" FontSize="10" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource BrushTextoSecundario}" HorizontalAlignment="Right" Margin="0,0,4,0" />
+                            <TextBlock Grid.Column="5" Text="TOTAL" FontSize="10" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource BrushTextoSecundario}" HorizontalAlignment="Right" Margin="0,0,4,0" />
+                        </Grid>
+
+                        <!-- Linhas editáveis -->
+                        <ItemsControl ItemsSource="{Binding Itens}" Width="860" HorizontalAlignment="Left">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:OrdemServicoItemViewModel">
+                                  <Border Background="{Binding BrushFundoLinha}" CornerRadius="2" Padding="2,0" Margin="0,0,0,2">
+                                    <Grid ColumnDefinitions="70,*,70,100,90,100,28">
+                                        <!-- TIPO: mini-badge (peça azul / serviço índigo). -->
+                                        <Border Grid.Column="0" CornerRadius="2" Padding="5,1"
+                                                HorizontalAlignment="Left" VerticalAlignment="Center"
+                                                Margin="0,0,4,0"
+                                                Background="{Binding EhPeca, Converter={x:Static conv:TipoItemFundoConverter.Instancia}}">
+                                            <TextBlock Text="{Binding TipoRotulo}" FontSize="9" FontWeight="SemiBold"
+                                                       Foreground="{Binding EhPeca, Converter={x:Static conv:TipoItemTextoConverter.Instancia}}" />
+                                        </Border>
+                                        <TextBox Grid.Column="1" Text="{Binding DescricaoItem}"
+                                                 IsEnabled="False" Margin="0,0,4,0" />
+                                        <TextBox Grid.Column="2" Text="{Binding QtdTexto}"
+                                                 b:SelecionarTudoBehavior.Ativo="True"
+                                                 IsEnabled="{Binding $parent[ItemsControl].((vm:OrdemServicoFormViewModel)DataContext).ModoVisualizacao, Converter={x:Static BoolConverters.Not}}"
+                                                 TextAlignment="Right" Margin="0,0,4,0" Watermark="1" />
+                                        <TextBox Grid.Column="3" Text="{Binding VlrUnitarioTexto}"
+                                                 b:SelecionarTudoBehavior.Ativo="True"
+                                                 IsEnabled="{Binding $parent[ItemsControl].((vm:OrdemServicoFormViewModel)DataContext).ModoVisualizacao, Converter={x:Static BoolConverters.Not}}"
+                                                 TextAlignment="Right" Margin="0,0,4,0" Watermark="0,00" />
+                                        <Border Grid.Column="4" Margin="0,0,4,0" CornerRadius="2"
+                                                Background="{Binding TemDesconto, Converter={x:Static conv:DescontoFundoConverter.Instancia}}">
+                                            <TextBox Text="{Binding VlrDescontoTexto}"
+                                                     b:SelecionarTudoBehavior.Ativo="True"
+                                                     Background="Transparent"
+                                                     IsEnabled="{Binding $parent[ItemsControl].((vm:OrdemServicoFormViewModel)DataContext).ModoVisualizacao, Converter={x:Static BoolConverters.Not}}"
+                                                     TextAlignment="Right" Watermark="0,00" />
+                                        </Border>
+                                        <TextBlock Grid.Column="5" Text="{Binding VlrTotalItemTexto}"
+                                                   FontFamily="{DynamicResource FonteMono}" FontSize="12"
+                                                   Foreground="{DynamicResource BrushTexto}"
+                                                   VerticalAlignment="Center" HorizontalAlignment="Right"
+                                                   Margin="0,0,8,0" />
+                                        <Button Grid.Column="6" Classes="secundario"
+                                                Width="28" Padding="0"
+                                                Command="{Binding $parent[ItemsControl].((vm:OrdemServicoFormViewModel)DataContext).RemoverItemCommand}"
+                                                CommandParameter="{Binding}"
+                                                IsVisible="{Binding $parent[ItemsControl].((vm:OrdemServicoFormViewModel)DataContext).ModoVisualizacao, Converter={x:Static BoolConverters.Not}}"
+                                                ToolTip.Tip="Remover" Cursor="Hand"
+                                                Content="✕" />
+                                    </Grid>
+                                  </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <TextBlock Text="Nenhum item. Use &quot;+ Peça&quot; ou &quot;+ Serviço&quot; para adicionar."
+                                   FontSize="11" Foreground="{DynamicResource BrushTextoMudo}"
+                                   Margin="0,2,0,0"
+                                   IsVisible="{Binding !Itens.Count}" />
+
+                        <!-- ===== TOTAIS ===== -->
+                        <Grid ColumnDefinitions="Auto,*" Width="860" HorizontalAlignment="Left" Margin="0,12,0,4">
+                            <TextBlock Grid.Column="0" Classes="formsecao" Text="TOTAIS" />
+                            <Border Grid.Column="1" Classes="formsecaoLinha" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto" Width="860" HorizontalAlignment="Left">
+                            <StackPanel Grid.Column="1" Spacing="4" Width="300" HorizontalAlignment="Right">
+                                <Grid ColumnDefinitions="*,120">
+                                    <TextBlock Grid.Column="0" Text="Subtotal peças" Classes="formlabel"
+                                               HorizontalAlignment="Right" />
+                                    <TextBlock Grid.Column="1" Text="{Binding SubtotalPecasTexto}"
+                                               FontFamily="{DynamicResource FonteMono}" FontSize="12"
+                                               Foreground="{DynamicResource BrushTexto}"
+                                               HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                </Grid>
+                                <Grid ColumnDefinitions="*,120">
+                                    <TextBlock Grid.Column="0" Text="Subtotal serviços" Classes="formlabel"
+                                               HorizontalAlignment="Right" />
+                                    <TextBlock Grid.Column="1" Text="{Binding SubtotalServicosTexto}"
+                                               FontFamily="{DynamicResource FonteMono}" FontSize="12"
+                                               Foreground="{DynamicResource BrushTexto}"
+                                               HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                </Grid>
+                                <Grid ColumnDefinitions="*,120">
+                                    <TextBlock Grid.Column="0" Text="Subtotal itens" Classes="formlabel"
+                                               HorizontalAlignment="Right" />
+                                    <TextBlock Grid.Column="1" Text="{Binding SubtotalItensTexto}"
+                                               FontFamily="{DynamicResource FonteMono}" FontSize="12"
+                                               Foreground="{DynamicResource BrushTexto}"
+                                               HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                </Grid>
+                                <Grid ColumnDefinitions="*,120">
+                                    <TextBlock Grid.Column="0" Text="Desconto" Classes="formlabel"
+                                               HorizontalAlignment="Right" />
+                                    <TextBox Grid.Column="1" Text="{Binding VlrDescontoTexto}"
+                                             b:SelecionarTudoBehavior.Ativo="True"
+                                             IsEnabled="{Binding !ModoVisualizacao}"
+                                             TextAlignment="Right" Watermark="0,00" />
+                                </Grid>
+                                <Border Background="{DynamicResource BrushBordaSuave}" Height="1" Margin="0,2" />
+                                <Border Background="#EFF6FF" CornerRadius="3" Padding="8,4">
+                                    <Grid ColumnDefinitions="*,120">
+                                        <TextBlock Grid.Column="0" Text="TOTAL" FontSize="12" FontWeight="Bold"
+                                                   Foreground="{DynamicResource BrushTexto}"
+                                                   HorizontalAlignment="Left" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="1" Text="{Binding VlrTotalTexto}"
+                                                   FontFamily="{DynamicResource FonteMono}" FontSize="16" FontWeight="Bold"
+                                                   Foreground="{Binding VlrTotal, Converter={x:Static conv:TotalBrushConverter.Instancia}}"
+                                                   HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                    </Grid>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+
+                        <TextBlock Text="{Binding MensagemErro}"
+                                   IsVisible="{Binding MensagemErro, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                   Foreground="{DynamicResource BrushErro}" FontSize="11"
+                                   TextWrapping="Wrap" Margin="0,12,0,0" />
+                    </StackPanel>
+                </ScrollViewer>
+
+                <ProgressBar Grid.Row="2" IsIndeterminate="True" Height="2"
+                             IsVisible="{Binding Carregando}" />
+
+                <!-- RODAPÉ dois modos + botões de ciclo -->
+                <Border Grid.Row="3"
+                        BorderBrush="{DynamicResource BrushBorda}"
+                        BorderThickness="0,1,0,0"
+                        Padding="16,12">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <!-- Ação destrutiva à ESQUERDA, separada dos botões de avanço (evita clique
+                             acidental). Texto explícito + cor de alerta. Pede confirmação ao clicar. -->
+                        <Button Grid.Column="0" Content="Cancelar OS (encerrar)" Classes="secundario"
+                                Command="{Binding CancelarOsCommand}"
+                                IsVisible="{Binding PodeCancelar}"
+                                IsEnabled="{Binding !Carregando}" Cursor="Hand"
+                                Foreground="{DynamicResource BrushErro}"
+                                ToolTip.Tip="Encerra a OS de forma irreversível (não é o mesmo que fechar a janela)" />
+
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                            <!-- Em VISUALIZAÇÃO: fecha a janela (não mexe na OS). -->
+                            <Button Content="Fechar" Classes="secundario"
+                                    Command="{Binding CancelarCommand}"
+                                    IsVisible="{Binding ModoVisualizacao}" Cursor="Hand" />
+                            <Button Content="Iniciar" Classes="primario"
+                                    Command="{Binding IniciarCommand}"
+                                    IsVisible="{Binding PodeIniciar}"
+                                    IsEnabled="{Binding !Carregando}" Cursor="Hand" />
+                            <Button Content="Concluir" Classes="primario"
+                                    Command="{Binding ConcluirCommand}"
+                                    IsVisible="{Binding PodeConcluir}"
+                                    IsEnabled="{Binding !Carregando}" Cursor="Hand" />
+                            <Button Content="Faturar" Classes="faturar"
+                                    Command="{Binding FaturarCommand}"
+                                    IsVisible="{Binding PodeFaturar}"
+                                    IsEnabled="{Binding !Carregando}" Cursor="Hand" />
+                            <Button Content="Editar" Classes="primario"
+                                    Command="{Binding HabilitarEdicaoCommand}"
+                                    IsVisible="{Binding PodeEditar}" Cursor="Hand" />
+                            <!-- Em EDIÇÃO: "Fechar" descarta a edição e fecha a janela (não cancela a OS). -->
+                            <Button Content="Fechar" Classes="secundario"
+                                    Command="{Binding CancelarCommand}"
+                                    IsVisible="{Binding !ModoVisualizacao}"
+                                    IsEnabled="{Binding !Carregando}" Cursor="Hand" />
+                            <Button Content="Salvar" Classes="primario"
+                                    Command="{Binding SalvarCommand}"
+                                    IsVisible="{Binding !ModoVisualizacao}"
+                                    IsEnabled="{Binding !Carregando}" Cursor="Hand" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+    </Panel>
+</UserControl>

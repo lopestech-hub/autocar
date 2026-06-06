@@ -32,13 +32,14 @@ public class OrdemServico : EntidadeBase
         string? veiculoModelo,
         string? veiculoAno,
         string? veiculoPlaca,
+        int? qtdKm,
         string? observacao)
     {
         IdUsuario = idUsuario;
         Situacao = SituacaoOrdemServico.Aberta;
         FlgAtivo = true;
         AlterarCabecalho(idCliente, nomeClienteAvulso, idMecanico, veiculoMontadora,
-            veiculoModelo, veiculoAno, veiculoPlaca, observacao);
+            veiculoModelo, veiculoAno, veiculoPlaca, qtdKm, observacao);
         Recalcular();
     }
 
@@ -69,6 +70,10 @@ public class OrdemServico : EntidadeBase
     public string? VeiculoModelo { get; protected set; }
     public string? VeiculoAno { get; protected set; }
     public string? VeiculoPlaca { get; protected set; }
+
+    /// <summary>Quilometragem do veículo no momento da OS (opcional). Dado de oficina — base para
+    /// histórico de manutenção e revisões por km.</summary>
+    public int? QtdKm { get; protected set; }
 
     /// <summary>Desconto geral do documento, em valor (R$). Aplicado sobre a soma dos itens.</summary>
     public decimal VlrDesconto { get; protected set; }
@@ -108,9 +113,13 @@ public class OrdemServico : EntidadeBase
         string? veiculoModelo,
         string? veiculoAno,
         string? veiculoPlaca,
+        int? qtdKm,
         string? observacao)
     {
         GarantirEditavel();
+        if (qtdKm is < 0)
+            throw new ArgumentException("A quilometragem não pode ser negativa.", nameof(qtdKm));
+
         IdCliente = idCliente;
         // Nome avulso só faz sentido sem cliente cadastrado.
         NomeClienteAvulso = idCliente.HasValue ? null : NormalizarNome(nomeClienteAvulso);
@@ -119,6 +128,7 @@ public class OrdemServico : EntidadeBase
         VeiculoModelo = NormalizarTexto(veiculoModelo);
         VeiculoAno = NormalizarCodigo(veiculoAno);
         VeiculoPlaca = NormalizarTexto(veiculoPlaca);
+        QtdKm = qtdKm;
         Observacao = string.IsNullOrWhiteSpace(observacao) ? null : observacao.Trim();
         MarcarAtualizada();
     }

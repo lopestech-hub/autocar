@@ -23,7 +23,7 @@ public class OrdemServicoTests
     private static OrdemServico NovaAberta(Guid? mecanico = null) =>
         new(Usuario, idCliente: null, nomeClienteAvulso: "CONSUMIDOR", idMecanico: mecanico,
             veiculoMontadora: null, veiculoModelo: null, veiculoAno: null, veiculoPlaca: null,
-            observacao: null);
+            qtdKm: null, observacao: null);
 
     private static OrdemServicoItem Peca(int qtd, decimal unitario, decimal desconto = 0) =>
         OrdemServicoItem.DePeca(Produto, "PASTILHA DE FREIO", qtd, unitario, desconto);
@@ -222,7 +222,7 @@ public class OrdemServicoTests
         var idCliente = Guid.NewGuid();
 
         os.AlterarCabecalho(idCliente, nomeClienteAvulso: "IGNORADO", idMecanico: null,
-            null, null, null, null, observacao: null);
+            null, null, null, null, qtdKm: null, observacao: null);
 
         Assert.Equal(idCliente, os.IdCliente);
         Assert.Null(os.NomeClienteAvulso);
@@ -234,7 +234,7 @@ public class OrdemServicoTests
         var os = NovaAberta();
         os.AlterarCabecalho(idCliente: null, nomeClienteAvulso: null, idMecanico: null,
             veiculoMontadora: "vw", veiculoModelo: "gol", veiculoAno: "2018", veiculoPlaca: "abc1d23",
-            observacao: null);
+            qtdKm: null, observacao: null);
 
         Assert.Equal("VW", os.VeiculoMontadora);
         Assert.Equal("GOL", os.VeiculoModelo);

@@ -1,0 +1,59 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AutoCar.Desktop.ViewModels.Service"
+             x:Class="AutoCar.Desktop.Views.Service.OrdensServicoView"
+             x:DataType="vm:OrdensServicoViewModel">
+
+    <Grid RowDefinitions="Auto,Auto,*" Margin="16">
+
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,Auto,*,Auto,Auto" Margin="0,0,0,12">
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8"
+                        VerticalAlignment="Center" Margin="0,0,16,0">
+                <TextBlock Text="Ordens de Serviço"
+                           FontSize="14" FontWeight="SemiBold"
+                           Foreground="{DynamicResource BrushTexto}"
+                           VerticalAlignment="Center" />
+                <Border Background="#DBEAFE"
+                        BorderBrush="#3B82F6" BorderThickness="1"
+                        CornerRadius="2" Padding="8,1" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding TextoContador}"
+                               FontSize="11" FontWeight="Medium"
+                               Foreground="#1E40AF" />
+                </Border>
+            </StackPanel>
+
+            <Button Grid.Column="1" Content="+ Nova OS"
+                    Classes="primario"
+                    Command="{Binding NovoCommand}"
+                    Cursor="Hand" />
+
+            <TextBox Grid.Column="3" Width="300"
+                     Watermark="Buscar por cliente, placa ou número"
+                     Text="{Binding Filtro}"
+                     Margin="0,0,8,0" />
+            <Button Grid.Column="4" Content="Buscar"
+                    Classes="secundario"
+                    Command="{Binding BuscarCommand}"
+                    Cursor="Hand" />
+        </Grid>
+
+        <ProgressBar Grid.Row="1" IsIndeterminate="True" Height="2"
+                     IsVisible="{Binding Carregando}" />
+
+        <Border Grid.Row="2"
+                Background="{DynamicResource BrushFundoCard}"
+                BorderBrush="{DynamicResource BrushBorda}"
+                BorderThickness="1"
+                CornerRadius="6"
+                ClipToBounds="True">
+            <Panel Name="TabelaContainer">
+                <TextBlock Text="{Binding MensagemErro}"
+                           IsVisible="{Binding MensagemErro, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                           Foreground="{DynamicResource BrushErro}"
+                           FontSize="11"
+                           HorizontalAlignment="Center" VerticalAlignment="Top"
+                           Margin="0,40,0,0" />
+            </Panel>
+        </Border>
+    </Grid>
+</UserControl>

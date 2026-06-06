@@ -49,7 +49,7 @@ public sealed class OrdemServicoService : IOrdemServicoService
         {
             var os = new OrdemServico(
                 idUsuario, dto.IdCliente, dto.NomeClienteAvulso, dto.IdMecanico,
-                dto.VeiculoMontadora, dto.VeiculoModelo, dto.VeiculoAno, dto.VeiculoPlaca, dto.Observacao);
+                dto.VeiculoMontadora, dto.VeiculoModelo, dto.VeiculoAno, dto.VeiculoPlaca, dto.QtdKm, dto.Observacao);
             os.DefinirItens(MapearItens(dto.Itens));
             os.AplicarDescontoGeral(dto.VlrDesconto);
 
@@ -79,7 +79,7 @@ public sealed class OrdemServicoService : IOrdemServicoService
             await _ordens.AtualizarAsync(id, os =>
             {
                 os.AlterarCabecalho(dto.IdCliente, dto.NomeClienteAvulso, dto.IdMecanico,
-                    dto.VeiculoMontadora, dto.VeiculoModelo, dto.VeiculoAno, dto.VeiculoPlaca, dto.Observacao);
+                    dto.VeiculoMontadora, dto.VeiculoModelo, dto.VeiculoAno, dto.VeiculoPlaca, dto.QtdKm, dto.Observacao);
                 os.DefinirItens(MapearItens(dto.Itens));
                 os.AplicarDescontoGeral(dto.VlrDesconto);
             }, ct);
@@ -106,7 +106,7 @@ public sealed class OrdemServicoService : IOrdemServicoService
     {
         var ordens = await _ordens.ListarAsync(filtro, ct);
         return ordens.Select(o => new OrdemServicoListaDto(
-            o.Id, o.CodOrdemServico, o.Situacao, NomeCliente(o), o.VeiculoPlaca,
+            o.Id, o.CodOrdemServico, o.Situacao, NomeCliente(o), o.VeiculoModelo, o.VeiculoPlaca,
             o.IdMecanico, o.Itens.Count, o.VlrTotal, o.CriadoEm)).ToList();
     }
 
@@ -181,7 +181,7 @@ public sealed class OrdemServicoService : IOrdemServicoService
 
     private static OrdemServicoDto Mapear(OrdemServico o) => new(
         o.Id, o.CodOrdemServico, o.Situacao, o.IdCliente, o.NomeClienteAvulso, o.IdMecanico,
-        o.VeiculoMontadora, o.VeiculoModelo, o.VeiculoAno, o.VeiculoPlaca,
+        o.VeiculoMontadora, o.VeiculoModelo, o.VeiculoAno, o.VeiculoPlaca, o.QtdKm,
         o.SubtotalItens, o.SubtotalPecas, o.SubtotalServicos, o.VlrDesconto, o.VlrTotal, o.Observacao, o.FlgAtivo,
         o.Itens.Select(i => new OrdemServicoItemDetalheDto(
             i.Id, i.Tipo, i.IdProduto, i.IdServico, i.DescricaoItem, i.Qtd, i.VlrUnitario, i.VlrDesconto, i.VlrTotalItem)).ToList());

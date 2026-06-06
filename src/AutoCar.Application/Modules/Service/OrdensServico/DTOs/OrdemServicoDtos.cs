@@ -24,6 +24,7 @@ public sealed record SalvarOrdemServicoDto(
     string? VeiculoModelo,
     string? VeiculoAno,
     string? VeiculoPlaca,
+    int? QtdKm,
     decimal VlrDesconto,
     string? Observacao,
     IReadOnlyList<OrdemServicoItemDto> Itens);
@@ -52,6 +53,7 @@ public sealed record OrdemServicoDto(
     string? VeiculoModelo,
     string? VeiculoAno,
     string? VeiculoPlaca,
+    int? QtdKm,
     decimal SubtotalItens,
     decimal SubtotalPecas,
     decimal SubtotalServicos,
@@ -67,6 +69,7 @@ public sealed record OrdemServicoListaDto(
     int CodOrdemServico,
     SituacaoOrdemServico Situacao,
     string Cliente,
+    string? VeiculoModelo,
     string? VeiculoPlaca,
     Guid? IdMecanico,
     int QtdItens,

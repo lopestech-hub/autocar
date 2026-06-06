@@ -55,6 +55,9 @@ public class OrdemServicoConfiguration : IEntityTypeConfiguration<OrdemServico>
             .HasColumnName("veiculo_placa")
             .HasMaxLength(8);
 
+        builder.Property(o => o.QtdKm)
+            .HasColumnName("qtd_km");
+
         builder.Property(o => o.VlrDesconto)
             .HasColumnName("vlr_desconto")
             .HasColumnType("decimal(10,2)")
