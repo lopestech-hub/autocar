@@ -169,8 +169,8 @@ public partial class ProdutosView : UserControl
 
             Celula(grid, i, 0, produto.CodProduto.ToString(), mono: true);
             Celula(grid, i, 1, produto.Descricao);
-            Celula(grid, i, 2, produto.Categoria ?? "—");
-            Celula(grid, i, 3, produto.Marca ?? "—");
+            Celula(grid, i, 2, produto.Categoria ?? string.Empty);
+            Celula(grid, i, 3, produto.Marca ?? string.Empty);
             Celula(grid, i, 4, produto.Unidade.ToString());
             Celula(grid, i, 5, Converters.PosicaoPecaConverter.Rotular(produto.Posicao));
             Celula(grid, i, 6, produto.VlrVenda.ToString("N2", PtBr), mono: true, alinharDireita: true);

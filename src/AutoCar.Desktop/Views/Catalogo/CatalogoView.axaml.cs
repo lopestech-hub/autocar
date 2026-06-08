@@ -34,7 +34,9 @@ public partial class CatalogoView : UserControl
     private static readonly IBrush CorFundoHeader = new SolidColorBrush(Color.Parse("#F8FAFC"));
     private static readonly IBrush CorTextoHeader = new SolidColorBrush(Color.Parse("#475569"));
     private static readonly IBrush CorTexto = new SolidColorBrush(Color.Parse("#1E293B"));
-    private static readonly IBrush CorTextoSuave = new SolidColorBrush(Color.Parse("#64748B"));
+    // Tom da coluna APLICAÇÃO: slate-700 (#334155). Quase tão legível quanto a descrição (#1E293B),
+    // mantendo só uma leve hierarquia — o operador realmente lê esse texto. Era #64748B (lavado).
+    private static readonly IBrush CorTextoSuave = new SolidColorBrush(Color.Parse("#334155"));
 
     private CatalogoViewModel? _vm;
 
@@ -273,9 +275,9 @@ public partial class CatalogoView : UserControl
 
             Celula(grid, i, 0, item.CodProduto.ToString(), mono: true);
             Celula(grid, i, 1, item.Descricao);
-            Celula(grid, i, 2, string.IsNullOrEmpty(item.Aplicacoes) ? "—" : item.Aplicacoes, suave: true);
+            Celula(grid, i, 2, string.IsNullOrEmpty(item.Aplicacoes) ? string.Empty : item.Aplicacoes, suave: true);
             Celula(grid, i, 3, Converters.PosicaoPecaConverter.Rotular(item.Posicao));
-            Celula(grid, i, 4, string.IsNullOrEmpty(item.CodFabricante) ? "—" : item.CodFabricante!, mono: true);
+            Celula(grid, i, 4, item.CodFabricante ?? string.Empty, mono: true);
             Celula(grid, i, 5, item.Unidade.ToString());
             Celula(grid, i, 6, item.VlrVenda.ToString("N2", PtBr), mono: true, alinharDireita: true);
         }

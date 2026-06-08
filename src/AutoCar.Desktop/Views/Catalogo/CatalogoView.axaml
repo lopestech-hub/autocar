@@ -32,9 +32,11 @@
               Margin="0,0,0,12">
             <TextBlock Grid.Column="0" Classes="formlabel" Text="Montadora" />
             <TextBox Grid.Column="1" Text="{Binding Montadora}"
+                     b:MaiusculoBehavior.Ativo="True"
                      Watermark="VW, FIAT..." Margin="0,0,8,0" />
             <TextBlock Grid.Column="2" Classes="formlabel" Text="Modelo" />
             <TextBox Grid.Column="3" Text="{Binding Modelo}"
+                     b:MaiusculoBehavior.Ativo="True"
                      Watermark="GOL, PALIO..." Margin="0,0,8,0" />
             <TextBlock Grid.Column="4" Classes="formlabel" Text="Ano" />
             <TextBox Grid.Column="5" Text="{Binding AnoTexto}"
@@ -42,7 +44,8 @@
                      MaxLength="4" Watermark="2010" Margin="0,0,8,0" />
             <TextBlock Grid.Column="6" Classes="formlabel" Text="Peça" />
             <TextBox Grid.Column="7" Name="CampoPeca" Text="{Binding Termo}"
-                     Watermark="amortecedor, pastilha..." Margin="0,0,8,0" />
+                     b:MaiusculoBehavior.Ativo="True"
+                     Watermark="AMORTECEDOR, PASTILHA..." Margin="0,0,8,0" />
             <Button Grid.Column="8" Content="Limpar" Classes="secundario"
                     Command="{Binding LimparCommand}" Cursor="Hand" />
         </Grid>
