@@ -22,6 +22,10 @@
         <DataTemplate x:Key="PosicaoTemplate" x:DataType="enums:PosicaoPeca">
             <TextBlock Text="{Binding Converter={x:Static conv:PosicaoPecaConverter.Instancia}}" />
         </DataTemplate>
+        <!-- Combo de lado: rótulo amigável (NaoAplica vira "—"). -->
+        <DataTemplate x:Key="LadoTemplate" x:DataType="enums:LadoPeca">
+            <TextBlock Text="{Binding Converter={x:Static conv:LadoPecaConverter.Instancia}}" />
+        </DataTemplate>
         <!-- Combo de combustível: rótulo amigável (NaoAplica vira "—"). -->
         <DataTemplate x:Key="CombustivelTemplate" x:DataType="enums:Combustivel">
             <TextBlock Text="{Binding Converter={x:Static conv:CombustivelConverter.Instancia}}" />
@@ -132,6 +136,12 @@
                             <ComboBox ItemsSource="{Binding Posicoes}"
                                       SelectedItem="{Binding Posicao}"
                                       ItemTemplate="{StaticResource PosicaoTemplate}"
+                                      IsEnabled="{Binding !ModoVisualizacao}"
+                                      Width="130" />
+                            <TextBlock Classes="formlabel" Text="Lado" />
+                            <ComboBox ItemsSource="{Binding Lados}"
+                                      SelectedItem="{Binding Lado}"
+                                      ItemTemplate="{StaticResource LadoTemplate}"
                                       IsEnabled="{Binding !ModoVisualizacao}"
                                       Width="130" />
                         </StackPanel>

@@ -40,7 +40,7 @@ public sealed class ProdutoService : IProdutoService
 
         var produto = new Produto(
             dto.IdCategoria, dto.Descricao, dto.DescricaoComplementar, dto.CodBarras,
-            dto.CodFabricante, dto.Unidade, dto.Posicao, dto.VlrCusto, dto.VlrVenda, dto.IdMarca, dto.IdFornecedor);
+            dto.CodFabricante, dto.Unidade, dto.Posicao, dto.Lado, dto.VlrCusto, dto.VlrVenda, dto.IdMarca, dto.IdFornecedor);
         produto.DefinirAplicacoes(MapearAplicacoes(dto.Aplicacoes));
 
         await _produtos.AdicionarAsync(produto, ct);
@@ -63,7 +63,7 @@ public sealed class ProdutoService : IProdutoService
         {
             produto.AlterarDados(
                 dto.IdCategoria, dto.Descricao, dto.DescricaoComplementar, dto.CodBarras,
-                dto.CodFabricante, dto.Unidade, dto.Posicao, dto.VlrCusto, dto.VlrVenda, dto.IdMarca, dto.IdFornecedor);
+                dto.CodFabricante, dto.Unidade, dto.Posicao, dto.Lado, dto.VlrCusto, dto.VlrVenda, dto.IdMarca, dto.IdFornecedor);
             produto.DefinirAplicacoes(MapearAplicacoes(dto.Aplicacoes));
         }, ct);
 
@@ -86,7 +86,7 @@ public sealed class ProdutoService : IProdutoService
         var produtos = await _produtos.ListarAsync(filtro, ct);
         return produtos.Select(p => new ProdutoListaDto(
             p.Id, p.CodProduto, p.Descricao, p.CodBarras,
-            p.Categoria?.Descricao, p.Marca?.Descricao, p.Unidade, p.Posicao, p.VlrVenda, p.FlgAtivo)).ToList();
+            p.Categoria?.Descricao, p.Marca?.Descricao, p.Unidade, p.Posicao, p.Lado, p.VlrVenda, p.FlgAtivo)).ToList();
     }
 
     public async Task<Result<ProdutoDto>> ObterPorIdAsync(Guid id, CancellationToken ct = default)
@@ -122,7 +122,7 @@ public sealed class ProdutoService : IProdutoService
 
         return produtos.Select(p => new CatalogoItemDto(
             p.Id, p.CodProduto, p.Descricao, p.Categoria?.Descricao, p.Marca?.Descricao,
-            p.Unidade, p.Posicao, p.CodFabricante, p.VlrVenda, ResumirAplicacoes(p))).ToList();
+            p.Unidade, p.Posicao, p.Lado, p.CodFabricante, p.VlrVenda, ResumirAplicacoes(p))).ToList();
     }
 
     public Task<IReadOnlyList<string>> ListarMontadorasAsync(CancellationToken ct = default) =>
@@ -173,7 +173,7 @@ public sealed class ProdutoService : IProdutoService
 
     private static ProdutoDto Mapear(Produto p) => new(
         p.Id, p.CodProduto, p.IdCategoria, p.Descricao, p.DescricaoComplementar, p.CodBarras,
-        p.CodFabricante, p.Unidade, p.Posicao, p.VlrCusto, p.VlrVenda, p.IdMarca, p.IdFornecedor, p.FlgAtivo,
+        p.CodFabricante, p.Unidade, p.Posicao, p.Lado, p.VlrCusto, p.VlrVenda, p.IdMarca, p.IdFornecedor, p.FlgAtivo,
         p.Aplicacoes.Select(a => new AplicacaoDto(
             a.Montadora, a.Modelo, a.AnoInicio, a.AnoFim, a.Motorizacao, a.Combustivel, a.Observacao)).ToList());
 }

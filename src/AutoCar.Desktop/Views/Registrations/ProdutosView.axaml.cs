@@ -18,9 +18,9 @@ namespace AutoCar.Desktop.Views.Registrations;
 /// </summary>
 public partial class ProdutosView : UserControl
 {
-    // CÓDIGO · DESCRIÇÃO · CATEGORIA · MARCA · UN · POSIÇÃO · VENDA · STATUS
-    private const string ColDefs = "80,*,140,130,50,90,90,90";
-    private static readonly string[] Headers = { "CÓDIGO", "DESCRIÇÃO", "CATEGORIA", "MARCA", "UN", "POSIÇÃO", "VENDA", "STATUS" };
+    // CÓDIGO · DESCRIÇÃO · CATEGORIA · MARCA · UN · POSIÇÃO · LADO · VENDA · STATUS
+    private const string ColDefs = "80,*,140,130,50,90,90,90,90";
+    private static readonly string[] Headers = { "CÓDIGO", "DESCRIÇÃO", "CATEGORIA", "MARCA", "UN", "POSIÇÃO", "LADO", "VENDA", "STATUS" };
 
     private static readonly CultureInfo PtBr = new("pt-BR");
 
@@ -173,8 +173,9 @@ public partial class ProdutosView : UserControl
             Celula(grid, i, 3, produto.Marca ?? string.Empty);
             Celula(grid, i, 4, produto.Unidade.ToString());
             Celula(grid, i, 5, Converters.PosicaoPecaConverter.Rotular(produto.Posicao));
-            Celula(grid, i, 6, produto.VlrVenda.ToString("N2", PtBr), mono: true, alinharDireita: true);
-            BadgeStatus(grid, i, 7, produto.FlgAtivo);
+            Celula(grid, i, 6, Converters.LadoPecaConverter.Rotular(produto.Lado));
+            Celula(grid, i, 7, produto.VlrVenda.ToString("N2", PtBr), mono: true, alinharDireita: true);
+            BadgeStatus(grid, i, 8, produto.FlgAtivo);
         }
 
         return new ScrollViewer

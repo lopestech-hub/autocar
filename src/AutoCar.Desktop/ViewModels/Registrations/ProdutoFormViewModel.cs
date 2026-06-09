@@ -41,6 +41,9 @@ public partial class ProdutoFormViewModel : ViewModelBase
     /// <summary>Posições/eixo disponíveis (combo). NaoAplica é o padrão (peça sem eixo).</summary>
     public IReadOnlyList<PosicaoPeca> Posicoes { get; } = Enum.GetValues<PosicaoPeca>();
 
+    /// <summary>Lados disponíveis (combo). NaoAplica é o padrão (peça sem distinção de lado).</summary>
+    public IReadOnlyList<LadoPeca> Lados { get; } = Enum.GetValues<LadoPeca>();
+
     /// <summary>Categorias para o combo (obrigatório). Carregadas ao abrir o form.</summary>
     public ObservableCollection<OpcaoDto> Categorias { get; } = new();
 
@@ -59,6 +62,7 @@ public partial class ProdutoFormViewModel : ViewModelBase
     [ObservableProperty] private string? _codFabricante;
     [ObservableProperty] private UnidadeMedida _unidade = UnidadeMedida.UN;
     [ObservableProperty] private PosicaoPeca _posicao = PosicaoPeca.NaoAplica;
+    [ObservableProperty] private LadoPeca _lado = LadoPeca.NaoAplica;
     [ObservableProperty] private decimal _vlrCusto;
     [ObservableProperty] private decimal _vlrVenda;
     [ObservableProperty] private OpcaoDto? _categoriaSelecionada;
@@ -119,6 +123,7 @@ public partial class ProdutoFormViewModel : ViewModelBase
         DescricaoComplementar = CodBarras = CodFabricante = null;
         Unidade = UnidadeMedida.UN;
         Posicao = PosicaoPeca.NaoAplica;
+        Lado = LadoPeca.NaoAplica;
         VlrCusto = VlrVenda = 0;
         CategoriaSelecionada = null;
         MarcaSelecionada = null;
@@ -153,6 +158,7 @@ public partial class ProdutoFormViewModel : ViewModelBase
             CodFabricante = p.CodFabricante;
             Unidade = p.Unidade;
             Posicao = p.Posicao;
+            Lado = p.Lado;
             VlrCusto = p.VlrCusto;
             VlrVenda = p.VlrVenda;
 
@@ -205,7 +211,7 @@ public partial class ProdutoFormViewModel : ViewModelBase
 
             var dto = new SalvarProdutoDto(
                 CategoriaSelecionada.Id, Descricao, DescricaoComplementar, CodBarras,
-                CodFabricante, Unidade, Posicao, VlrCusto, VlrVenda,
+                CodFabricante, Unidade, Posicao, Lado, VlrCusto, VlrVenda,
                 MarcaSelecionada?.Id, FornecedorSelecionado?.Id, aplicacoes);
 
             var resultado = _id is null

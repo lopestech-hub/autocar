@@ -174,7 +174,7 @@ public class DbInitializer
     {
         var produto = new Produto(
             categoria.Id, descricao, descricaoComplementar: null, codBarras: null,
-            codFabricante: null, UnidadeMedida.UN, posicao, custo, venda, marca.Id, idFornecedor: null);
+            codFabricante: null, UnidadeMedida.UN, posicao, LadoPeca.NaoAplica, custo, venda, marca.Id, idFornecedor: null);
 
         // Seed mantém motorização/combustível neutros (NaoAplica) — a observação do seed já cobre
         // os detalhes de motor onde existem ("1.0/1.6", "1.0 Fire").

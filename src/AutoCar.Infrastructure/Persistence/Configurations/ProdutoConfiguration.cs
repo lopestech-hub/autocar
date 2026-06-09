@@ -52,6 +52,12 @@ public class ProdutoConfiguration : IEntityTypeConfiguration<Produto>
             .HasDefaultValue(Domain.Enums.PosicaoPeca.NaoAplica)
             .IsRequired();
 
+        builder.Property(p => p.Lado)
+            .HasColumnName("sts_lado")
+            .HasConversion<int>()
+            .HasDefaultValue(Domain.Enums.LadoPeca.NaoAplica)
+            .IsRequired();
+
         builder.Property(p => p.VlrCusto)
             .HasColumnName("vlr_custo")
             .HasColumnType("decimal(10,2)")

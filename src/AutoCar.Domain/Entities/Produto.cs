@@ -22,6 +22,7 @@ public class Produto : EntidadeBase
         string? codFabricante,
         UnidadeMedida unidade,
         PosicaoPeca posicao,
+        LadoPeca lado,
         decimal vlrCusto,
         decimal vlrVenda,
         Guid? idMarca,
@@ -34,6 +35,7 @@ public class Produto : EntidadeBase
         CodFabricante = NormalizarCodigo(codFabricante);
         Unidade = unidade;
         Posicao = posicao;
+        Lado = lado;
         VlrCusto = vlrCusto;
         VlrVenda = vlrVenda;
         IdMarca = idMarca;
@@ -58,6 +60,9 @@ public class Produto : EntidadeBase
 
     /// <summary>Posição/eixo da peça (dianteira/traseira). NaoAplica para peças sem distinção.</summary>
     public PosicaoPeca Posicao { get; protected set; }
+
+    /// <summary>Lado da peça (esquerdo/direito). NaoAplica para peças sem distinção de lado.</summary>
+    public LadoPeca Lado { get; protected set; }
 
     public decimal VlrCusto { get; protected set; }
 
@@ -96,6 +101,7 @@ public class Produto : EntidadeBase
         string? codFabricante,
         UnidadeMedida unidade,
         PosicaoPeca posicao,
+        LadoPeca lado,
         decimal vlrCusto,
         decimal vlrVenda,
         Guid? idMarca,
@@ -108,6 +114,7 @@ public class Produto : EntidadeBase
         CodFabricante = NormalizarCodigo(codFabricante);
         Unidade = unidade;
         Posicao = posicao;
+        Lado = lado;
         VlrCusto = vlrCusto;
         VlrVenda = vlrVenda;
         IdMarca = idMarca;

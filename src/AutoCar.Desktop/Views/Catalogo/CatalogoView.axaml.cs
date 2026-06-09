@@ -18,9 +18,9 @@ namespace AutoCar.Desktop.Views.Catalogo;
 /// </summary>
 public partial class CatalogoView : UserControl
 {
-    // CÓDIGO · DESCRIÇÃO · APLICAÇÃO (veículos) · POSIÇÃO · COD.FABRIC · UN · VENDA
-    private const string ColDefs = "80,*,2*,90,120,50,90";
-    private static readonly string[] Headers = { "CÓDIGO", "DESCRIÇÃO", "APLICAÇÃO", "POSIÇÃO", "COD.FABRIC", "UN", "VENDA" };
+    // CÓDIGO · DESCRIÇÃO · APLICAÇÃO (veículos) · POSIÇÃO · LADO · COD.FABRIC · UN · VENDA
+    private const string ColDefs = "80,*,2*,90,90,120,50,90";
+    private static readonly string[] Headers = { "CÓDIGO", "DESCRIÇÃO", "APLICAÇÃO", "POSIÇÃO", "LADO", "COD.FABRIC", "UN", "VENDA" };
 
     private static readonly CultureInfo PtBr = new("pt-BR");
 
@@ -277,9 +277,10 @@ public partial class CatalogoView : UserControl
             Celula(grid, i, 1, item.Descricao);
             Celula(grid, i, 2, string.IsNullOrEmpty(item.Aplicacoes) ? string.Empty : item.Aplicacoes, suave: true);
             Celula(grid, i, 3, Converters.PosicaoPecaConverter.Rotular(item.Posicao));
-            Celula(grid, i, 4, item.CodFabricante ?? string.Empty, mono: true);
-            Celula(grid, i, 5, item.Unidade.ToString());
-            Celula(grid, i, 6, item.VlrVenda.ToString("N2", PtBr), mono: true, alinharDireita: true);
+            Celula(grid, i, 4, Converters.LadoPecaConverter.Rotular(item.Lado));
+            Celula(grid, i, 5, item.CodFabricante ?? string.Empty, mono: true);
+            Celula(grid, i, 6, item.Unidade.ToString());
+            Celula(grid, i, 7, item.VlrVenda.ToString("N2", PtBr), mono: true, alinharDireita: true);
         }
 
         return new ScrollViewer

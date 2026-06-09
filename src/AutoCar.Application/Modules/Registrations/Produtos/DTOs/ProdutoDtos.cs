@@ -21,6 +21,7 @@ public sealed record SalvarProdutoDto(
     string? CodFabricante,
     UnidadeMedida Unidade,
     PosicaoPeca Posicao,
+    LadoPeca Lado,
     decimal VlrCusto,
     decimal VlrVenda,
     Guid? IdMarca,
@@ -38,6 +39,7 @@ public sealed record ProdutoDto(
     string? CodFabricante,
     UnidadeMedida Unidade,
     PosicaoPeca Posicao,
+    LadoPeca Lado,
     decimal VlrCusto,
     decimal VlrVenda,
     Guid? IdMarca,
@@ -55,6 +57,7 @@ public sealed record ProdutoListaDto(
     string? Marca,
     UnidadeMedida Unidade,
     PosicaoPeca Posicao,
+    LadoPeca Lado,
     decimal VlrVenda,
     bool FlgAtivo);
 
@@ -77,6 +80,7 @@ public sealed record CatalogoItemDto(
     string? Marca,
     UnidadeMedida Unidade,
     PosicaoPeca Posicao,
+    LadoPeca Lado,
     string? CodFabricante,
     decimal VlrVenda,
     string Aplicacoes);
