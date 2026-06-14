@@ -24,6 +24,7 @@ public class ProdutoRepository : IProdutoRepository
             .Include(p => p.Marca)
             .Include(p => p.Fornecedor)
             .Include(p => p.Aplicacoes)
+            .Include(p => p.Similares)
             .FirstOrDefaultAsync(p => p.Id == id, ct);
     }
 
@@ -42,7 +43,9 @@ public class ProdutoRepository : IProdutoRepository
             query = query.Where(p =>
                 EF.Functions.ILike(p.Descricao, $"%{termo}%") ||
                 (p.CodBarras != null && EF.Functions.ILike(p.CodBarras, $"%{termo}%")) ||
-                (p.CodFabricante != null && EF.Functions.ILike(p.CodFabricante, $"%{termo}%")));
+                (p.CodFabricante != null && EF.Functions.ILike(p.CodFabricante, $"%{termo}%")) ||
+                // Espelhamento: acha o produto também pela referência de uma marca equivalente.
+                p.Similares.Any(s => EF.Functions.ILike(s.CodReferencia, $"%{termo}%")));
         }
 
         return await query.OrderBy(p => p.Descricao).ToListAsync(ct);
@@ -52,6 +55,11 @@ public class ProdutoRepository : IProdutoRepository
     {
         await using var db = await _factory.CreateDbContextAsync(ct);
         await db.Produtos.AddAsync(produto, ct);
+
+        // Vínculo automático: equivalências pendentes que apontam para o cod_fabricante deste novo
+        // produto passam a referenciá-lo (a marca equivalente "ganhou vida" no cadastro).
+        await VincularSimilaresPendentesAsync(db, produto, ct);
+
         await db.SaveChangesAsync(ct);
     }
 
@@ -62,21 +70,30 @@ public class ProdutoRepository : IProdutoRepository
         // Carrega rastreado (sem AsNoTracking) para o change tracker detectar as alterações do produto.
         var produto = await db.Produtos
             .Include(p => p.Aplicacoes)
+            .Include(p => p.Similares)
             .FirstOrDefaultAsync(p => p.Id == id, ct)
             ?? throw new InvalidOperationException($"Produto {id} não encontrado para atualização.");
 
-        // Snapshot das aplicações que existiam ANTES da alteração (as rastreadas, vindas do banco).
+        // Snapshot das coleções que existiam ANTES da alteração (as rastreadas, vindas do banco).
         var aplicacoesAntigas = produto.Aplicacoes.ToList();
+        var similaresAntigos = produto.Similares.ToList();
 
-        alterar(produto); // AlterarDados + DefinirAplicacoes (limpa a coleção e adiciona NOVAS instâncias)
+        alterar(produto); // AlterarDados + DefinirAplicacoes + DefinirSimilares (recriam as coleções)
 
-        // O padrão "substitui tudo" recria as aplicações com Id gerado no cliente (Guid.NewGuid no
+        // O padrão "substitui tudo" recria os filhos com Id gerado no cliente (Guid.NewGuid no
         // construtor). O change tracker, ao ver Id preenchido, infere ESTADO ERRADO (Modified → UPDATE
-        // numa linha inexistente → "0 rows affected"). Forçar explicitamente: remover as antigas,
-        // inserir as novas como Added.
+        // numa linha inexistente → "0 rows affected"). Forçar explicitamente: remover os antigos,
+        // inserir os novos como Added. Mesmo tratamento para aplicações e equivalências.
         db.RemoveRange(aplicacoesAntigas);
         foreach (var nova in produto.Aplicacoes)
             db.Entry(nova).State = EntityState.Added;
+
+        db.RemoveRange(similaresAntigos);
+        foreach (var novo in produto.Similares)
+            db.Entry(novo).State = EntityState.Added;
+
+        // O cod_fabricante pode ter mudado na edição — revincula equivalências pendentes a este produto.
+        await VincularSimilaresPendentesAsync(db, produto, ct);
 
         await db.SaveChangesAsync(ct);
     }
@@ -98,16 +115,19 @@ public class ProdutoRepository : IProdutoRepository
             .Include(p => p.Categoria)
             .Include(p => p.Marca)
             .Include(p => p.Aplicacoes)
+            .Include(p => p.Similares)
             .Where(p => p.FlgAtivo);
 
-        // Termo casa com descrição, código de barras ou código de fabricante.
+        // Termo casa com descrição, código de barras, código de fabricante OU a referência de uma
+        // marca equivalente (espelhamento: pedir "NAKATA 12345" acha a Cofap que aponta para ela).
         if (!string.IsNullOrWhiteSpace(termo))
         {
             var t = termo.Trim();
             query = query.Where(p =>
                 EF.Functions.ILike(p.Descricao, $"%{t}%") ||
                 (p.CodBarras != null && EF.Functions.ILike(p.CodBarras, $"%{t}%")) ||
-                (p.CodFabricante != null && EF.Functions.ILike(p.CodFabricante, $"%{t}%")));
+                (p.CodFabricante != null && EF.Functions.ILike(p.CodFabricante, $"%{t}%")) ||
+                p.Similares.Any(s => EF.Functions.ILike(s.CodReferencia, $"%{t}%")));
         }
 
         // Filtros de veículo: o produto precisa ter PELO MENOS UMA aplicação que case com todos
@@ -146,6 +166,28 @@ public class ProdutoRepository : IProdutoRepository
             .Distinct()
             .OrderBy(m => m)
             .ToListAsync(ct);
+    }
+
+    // Vínculo automático por referência: quando um produto é salvo, as equivalências PENDENTES
+    // (id_produto_equivalente IS NULL) de OUTROS produtos cujo cod_referencia casa com o
+    // cod_fabricante deste produto passam a apontar para ele. Roda no mesmo contexto/transação do
+    // save, garantindo atomicidade. Só age quando o produto tem cod_fabricante informado.
+    private static async Task VincularSimilaresPendentesAsync(AppDbContext db, Produto produto, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(produto.CodFabricante))
+            return;
+
+        // A referência é gravada normalizada (Trim + CAIXA ALTA); compara no mesmo formato.
+        var referencia = produto.CodFabricante.Trim().ToUpperInvariant();
+
+        var pendentes = await db.Set<ProdutoSimilar>()
+            .Where(s => s.IdProdutoEquivalente == null
+                        && s.IdProduto != produto.Id
+                        && s.CodReferencia == referencia)
+            .ToListAsync(ct);
+
+        foreach (var similar in pendentes)
+            similar.VincularProduto(produto.Id);
     }
 
     public async Task<IReadOnlyList<string>> ListarModelosAsync(string? montadora, CancellationToken ct = default)

@@ -267,6 +267,17 @@ global `/design-engineer-desktop`):
   (`Border.formsecaoLinha`) que preenche a largura ao lado. Dois jeitos de montar conforme o layout:
   `DockPanel` (Grid único — Cliente/Fornecedor) ou `Grid Auto,*` (blocos — Produto). Detalhes e a
   variante "formulário em blocos de seção" no `system.md` da Luna.
+- **Abas (tabs) em formulários densos:** quando o form tem muitas seções ou mini-grids/listas filhas,
+  organizar em **abas** em vez de empilhar tudo num scroll (empilhar corta a última seção no rodapé).
+  Forms simples (poucos campos) ficam diretos, sem abas. Mecânica: VM com `AbaAtual` (string) +
+  booleanos derivados (`AbaXAtiva`, com `[NotifyPropertyChangedFor]`) + comando `SelecionarAba`;
+  View com barra de `Button Classes="aba" Classes.ativo="{Binding AbaXAtiva}"` (sublinhado azul na
+  ativa) e painéis irmãos com `IsVisible`. Estilo `Button.aba` no `Tema.axaml` (Foreground fixado no
+  `/template/ ContentPresenter` em todos os estados — gotcha FluentTheme). **Referência:** `ProdutoFormView`
+  (Dados / Aplicações / Equivalências), com badge de contagem nas abas de mini-grid.
+- **Botão remover de linha (mini-grids):** `Button Classes="remover"` (no `Tema.axaml`) — ícone de
+  lixeira (`fa-solid fa-trash`) vermelho, sem borda/fundo, hover com fundo vermelho-claro. Usado nas
+  linhas de Aplicações e Equivalências.
 
 ## Catálogo (consulta peça → veículo)
 

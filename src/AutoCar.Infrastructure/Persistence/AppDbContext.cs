@@ -27,6 +27,8 @@ public class AppDbContext : DbContext
 
     public DbSet<ProdutoAplicacao> ProdutoAplicacoes => Set<ProdutoAplicacao>();
 
+    public DbSet<ProdutoSimilar> ProdutoSimilares => Set<ProdutoSimilar>();
+
     public DbSet<PreVenda> PreVendas => Set<PreVenda>();
 
     public DbSet<PreVendaItem> PreVendaItens => Set<PreVendaItem>();

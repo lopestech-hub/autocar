@@ -42,6 +42,7 @@ public sealed class ProdutoService : IProdutoService
             dto.IdCategoria, dto.Descricao, dto.DescricaoComplementar, dto.CodBarras,
             dto.CodFabricante, dto.Unidade, dto.Posicao, dto.Lado, dto.VlrCusto, dto.VlrVenda, dto.IdMarca, dto.IdFornecedor);
         produto.DefinirAplicacoes(MapearAplicacoes(dto.Aplicacoes));
+        produto.DefinirSimilares(MapearSimilares(dto.Similares));
 
         await _produtos.AdicionarAsync(produto, ct);
 
@@ -65,6 +66,7 @@ public sealed class ProdutoService : IProdutoService
                 dto.IdCategoria, dto.Descricao, dto.DescricaoComplementar, dto.CodBarras,
                 dto.CodFabricante, dto.Unidade, dto.Posicao, dto.Lado, dto.VlrCusto, dto.VlrVenda, dto.IdMarca, dto.IdFornecedor);
             produto.DefinirAplicacoes(MapearAplicacoes(dto.Aplicacoes));
+            produto.DefinirSimilares(MapearSimilares(dto.Similares));
         }, ct);
 
         var atualizado = await _produtos.ObterPorIdAsync(id, ct);
@@ -122,7 +124,8 @@ public sealed class ProdutoService : IProdutoService
 
         return produtos.Select(p => new CatalogoItemDto(
             p.Id, p.CodProduto, p.Descricao, p.Categoria?.Descricao, p.Marca?.Descricao,
-            p.Unidade, p.Posicao, p.Lado, p.CodFabricante, p.VlrVenda, ResumirAplicacoes(p))).ToList();
+            p.Unidade, p.Posicao, p.Lado, p.CodFabricante, p.VlrVenda,
+            ResumirAplicacoes(p), ResumirSimilares(p))).ToList();
     }
 
     public Task<IReadOnlyList<string>> ListarMontadorasAsync(CancellationToken ct = default) =>
@@ -171,9 +174,22 @@ public sealed class ProdutoService : IProdutoService
             .Select(a => new ProdutoAplicacao(
                 a.Montadora, a.Modelo, a.AnoInicio, a.AnoFim, a.Motorizacao, a.Combustivel, a.Observacao));
 
+    // Converte os DTOs de equivalência em entidades. Exige marca E referência (linha sem os dois é
+    // descartada — uma equivalência sem referência não cruza com nada).
+    private static IEnumerable<ProdutoSimilar> MapearSimilares(IReadOnlyList<SimilarDto> similares) =>
+        similares
+            .Where(s => !string.IsNullOrWhiteSpace(s.Marca) && !string.IsNullOrWhiteSpace(s.CodReferencia))
+            .Select(s => new ProdutoSimilar(s.Marca, s.CodReferencia, s.IdProdutoEquivalente, s.Observacao));
+
+    // Resume as equivalências numa linha legível: "NAKATA 12345; MONROE 67890".
+    private static string ResumirSimilares(Produto p) =>
+        string.Join("; ", p.Similares.Select(s => $"{s.Marca} {s.CodReferencia}"));
+
     private static ProdutoDto Mapear(Produto p) => new(
         p.Id, p.CodProduto, p.IdCategoria, p.Descricao, p.DescricaoComplementar, p.CodBarras,
         p.CodFabricante, p.Unidade, p.Posicao, p.Lado, p.VlrCusto, p.VlrVenda, p.IdMarca, p.IdFornecedor, p.FlgAtivo,
         p.Aplicacoes.Select(a => new AplicacaoDto(
-            a.Montadora, a.Modelo, a.AnoInicio, a.AnoFim, a.Motorizacao, a.Combustivel, a.Observacao)).ToList());
+            a.Montadora, a.Modelo, a.AnoInicio, a.AnoFim, a.Motorizacao, a.Combustivel, a.Observacao)).ToList(),
+        p.Similares.Select(s => new SimilarDto(
+            s.Marca, s.CodReferencia, s.IdProdutoEquivalente, s.Observacao)).ToList());
 }

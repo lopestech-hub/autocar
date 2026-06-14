@@ -12,6 +12,14 @@ public sealed record AplicacaoDto(
     Combustivel Combustivel,
     string? Observacao);
 
+/// <summary>Equivalência (cross-reference) com a peça de outra marca. <see cref="IdProdutoEquivalente"/>
+/// é preenchido quando essa marca já é um produto do cadastro (vínculo automático por referência).</summary>
+public sealed record SimilarDto(
+    string Marca,
+    string CodReferencia,
+    Guid? IdProdutoEquivalente,
+    string? Observacao);
+
 /// <summary>Dados de entrada para criar/atualizar um produto (vindo da tela).</summary>
 public sealed record SalvarProdutoDto(
     Guid IdCategoria,
@@ -26,7 +34,8 @@ public sealed record SalvarProdutoDto(
     decimal VlrVenda,
     Guid? IdMarca,
     Guid? IdFornecedor,
-    IReadOnlyList<AplicacaoDto> Aplicacoes);
+    IReadOnlyList<AplicacaoDto> Aplicacoes,
+    IReadOnlyList<SimilarDto> Similares);
 
 /// <summary>Produto completo para o formulário (visualização/edição).</summary>
 public sealed record ProdutoDto(
@@ -45,7 +54,8 @@ public sealed record ProdutoDto(
     Guid? IdMarca,
     Guid? IdFornecedor,
     bool FlgAtivo,
-    IReadOnlyList<AplicacaoDto> Aplicacoes);
+    IReadOnlyList<AplicacaoDto> Aplicacoes,
+    IReadOnlyList<SimilarDto> Similares);
 
 /// <summary>Linha enxuta para a listagem de produtos (com nomes das FKs já resolvidos).</summary>
 public sealed record ProdutoListaDto(
@@ -83,4 +93,5 @@ public sealed record CatalogoItemDto(
     LadoPeca Lado,
     string? CodFabricante,
     decimal VlrVenda,
-    string Aplicacoes);
+    string Aplicacoes,
+    string Similares);

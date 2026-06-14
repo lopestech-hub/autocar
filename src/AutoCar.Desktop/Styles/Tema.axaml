@@ -357,6 +357,74 @@
         <Setter Property="Opacity" Value="1" />
     </Style>
 
+    <!-- Aba de formulário (barra de abas tipo Dados/Aplicações/Equivalências).
+         Fundo transparente; texto secundário quando inativa, primário + negrito quando ativa.
+         O sublinhado azul da aba ativa é um Border no AXAML (IsVisible pela classe ativa). Estados
+         tratados via /template/ ContentPresenter para não cair no flicker do FluentTheme. -->
+    <Style Selector="Button.aba">
+        <Setter Property="Height" Value="30" />
+        <Setter Property="MinHeight" Value="30" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontFamily" Value="{DynamicResource FonteInterface}" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushTextoSecundario}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="0" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <!-- GOTCHA FluentTheme: nos estados (pointerover/pressed) o tema sobrescreve o Foreground do
+         ContentPresenter e "apaga" o texto. Fixar Foreground = secundário no ContentPresenter em
+         TODOS os estados (a aba ativa reescreve para primário abaixo). -->
+    <Style Selector="Button.aba /template/ ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushTextoSecundario}" />
+    </Style>
+    <Style Selector="Button.aba:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource BrushFundoHover}" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushTextoSecundario}" />
+    </Style>
+    <Style Selector="Button.aba:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource BrushFundoHover}" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushTextoSecundario}" />
+    </Style>
+    <!-- Aba ativa: texto primário em destaque, fixado também no ContentPresenter (todos os estados). -->
+    <Style Selector="Button.aba.ativo">
+        <Setter Property="Foreground" Value="{DynamicResource BrushPrimario}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="Button.aba.ativo /template/ ContentPresenter">
+        <Setter Property="Foreground" Value="{DynamicResource BrushPrimario}" />
+    </Style>
+    <Style Selector="Button.aba.ativo:pointerover /template/ ContentPresenter">
+        <Setter Property="Foreground" Value="{DynamicResource BrushPrimario}" />
+    </Style>
+
+    <!-- Botão remover linha (✕/lixeira nos mini-grids de Aplicações/Equivalências).
+         Sem borda nem fundo; ícone em vermelho discreto, realçado no hover. -->
+    <Style Selector="Button.remover">
+        <Setter Property="Width" Value="28" />
+        <Setter Property="Height" Value="24" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="2" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushErro}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button.remover /template/ ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushErro}" />
+    </Style>
+    <!-- Hover: leve fundo vermelho-claro para confirmar a ação destrutiva. -->
+    <Style Selector="Button.remover:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="#FEE2E2" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushErro}" />
+    </Style>
+
     <!-- Botão primário (26px) -->
     <Style Selector="Button.primario">
         <Setter Property="Height" Value="26" />

@@ -91,6 +91,13 @@ public class Produto : EntidadeBase
     /// alterar via <see cref="DefinirAplicacoes"/>.</summary>
     public IReadOnlyList<ProdutoAplicacao> Aplicacoes => _aplicacoes;
 
+    // Equivalências/cruzamento com peças de outras marcas (1:N). Backing field somente leitura.
+    private readonly List<ProdutoSimilar> _similares = new();
+
+    /// <summary>Equivalências (cross-reference) com peças de outras marcas. Somente leitura;
+    /// alterar via <see cref="DefinirSimilares"/>.</summary>
+    public IReadOnlyList<ProdutoSimilar> Similares => _similares;
+
     public bool FlgAtivo { get; protected set; }
 
     public void AlterarDados(
@@ -128,6 +135,15 @@ public class Produto : EntidadeBase
     {
         _aplicacoes.Clear();
         _aplicacoes.AddRange(aplicacoes);
+        MarcarAtualizada();
+    }
+
+    /// <summary>Substitui todas as equivalências (mesmo padrão "salva junto" das aplicações — o
+    /// form envia a lista completa a cada gravação).</summary>
+    public void DefinirSimilares(IEnumerable<ProdutoSimilar> similares)
+    {
+        _similares.Clear();
+        _similares.AddRange(similares);
         MarcarAtualizada();
     }
 

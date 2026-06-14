@@ -56,6 +56,9 @@ public partial class ProdutoFormViewModel : ViewModelBase
     /// <summary>Aplicações por veículo (mini-grid editável). Salvas junto com o produto.</summary>
     public ObservableCollection<AplicacaoItemViewModel> Aplicacoes { get; } = new();
 
+    /// <summary>Equivalências/cross-reference (mini-grid editável). Salvas junto com o produto.</summary>
+    public ObservableCollection<SimilarItemViewModel> Similares { get; } = new();
+
     [ObservableProperty] private string _descricao = string.Empty;
     [ObservableProperty] private string? _descricaoComplementar;
     [ObservableProperty] private string? _codBarras;
@@ -72,6 +75,23 @@ public partial class ProdutoFormViewModel : ViewModelBase
     [ObservableProperty] private bool _modoVisualizacao = true;
     [ObservableProperty] private bool _carregando;
     [ObservableProperty] private string? _mensagemErro;
+
+    // Aba ativa do formulário. Em vez de empilhar todas as seções (que cortavam no rodapé), o
+    // cadastro é dividido em 3 abas: "dados" (identificação + classificação + valores),
+    // "aplicacoes" (mini-grid de veículos) e "similares" (cross-reference). Padrão de abas
+    // inspirado na tela de Importação do WMS; cores/estilo são os do AutoCar (classe Button.aba).
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(AbaDadosAtiva))]
+    [NotifyPropertyChangedFor(nameof(AbaAplicacoesAtiva))]
+    [NotifyPropertyChangedFor(nameof(AbaSimilaresAtiva))]
+    private string _abaAtual = "dados";
+
+    public bool AbaDadosAtiva => AbaAtual == "dados";
+    public bool AbaAplicacoesAtiva => AbaAtual == "aplicacoes";
+    public bool AbaSimilaresAtiva => AbaAtual == "similares";
+
+    [RelayCommand]
+    private void SelecionarAba(string aba) => AbaAtual = aba;
 
     /// <summary>Custo como texto editável (TextBox, padrão do projeto). Parse tolerante BR.</summary>
     public string VlrCustoTexto
@@ -129,7 +149,9 @@ public partial class ProdutoFormViewModel : ViewModelBase
         MarcaSelecionada = null;
         FornecedorSelecionado = null;
         Aplicacoes.Clear();
+        Similares.Clear();
         MensagemErro = null;
+        AbaAtual = "dados";
         ModoVisualizacao = false;
         OnPropertyChanged(nameof(Titulo));
     }
@@ -172,6 +194,11 @@ public partial class ProdutoFormViewModel : ViewModelBase
                 Aplicacoes.Add(new AplicacaoItemViewModel(
                     a.Montadora, a.Modelo, a.AnoInicio, a.AnoFim, a.Motorizacao, a.Combustivel, a.Observacao));
 
+            Similares.Clear();
+            foreach (var s in p.Similares)
+                Similares.Add(new SimilarItemViewModel(s.Marca, s.CodReferencia, s.IdProdutoEquivalente, s.Observacao));
+
+            AbaAtual = "dados";
             ModoVisualizacao = true;
             OnPropertyChanged(nameof(Titulo));
         }
@@ -209,10 +236,16 @@ public partial class ProdutoFormViewModel : ViewModelBase
                     a.Montadora, a.Modelo, a.AnoInicio, a.AnoFim, a.Motorizacao, a.Combustivel, a.Observacao))
                 .ToList();
 
+            // Equivalências: descarta linhas incompletas; preserva o vínculo automático já resolvido.
+            var similares = Similares
+                .Where(s => s.TemConteudo)
+                .Select(s => new SimilarDto(s.Marca, s.CodReferencia, s.IdProdutoEquivalente, s.Observacao))
+                .ToList();
+
             var dto = new SalvarProdutoDto(
                 CategoriaSelecionada.Id, Descricao, DescricaoComplementar, CodBarras,
                 CodFabricante, Unidade, Posicao, Lado, VlrCusto, VlrVenda,
-                MarcaSelecionada?.Id, FornecedorSelecionado?.Id, aplicacoes);
+                MarcaSelecionada?.Id, FornecedorSelecionado?.Id, aplicacoes, similares);
 
             var resultado = _id is null
                 ? await _produtos.CriarAsync(dto)
@@ -245,6 +278,16 @@ public partial class ProdutoFormViewModel : ViewModelBase
     {
         if (item is not null)
             Aplicacoes.Remove(item);
+    }
+
+    [RelayCommand]
+    private void AdicionarSimilar() => Similares.Add(new SimilarItemViewModel());
+
+    [RelayCommand]
+    private void RemoverSimilar(SimilarItemViewModel? item)
+    {
+        if (item is not null)
+            Similares.Remove(item);
     }
 
     [RelayCommand]

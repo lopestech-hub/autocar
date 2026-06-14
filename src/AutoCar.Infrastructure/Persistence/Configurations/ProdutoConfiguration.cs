@@ -135,6 +135,16 @@ public class ProdutoConfiguration : IEntityTypeConfiguration<Produto>
         builder.Navigation(p => p.Aplicacoes)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
+        // Equivalências/cruzamento (1:N) — apaga junto com o produto pai (Cascade). Mesma mecânica
+        // da coleção de aplicações: backing field, salva substituindo a lista inteira.
+        builder.HasMany(p => p.Similares)
+            .WithOne()
+            .HasForeignKey(s => s.IdProduto)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(p => p.Similares)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
         // NOTA: o Produto NÃO usa concorrência otimista via xmin (diferente de Cliente/Marca).
         // Com a coleção de aplicações (1:N) carregada via Include, o batch UPDATE+DELETE+INSERT do
         // Npgsql fazia o "UPDATE produto ... WHERE xmin = @p" afetar 0 linhas → DbUpdateConcurrency-

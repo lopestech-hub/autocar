@@ -5,6 +5,7 @@
              xmlns:b="using:AutoCar.Desktop.Behaviors"
              xmlns:conv="using:AutoCar.Desktop.Converters"
              xmlns:enums="using:AutoCar.Domain.Enums"
+             xmlns:i="using:Projektanker.Icons.Avalonia"
              x:Class="AutoCar.Desktop.Views.Registrations.ProdutoFormView"
              x:DataType="vm:ProdutoFormViewModel">
 
@@ -37,7 +38,7 @@
             BorderBrush="{DynamicResource BrushBorda}"
             BorderThickness="1"
             CornerRadius="6">
-        <Grid RowDefinitions="Auto,*,Auto,Auto">
+        <Grid RowDefinitions="Auto,Auto,*,Auto,Auto">
 
             <!-- HEADER -->
             <Border Grid.Row="0"
@@ -60,10 +61,63 @@
                 </StackPanel>
             </Border>
 
+            <!-- BARRA DE ABAS (Dados / Aplicações / Equivalências) -->
+            <Border Grid.Row="1"
+                    BorderBrush="{DynamicResource BrushBorda}"
+                    BorderThickness="0,0,0,1"
+                    Padding="16,0">
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                    <Button Classes="aba" Classes.ativo="{Binding AbaDadosAtiva}"
+                            Command="{Binding SelecionarAbaCommand}" CommandParameter="dados">
+                        <StackPanel>
+                            <TextBlock Text="Dados" Margin="10,7" VerticalAlignment="Center" />
+                            <Border Height="2" Background="{DynamicResource BrushPrimario}"
+                                    IsVisible="{Binding AbaDadosAtiva}" />
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="aba" Classes.ativo="{Binding AbaAplicacoesAtiva}"
+                            Command="{Binding SelecionarAbaCommand}" CommandParameter="aplicacoes">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="6" Margin="10,7">
+                                <TextBlock Text="Aplicações" VerticalAlignment="Center" />
+                                <Border Background="{DynamicResource BrushBordaSuave}" CornerRadius="8"
+                                        Padding="6,0" VerticalAlignment="Center"
+                                        IsVisible="{Binding Aplicacoes.Count}">
+                                    <TextBlock Text="{Binding Aplicacoes.Count}" FontSize="10"
+                                               Foreground="{DynamicResource BrushTextoSecundario}" />
+                                </Border>
+                            </StackPanel>
+                            <Border Height="2" Background="{DynamicResource BrushPrimario}"
+                                    IsVisible="{Binding AbaAplicacoesAtiva}" />
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="aba" Classes.ativo="{Binding AbaSimilaresAtiva}"
+                            Command="{Binding SelecionarAbaCommand}" CommandParameter="similares">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="6" Margin="10,7">
+                                <TextBlock Text="Equivalências" VerticalAlignment="Center" />
+                                <Border Background="{DynamicResource BrushBordaSuave}" CornerRadius="8"
+                                        Padding="6,0" VerticalAlignment="Center"
+                                        IsVisible="{Binding Similares.Count}">
+                                    <TextBlock Text="{Binding Similares.Count}" FontSize="10"
+                                               Foreground="{DynamicResource BrushTextoSecundario}" />
+                                </Border>
+                            </StackPanel>
+                            <Border Height="2" Background="{DynamicResource BrushPrimario}"
+                                    IsVisible="{Binding AbaSimilaresAtiva}" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Border>
+
             <!-- CORPO denso agrupado em seções. Larguras controladas (campos não esticam até a borda):
                  col 0 = label | col 1 = campo principal (380) | col 2 = label | col 3 = campo (200) | col 4 = sobra -->
-            <ScrollViewer Grid.Row="1" Padding="16,12" VerticalScrollBarVisibility="Auto">
+            <ScrollViewer Grid.Row="2" Padding="16,12" VerticalScrollBarVisibility="Auto">
                 <StackPanel Spacing="2" HorizontalAlignment="Left">
+
+                    <!-- ======================= ABA: DADOS ======================= -->
+                    <StackPanel Spacing="2" HorizontalAlignment="Left"
+                                IsVisible="{Binding AbaDadosAtiva}">
 
                     <!-- ===== IDENTIFICAÇÃO ===== -->
                     <Grid ColumnDefinitions="Auto,*" Width="780" HorizontalAlignment="Left" Margin="0,0,0,4">
@@ -108,7 +162,8 @@
                     <Grid RowSpacing="6" ColumnDefinitions="90,380,100,200">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" /><!-- 0: Categoria | Marca -->
-                            <RowDefinition Height="Auto" /><!-- 1: Unidade | Fornecedor -->
+                            <RowDefinition Height="Auto" /><!-- 1: Unidade | Posição | Lado (linha própria) -->
+                            <RowDefinition Height="Auto" /><!-- 2: Fornecedor -->
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Row="0" Grid.Column="0" Classes="formlabel" Text="Categoria" />
@@ -127,26 +182,27 @@
                                   HorizontalAlignment="Left" Width="200" />
 
                         <TextBlock Grid.Row="1" Grid.Column="0" Classes="formlabel" Text="Unidade" />
-                        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                        <StackPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3"
+                                    Orientation="Horizontal" Spacing="8">
                             <ComboBox ItemsSource="{Binding Unidades}"
                                       SelectedItem="{Binding Unidade}"
                                       IsEnabled="{Binding !ModoVisualizacao}"
                                       Width="100" />
-                            <TextBlock Classes="formlabel" Text="Posição" />
+                            <TextBlock Classes="formlabel" Text="Posição" VerticalAlignment="Center" />
                             <ComboBox ItemsSource="{Binding Posicoes}"
                                       SelectedItem="{Binding Posicao}"
                                       ItemTemplate="{StaticResource PosicaoTemplate}"
                                       IsEnabled="{Binding !ModoVisualizacao}"
                                       Width="130" />
-                            <TextBlock Classes="formlabel" Text="Lado" />
+                            <TextBlock Classes="formlabel" Text="Lado" VerticalAlignment="Center" />
                             <ComboBox ItemsSource="{Binding Lados}"
                                       SelectedItem="{Binding Lado}"
                                       ItemTemplate="{StaticResource LadoTemplate}"
                                       IsEnabled="{Binding !ModoVisualizacao}"
                                       Width="130" />
                         </StackPanel>
-                        <TextBlock Grid.Row="1" Grid.Column="2" Classes="formlabel" Text="Fornecedor" />
-                        <ComboBox Grid.Row="1" Grid.Column="3"
+                        <TextBlock Grid.Row="2" Grid.Column="0" Classes="formlabel" Text="Fornecedor" />
+                        <ComboBox Grid.Row="2" Grid.Column="1"
                                   ItemsSource="{Binding Fornecedores}"
                                   SelectedItem="{Binding FornecedorSelecionado}"
                                   ItemTemplate="{StaticResource OpcaoTemplate}"
@@ -182,8 +238,15 @@
                                    VerticalAlignment="Center" />
                     </Grid>
 
+                    </StackPanel>
+                    <!-- ===================== FIM ABA: DADOS ===================== -->
+
+                    <!-- ==================== ABA: APLICAÇÕES ==================== -->
+                    <StackPanel Spacing="2" HorizontalAlignment="Left"
+                                IsVisible="{Binding AbaAplicacoesAtiva}">
+
                     <!-- ===== APLICAÇÕES (veículos em que a peça serve) ===== -->
-                    <Grid ColumnDefinitions="Auto,*,Auto" Width="780" HorizontalAlignment="Left" Margin="0,12,0,4">
+                    <Grid ColumnDefinitions="Auto,*,Auto" Width="780" HorizontalAlignment="Left" Margin="0,0,0,4">
                         <TextBlock Grid.Column="0" Classes="formsecao" Text="APLICAÇÕES" />
                         <Border Grid.Column="1" Classes="formsecaoLinha" />
                         <Button Grid.Column="2" Content="+ Adicionar" Classes="secundario"
@@ -247,13 +310,13 @@
                                              IsEnabled="{Binding $parent[ItemsControl].((vm:ProdutoFormViewModel)DataContext).ModoVisualizacao, Converter={x:Static BoolConverters.Not}}"
                                              b:MaiusculoBehavior.Ativo="True" Margin="0,0,4,0"
                                              Watermark="exceto ar (opcional)" />
-                                    <Button Grid.Column="7" Classes="secundario"
-                                            Width="28" Padding="0"
+                                    <Button Grid.Column="7" Classes="remover"
                                             Command="{Binding $parent[ItemsControl].((vm:ProdutoFormViewModel)DataContext).RemoverAplicacaoCommand}"
                                             CommandParameter="{Binding}"
                                             IsVisible="{Binding $parent[ItemsControl].((vm:ProdutoFormViewModel)DataContext).ModoVisualizacao, Converter={x:Static BoolConverters.Not}}"
-                                            ToolTip.Tip="Remover" Cursor="Hand"
-                                            Content="✕" />
+                                            ToolTip.Tip="Remover">
+                                        <i:Icon Value="fa-solid fa-trash" FontSize="11" />
+                                    </Button>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
@@ -265,7 +328,82 @@
                                Margin="0,2,0,0"
                                IsVisible="{Binding !Aplicacoes.Count}" />
 
-                    <!-- mensagem de erro -->
+                    </StackPanel>
+                    <!-- ================== FIM ABA: APLICAÇÕES ================== -->
+
+                    <!-- =================== ABA: EQUIVALÊNCIAS =================== -->
+                    <StackPanel Spacing="2" HorizontalAlignment="Left"
+                                IsVisible="{Binding AbaSimilaresAtiva}">
+
+                    <!-- ===== EQUIVALÊNCIAS (peças de outras marcas que substituem esta) ===== -->
+                    <Grid ColumnDefinitions="Auto,*,Auto" Width="780" HorizontalAlignment="Left" Margin="0,0,0,4">
+                        <TextBlock Grid.Column="0" Classes="formsecao" Text="EQUIVALÊNCIAS" />
+                        <Border Grid.Column="1" Classes="formsecaoLinha" />
+                        <Button Grid.Column="2" Content="+ Adicionar" Classes="secundario"
+                                Command="{Binding AdicionarSimilarCommand}"
+                                IsVisible="{Binding !ModoVisualizacao}"
+                                Margin="8,0,0,0" Cursor="Hand" />
+                    </Grid>
+
+                    <!-- Cabeçalho das colunas do mini-grid -->
+                    <Grid ColumnDefinitions="160,160,*,90,28" Width="920" HorizontalAlignment="Left"
+                          Margin="0,0,0,2"
+                          IsVisible="{Binding Similares.Count}">
+                        <TextBlock Grid.Column="0" Classes="formsecao" Text="Marca" FontSize="10"
+                                   Foreground="{DynamicResource BrushTextoSecundario}" />
+                        <TextBlock Grid.Column="1" Classes="formsecao" Text="Referência" FontSize="10"
+                                   Foreground="{DynamicResource BrushTextoSecundario}" />
+                        <TextBlock Grid.Column="2" Classes="formsecao" Text="Observação" FontSize="10"
+                                   Foreground="{DynamicResource BrushTextoSecundario}" />
+                        <TextBlock Grid.Column="3" Classes="formsecao" Text="Estoque" FontSize="10"
+                                   Foreground="{DynamicResource BrushTextoSecundario}" />
+                    </Grid>
+
+                    <!-- Linhas editáveis -->
+                    <ItemsControl ItemsSource="{Binding Similares}" Width="920" HorizontalAlignment="Left">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:SimilarItemViewModel">
+                                <Grid ColumnDefinitions="160,160,*,90,28" Margin="0,0,0,4">
+                                    <TextBox Grid.Column="0" Text="{Binding Marca}"
+                                             IsEnabled="{Binding $parent[ItemsControl].((vm:ProdutoFormViewModel)DataContext).ModoVisualizacao, Converter={x:Static BoolConverters.Not}}"
+                                             b:MaiusculoBehavior.Ativo="True" Margin="0,0,4,0"
+                                             Watermark="NAKATA" />
+                                    <TextBox Grid.Column="1" Text="{Binding CodReferencia}"
+                                             IsEnabled="{Binding $parent[ItemsControl].((vm:ProdutoFormViewModel)DataContext).ModoVisualizacao, Converter={x:Static BoolConverters.Not}}"
+                                             b:MaiusculoBehavior.Ativo="True" Margin="0,0,4,0"
+                                             Watermark="12345" />
+                                    <TextBox Grid.Column="2" Text="{Binding Observacao}"
+                                             IsEnabled="{Binding $parent[ItemsControl].((vm:ProdutoFormViewModel)DataContext).ModoVisualizacao, Converter={x:Static BoolConverters.Not}}"
+                                             b:MaiusculoBehavior.Ativo="True" Margin="0,0,4,0"
+                                             Watermark="(opcional)" />
+                                    <!-- Indica se a marca equivalente já é produto da loja (cruza com estoque).
+                                         "Sim" (verde) = vinculado; "—" (mudo) = só referência externa. -->
+                                    <TextBlock Grid.Column="3" VerticalAlignment="Center" Margin="0,0,4,0"
+                                               FontSize="11" FontWeight="Medium"
+                                               Text="{Binding Vinculado, Converter={x:Static conv:VinculoSimilarConverter.Texto}}"
+                                               Foreground="{Binding Vinculado, Converter={x:Static conv:VinculoSimilarConverter.Cor}}" />
+                                    <Button Grid.Column="4" Classes="remover"
+                                            Command="{Binding $parent[ItemsControl].((vm:ProdutoFormViewModel)DataContext).RemoverSimilarCommand}"
+                                            CommandParameter="{Binding}"
+                                            IsVisible="{Binding $parent[ItemsControl].((vm:ProdutoFormViewModel)DataContext).ModoVisualizacao, Converter={x:Static BoolConverters.Not}}"
+                                            ToolTip.Tip="Remover">
+                                        <i:Icon Value="fa-solid fa-trash" FontSize="11" />
+                                    </Button>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- vazio em modo visualização -->
+                    <TextBlock Text="Nenhuma equivalência cadastrada."
+                               FontSize="11" Foreground="{DynamicResource BrushTextoMudo}"
+                               Margin="0,2,0,0"
+                               IsVisible="{Binding !Similares.Count}" />
+
+                    </StackPanel>
+                    <!-- ================= FIM ABA: EQUIVALÊNCIAS ================= -->
+
+                    <!-- mensagem de erro (fora das abas — sempre visível) -->
                     <TextBlock Text="{Binding MensagemErro}"
                                IsVisible="{Binding MensagemErro, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                                Foreground="{DynamicResource BrushErro}" FontSize="11"
@@ -273,11 +411,11 @@
                 </StackPanel>
             </ScrollViewer>
 
-            <ProgressBar Grid.Row="2" IsIndeterminate="True" Height="2"
+            <ProgressBar Grid.Row="3" IsIndeterminate="True" Height="2"
                          IsVisible="{Binding Carregando}" />
 
             <!-- RODAPÉ dois modos -->
-            <Border Grid.Row="3"
+            <Border Grid.Row="4"
                     BorderBrush="{DynamicResource BrushBorda}"
                     BorderThickness="0,1,0,0"
                     Padding="16,12">
