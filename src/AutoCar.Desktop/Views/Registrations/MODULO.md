@@ -184,6 +184,9 @@ estoque NÃO mora aqui** — fica no módulo de Estoque (Fase 3).
 - `sts_unidade` (int — enum `UnidadeMedida`: UN, PC, CX, JG, PAR, KIT, L, KG, M)
 - `sts_posicao` (int — enum `PosicaoPeca`: NaoAplica=0, Dianteira=1, Traseira=2; default 0). Distingue
   peças com versão dianteira/traseira (freio, suspensão). Migration: `PosicaoProduto`.
+- `sts_lado` (int — enum `LadoPeca`: NaoAplica=0, Esquerdo=1, Direito=2; default 0). Dimensão
+  **independente** da posição/eixo — distingue peças com versão esquerda/direita (faróis, coxins,
+  pontas de eixo). Cada lado é um produto separado; é só atributo descritivo/filtro. Migration: `LadoProduto`.
 - `vlr_custo`, `vlr_venda` (decimal 10,2)
 - `id_categoria` (FK **obrigatória** → `categoria_produto`, `Restrict`)
 - `id_marca`, `id_fornecedor` (FKs **opcionais** → `marca`/`fornecedor`, `Restrict`)
@@ -202,8 +205,9 @@ estoque NÃO mora aqui** — fica no módulo de Estoque (Fase 3).
   (`Include` das navegações; filtro `ILike` por descrição/cod_barras/cod_fabricante).
 - **Desktop:** `ProdutosViewModel` (listagem) + `ProdutoFormViewModel` (form em blocos de seção,
   combos de FK selecionados por Id, margem % calculada). `ProdutosView` (Grid único:
-  CÓDIGO · DESCRIÇÃO · CATEGORIA · MARCA · UN · POSIÇÃO · VENDA · STATUS) + `ProdutoFormView`. Rota `produtos`.
-  Posição é combo na seção CLASSIFICAÇÃO (rótulo "—" para NaoAplica) via `PosicaoPecaConverter`.
+  CÓDIGO · DESCRIÇÃO · CATEGORIA · MARCA · UN · POSIÇÃO · LADO · VENDA · STATUS) + `ProdutoFormView`. Rota `produtos`.
+  Posição e Lado são combos lado a lado na seção CLASSIFICAÇÃO (rótulo "—" para NaoAplica) via
+  `PosicaoPecaConverter` e `LadoPecaConverter`.
 
 ### Regras de Negócio
 
@@ -274,9 +278,9 @@ nesse carro?". Consome o módulo Produtos; não tem tabela própria.
   cod_fabricante via `ILike`). O produto entra se tiver **ao menos uma** aplicação que case com todos
   os critérios de veículo informados.
 - **Camadas:** reusa `IProdutoService`/`ProdutoRepository` — `BuscarCatalogoAsync`, `ListarMontadorasAsync`,
-  `ListarModelosAsync`; DTOs `BuscaCatalogoDto`/`CatalogoItemDto` (este traz Posicao + CodFabricante).
+  `ListarModelosAsync`; DTOs `BuscaCatalogoDto`/`CatalogoItemDto` (este traz Posicao + Lado + CodFabricante).
   `CatalogoViewModel` + `CatalogoView` (Grid único:
-  **CÓDIGO·DESCRIÇÃO·APLICAÇÃO·POSIÇÃO·COD.FABRIC·UN·VENDA**). Rota `catalogo`.
+  **CÓDIGO·DESCRIÇÃO·APLICAÇÃO·POSIÇÃO·LADO·COD.FABRIC·UN·VENDA**). Rota `catalogo`.
 - **Dois modos do CatalogoView:** consulta (toolbar) e **seletor** (Pré-venda F2). Em ambos: clique marca
   a linha + régua lateral, setas navegam. Só no seletor o duplo-clique/Enter **adiciona** a peça; na
   consulta não há ação (teclado da consulta no próprio grid; no seletor, na `CatalogoSeletorWindow`).
