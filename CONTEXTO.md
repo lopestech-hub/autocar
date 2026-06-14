@@ -106,10 +106,17 @@ exigido para Concluir), **ciclo** Aberta→EmAndamento→Concluída→Faturada/C
 (`qtd_km`, opcional), 22 testes do agregado; e a **UI completa** (listagem com badge das 5 situações;
 janela maximizada com F2=peça/F3=cliente/F4=serviço/F5=mecânico, todos seletores por janela;
 form com grid peça+serviço, totais por tipo, botões de ciclo; "Cancelar OS" com confirmação).
-**Falta:** 4.4 — faturar a OS baixa estoque das peças (origem `OrdemServico`, transação atômica que
-espelha o `FaturamentoRepository`); 4.5 — gancho (Domain Event) para o Financeiro. Depois o
-**Financeiro** (contas a receber/pagar, caixa, formas de pagamento). Sub-fases: 4.1 ✅ catálogo de
-serviços · 4.1b ✅ mecânico · 4.2 ✅ OS backend · 4.3 ✅ OS UI · 4.4 faturar · 4.5 gancho Financeiro.
+**Faturar a OS concluído (4.4):** ao faturar, cada linha **Peça** gera uma **Saída** no estoque (origem
+`OrdemServico`, "OS nº X") numa **transação atômica única** (`FaturamentoOrdemServicoRepository`, espelha o
+`FaturamentoRepository`); linhas de serviço não tocam estoque; saldo insuficiente bloqueia e dá rollback.
+UI: botão Faturar → `ConfirmacaoWindow` → badge **FATURADA**. **Falta:** 4.5 — gancho (Domain Event) para o
+Financeiro. Depois o **Financeiro** (contas a receber/pagar, caixa, formas de pagamento). Sub-fases: 4.1 ✅
+catálogo de serviços · 4.1b ✅ mecânico · 4.2 ✅ OS backend · 4.3 ✅ OS UI · 4.4 ✅ faturar · 4.5 gancho Financeiro.
+
+**Código e referência da peça nos itens (OS + Pré-venda):** a grade de itens dos dois documentos exibe
+**CÓDIGO** (`cod_produto`) e **REFERÊNCIA** (`cod_fabricante`) de cada peça, na adição (F2) e ao reabrir um
+documento salvo. Enriquecimento por **query batch** (`IProdutoRepository.ObterCodigosPorIdsAsync`, sem N+1);
+serviços não têm código/referência. Itens são snapshot (descrição), então os códigos vêm do produto na leitura.
 
 Admin de teste: usuário **`julio`** / senha `123` (trocar).
 
@@ -139,7 +146,7 @@ Um perfil por usuário. Admin vê tudo.
 - [x] Fase 1 — Setup, auth, menu, perfis
 - [x] Fase 2 — Cadastros base + catálogo
 - [x] Fase 3 — Pré-venda ✅ · Estoque saldo + movimentação + concorrência `xmin` ✅ · Faturar baixa estoque ✅ · Devolução ✅ · entrada por compra ✅
-- [ ] Fase 4 — OS: cat. serviços ✅ · mecânico ✅ · backend ✅ · UI ✅ · faturar baixa estoque (4.4) ⏳ · gancho financeiro (4.5) ⏳ · depois Financeiro (receber/pagar/caixa/formas pgto)
+- [ ] Fase 4 — OS: cat. serviços ✅ · mecânico ✅ · backend ✅ · UI ✅ · faturar baixa estoque (4.4) ✅ · gancho financeiro (4.5) ⏳ · depois Financeiro (receber/pagar/caixa/formas pgto)
 - [ ] Fase 5 — Fiscal estruturado + PDF
 - [ ] Fase 6 — (pós-MVP) SEFAZ, custo médio, multi-depósito, DRE
 - [ ] Fase 7 — Testes, ajustes, implantação
@@ -201,4 +208,6 @@ Um perfil por usuário. Admin vê tudo.
 | 2026-06-02 | Fase 4 **planejada** (Theo Desktop): **Ordem de Serviço** primeiro. Decisões: linha única com discriminador `sts_tipo_item` (Peca/Servico); baixa estoque **ao faturar**; serviço do catálogo + editável; um mecânico por OS (opcional ao abrir, exigido p/ Concluir). Tabelas novas `servico`, `ordem_servico`, `ordem_servico_item`; enums `SituacaoOrdemServico`, `TipoItemOrdemServico` + `OrdemServico` no `OrigemMovimento`. MODULO.md do Service criado. Implementação em sub-fases 4.1→4.5. Financeiro a seguir |
 | 2026-06-03 | Fase 4.1 (`da1db2f`): **catálogo de serviços** (`servico` — mão de obra: descrição + valor padrão, molde Marca/Categoria). 4.2 (`5d1d321`): **OS backend** — agregado `OrdemServico`+`OrdemServicoItem` (factories DePeca/DeServico garantem a invariante "uma FK por tipo"), ciclo Iniciar/Concluir/Cancelar/Faturar, subtotais por tipo, `OrdemServicoRepository` (separou `AtualizarAsync` de `AplicarTransicaoAsync` — transição não refaz o swap da coleção filha), 22 testes |
 | 2026-06-03 | Fase 4.1b (`4da5dcd`): **cadastro de Mecânico** como entidade própria (não usuário — correção de modelo); FK da OS `id_usuario_mecanico`→`id_mecanico` (migration por rename, não-destrutiva) |
+| 2026-06-14 | Fase 4.4 (`edda0ea`): **Faturar a OS baixa estoque das peças** — `FaturamentoOrdemServicoRepository` (transação atômica única, espelha o `FaturamentoRepository`; só linhas Peça dão Saída, origem `OrdemServico`; rollback se faltar saldo). `OrdemServicoService.FaturarAsync` + UI (botão Faturar → `ConfirmacaoWindow` → badge FATURADA, lista recarrega). Validado no banco (OS nº 3 faturada, peça baixou, serviço ignorado) |
+| 2026-06-14 | UI (`edda0ea`): **código e referência da peça nos itens** de OS e Pré-venda — colunas CÓDIGO (`cod_produto`) e REFERÊNCIA (`cod_fabricante`) na grade, na adição (F2) e ao reabrir; enriquecimento por query batch (`IProdutoRepository.ObterCodigosPorIdsAsync`, sem N+1). Polimento: TOTAL e subtotais com borda, títulos do header alinhados ao conteúdo das caixas (header recua 6px = padding 5 + borda 1 do TextBox) |
 | 2026-06-06 | Fase 4.3 (`beee975`): **UI completa da OS** — listagem (badge das 5 situações, coluna VEÍCULO=modelo+placa), janela maximizada (F2/F3/F4/F5 todos seletores por janela), form (grid peça+serviço, totais por tipo, botões de ciclo). Mecânico vira **botão-seletor por janela** (era combo). UX: "Cancelar OS (encerrar)" com confirmação ≠ "Fechar" (evita cancelar por engano). Feature **KM** (`qtd_km`, opcional; migration aditiva). Seletores `ServicoSeletorWindow`/`MecanicoSeletorWindow` (molde do Cliente) |

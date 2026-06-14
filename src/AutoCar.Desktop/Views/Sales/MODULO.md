@@ -39,7 +39,10 @@ Orçamento, OS e Venda. Não baixa estoque ao salvar — o saldo só sai quando 
   `PreVendaFormView`. **F2** abre o catálogo seletor (`AbrirCatalogoCommand`). Fecha ao Salvar/Cancelar.
 - `PreVendaFormView` + `PreVendaFormViewModel` — form dois modos: seções DADOS (cliente opcional +
   veículo livre + vendedor read-only) · ITENS (grid editável) · TOTAIS (subtotal/desconto/TOTAL em faixa).
-- `PreVendaItemViewModel` — linha do grid de itens (qtd/unitário/desconto editáveis; total recalcula).
+- `PreVendaItemViewModel` — linha do grid de itens (**código** + **referência** read-only da peça,
+  qtd/unitário/desconto editáveis; total recalcula). CÓDIGO (`cod_produto`) e REFERÊNCIA (`cod_fabricante`)
+  vêm do produto: na adição via `CatalogoItemDto`; ao reabrir, enriquecidos por `IProdutoRepository.ObterCodigosPorIdsAsync`
+  (1 query batch, sem N+1) no `MapearAsync` do service. Mesmo padrão da OS.
 - `CatalogoSeletorWindow` — janela do catálogo no **F2**, reusa `CatalogoView` em **modo seletor**.
 - `ClienteSeletorWindow` — janela seletora de cliente no **F3** (ou clique no campo Cliente): busca por
   nome ou código, setas, Enter/duplo-clique; botão "Consumidor" = avulso. Cliente é um `Button.seletor`

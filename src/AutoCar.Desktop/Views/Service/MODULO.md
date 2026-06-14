@@ -73,7 +73,10 @@ Tabela mestre auxiliar — ver [Registrations](../Registrations/MODULO.md), seç
   subtotal serviços + subtotal itens + desconto + TOTAL em faixa). Rodapé: ação destrutiva **"Cancelar OS
   (encerrar)"** (vermelha, isolada, com confirmação) ≠ **"Fechar"** (só fecha a janela); botões de ciclo
   Iniciar/Concluir/Faturar/Editar conforme o status.
-- `OrdemServicoItemViewModel` — linha do grid (tipo, descrição, qtd **inteira**, unitário, desconto, total recalcula).
+- `OrdemServicoItemViewModel` — linha do grid (tipo, **código** + **referência** read-only da peça, descrição,
+  qtd **inteira**, unitário, desconto, total recalcula). CÓDIGO (`cod_produto`) e REFERÊNCIA (`cod_fabricante`)
+  vêm do produto: na adição via `CatalogoItemDto`; ao reabrir, enriquecidos por `IProdutoRepository.ObterCodigosPorIdsAsync`
+  (1 query batch, sem N+1) no `MapearAsync` do service. Serviço não tem código/referência (células vazias).
 - `ServicoSeletorWindow` (F4) e `MecanicoSeletorWindow` (F5) — janelas seletoras (molde do `ClienteSeletorWindow`:
   busca por descrição/nome ou código, setas, Enter/duplo-clique seleciona, Esc fecha). O serviço traz `vlr_padrao`
   como snapshot; o seletor de mecânico tem botão **"Sem mecânico"** (limpa). Padrão "Seletor" do system.md.
@@ -97,11 +100,11 @@ Tabela mestre auxiliar — ver [Registrations](../Registrations/MODULO.md), seç
 - **Mecânico:** opcional ao abrir/editar; **obrigatório para Concluir** (não se conclui trabalho sem responsável).
 - **Quilometragem (`qtd_km`):** opcional; registra a km do veículo na OS (não-negativa, validada no domínio).
   Dado de oficina para histórico/revisões por km. Não aparece na listagem (só no form).
-- **Faturar baixa estoque** (⏳ **4.4** — botão pronto, mas o faturamento real ainda não está implementado;
-  hoje o botão Faturar só avisa que será habilitado): ao faturar, **cada linha do tipo Peça** gerará uma
-  **Saída** no estoque, origem `OrdemServico` ("OS nº X"), numa **transação única atômica**. Linhas de Serviço
-  não tocam estoque. Falha se alguma peça não tiver saldo (a OS continua no status anterior, rollback). Espelhará
-  o `FaturamentoRepository`.
+- **Faturar baixa estoque** (✅ **4.4**): ao faturar, **cada linha do tipo Peça** gera uma **Saída** no
+  estoque, origem `OrdemServico` ("OS nº X"), numa **transação única atômica** (`FaturamentoOrdemServicoRepository`,
+  espelha o `FaturamentoRepository`). Linhas de Serviço não tocam estoque. Falha se alguma peça não tiver saldo
+  (a OS continua Concluída, rollback total). `xmin` do saldo protege concorrência → `Error.Conflito`. UI: botão
+  Faturar (só em OS Concluída) → `ConfirmacaoWindow` → efetiva; badge **FATURADA** e a listagem recarrega.
 
 ## Cálculos
 
