@@ -20,6 +20,10 @@ public interface IOrdemServicoService
     /// <summary>Cancela a OS (só antes de faturar; não mexe em estoque).</summary>
     Task<Result> CancelarAsync(Guid id, CancellationToken ct = default);
 
+    /// <summary>Fatura a OS (exige Concluída + ≥1 item) baixando o estoque das peças numa única
+    /// transação atômica. Linhas de serviço não tocam o estoque.</summary>
+    Task<Result> FaturarAsync(Guid id, Guid idUsuario, CancellationToken ct = default);
+
     Task<IReadOnlyList<OrdemServicoListaDto>> ListarAsync(string? filtro, CancellationToken ct = default);
 
     Task<Result<OrdemServicoDto>> ObterPorIdAsync(Guid id, CancellationToken ct = default);

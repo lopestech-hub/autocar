@@ -59,6 +59,9 @@ public partial class OrdemServicoFormViewModel : ViewModelBase
     public event Action? Salvo;
     public event Action? Cancelado;
 
+    /// <summary>Disparado quando a OS é faturada com sucesso (a janela fecha e a lista recarrega).</summary>
+    public event Action? Faturado;
+
     /// <summary>Disparado ao pedir o catálogo de peças (F2). A janela abre o Catálogo seletor.</summary>
     public event Action? AbrirCatalogoSolicitado;
 
@@ -280,7 +283,8 @@ public partial class OrdemServicoFormViewModel : ViewModelBase
             LimparItens();
             foreach (var i in o.Itens)
                 AdicionarItemVm(new OrdemServicoItemViewModel(
-                    i.Tipo, i.IdProduto, i.IdServico, i.DescricaoItem, i.Qtd, i.VlrUnitario, i.VlrDesconto));
+                    i.Tipo, i.IdProduto, i.IdServico, i.DescricaoItem, i.Qtd, i.VlrUnitario, i.VlrDesconto,
+                    i.CodProduto, i.CodFabricante));
 
             ModoVisualizacao = true;
             OnPropertyChanged(nameof(Titulo));
@@ -354,7 +358,8 @@ public partial class OrdemServicoFormViewModel : ViewModelBase
         else
         {
             var novo = new OrdemServicoItemViewModel(
-                TipoItemOrdemServico.Peca, peca.Id, null, peca.Descricao, 1, peca.VlrVenda, 0);
+                TipoItemOrdemServico.Peca, peca.Id, null, peca.Descricao, 1, peca.VlrVenda, 0,
+                peca.CodProduto, peca.CodFabricante);
             AdicionarItemVm(novo);
             novo.Realcar();
         }
@@ -455,13 +460,49 @@ public partial class OrdemServicoFormViewModel : ViewModelBase
     public Task ConfirmarCancelamentoAsync() =>
         TransicionarAsync(() => _ordens.CancelarAsync(_id!.Value), PodeCancelar);
 
-    /// <summary>Faturar a OS (baixa estoque das peças). A implementação transacional entra na sub-fase
-    /// 4.4 (FaturamentoOrdemServicoRepository). Por ora, o botão existe e avisa que está pendente.</summary>
+    /// <summary>Disparado ao clicar em Faturar. A janela mostra a confirmação (faturar é irreversível e
+    /// baixa o estoque das peças) e, se o usuário confirmar, chama <see cref="ConfirmarFaturamentoAsync"/>.</summary>
+    public event Action? ConfirmacaoFaturamentoSolicitada;
+
+    /// <summary>Botão Faturar: pede a confirmação à janela. O faturamento de fato roda em
+    /// <see cref="ConfirmarFaturamentoAsync"/> só após o usuário confirmar.</summary>
     [RelayCommand]
     private void Faturar()
     {
         if (PodeFaturar)
-            MensagemErro = "O faturamento da OS (baixa de estoque) será habilitado na próxima etapa.";
+            ConfirmacaoFaturamentoSolicitada?.Invoke();
+    }
+
+    /// <summary>Efetiva o faturamento (após confirmado na janela): fatura a OS e baixa o estoque das
+    /// peças numa única transação. Em sucesso, dispara <see cref="Faturado"/> (a janela fecha e a lista
+    /// recarrega). Falhas (saldo insuficiente, concorrência) viram mensagem na tela.</summary>
+    public async Task ConfirmarFaturamentoAsync()
+    {
+        if (_id is null || !PodeFaturar)
+            return;
+
+        Carregando = true;
+        MensagemErro = null;
+        try
+        {
+            var resultado = await _ordens.FaturarAsync(_id.Value, _idUsuario);
+            if (resultado.Falha)
+            {
+                MensagemErro = resultado.Erro.Mensagem;
+                return;
+            }
+
+            Faturado?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            MensagemErro = "Falha ao faturar a ordem de serviço.";
+            _logger.LogError(ex, "Erro ao faturar OS {Id}.", _id);
+        }
+        finally
+        {
+            Carregando = false;
+        }
     }
 
     /// <summary>Aplica uma transição de ciclo e recarrega a OS (a situação muda na tela). Em sucesso,

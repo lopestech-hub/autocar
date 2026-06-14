@@ -21,6 +21,7 @@ public sealed class OrdemServicoService : IOrdemServicoService
     private readonly IProdutoRepository _produtos;
     private readonly IServicoRepository _servicos;
     private readonly IMecanicoRepository _mecanicos;
+    private readonly IFaturamentoOrdemServicoRepository _faturamento;
     private readonly IValidator<SalvarOrdemServicoDto> _validator;
 
     public OrdemServicoService(
@@ -29,6 +30,7 @@ public sealed class OrdemServicoService : IOrdemServicoService
         IProdutoRepository produtos,
         IServicoRepository servicos,
         IMecanicoRepository mecanicos,
+        IFaturamentoOrdemServicoRepository faturamento,
         IValidator<SalvarOrdemServicoDto> validator)
     {
         _ordens = ordens;
@@ -36,6 +38,7 @@ public sealed class OrdemServicoService : IOrdemServicoService
         _produtos = produtos;
         _servicos = servicos;
         _mecanicos = mecanicos;
+        _faturamento = faturamento;
         _validator = validator;
     }
 
@@ -56,7 +59,7 @@ public sealed class OrdemServicoService : IOrdemServicoService
             await _ordens.AdicionarAsync(os, ct);
 
             var criada = await _ordens.ObterPorIdAsync(os.Id, ct);
-            return Result.Ok(Mapear(criada!));
+            return Result.Ok(await MapearAsync(criada!, ct));
         }
         catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
         {
@@ -90,7 +93,7 @@ public sealed class OrdemServicoService : IOrdemServicoService
         }
 
         var atualizada = await _ordens.ObterPorIdAsync(id, ct);
-        return Result.Ok(Mapear(atualizada!));
+        return Result.Ok(await MapearAsync(atualizada!, ct));
     }
 
     public Task<Result> IniciarAsync(Guid id, CancellationToken ct = default) =>
@@ -101,6 +104,31 @@ public sealed class OrdemServicoService : IOrdemServicoService
 
     public Task<Result> CancelarAsync(Guid id, CancellationToken ct = default) =>
         TransicionarAsync(id, os => os.Cancelar(), "Ordem de serviço não encontrada.", ct);
+
+    public async Task<Result> FaturarAsync(Guid id, Guid idUsuario, CancellationToken ct = default)
+    {
+        try
+        {
+            // Fatura e baixa o estoque das peças numa única transação (atômico). O repositório carrega a
+            // OS e lança se não existir — sem consulta prévia de existência (evita ler a OS duas vezes).
+            await _faturamento.FaturarComBaixaEstoqueAsync(id, idUsuario, ct);
+            return Result.Ok();
+        }
+        catch (NaoEncontradoException ex)
+        {
+            return Result.Falhar(Error.NaoEncontrado(ex.Message));
+        }
+        catch (ConcorrenciaException)
+        {
+            return Result.Falhar(Error.Conflito(
+                "O saldo de um produto foi alterado por outro terminal. Recarregue e tente novamente."));
+        }
+        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
+        {
+            // Invariante violada: OS não-Concluída, sem itens, ou peça sem saldo suficiente.
+            return Result.Falhar(Error.Validacao(ex.Message));
+        }
+    }
 
     public async Task<IReadOnlyList<OrdemServicoListaDto>> ListarAsync(string? filtro, CancellationToken ct = default)
     {
@@ -115,7 +143,7 @@ public sealed class OrdemServicoService : IOrdemServicoService
         var os = await _ordens.ObterPorIdAsync(id, ct);
         return os is null
             ? Result.Falhar<OrdemServicoDto>(Error.NaoEncontrado("Ordem de serviço não encontrada."))
-            : Result.Ok(Mapear(os));
+            : Result.Ok(await MapearAsync(os, ct));
     }
 
     /// <summary>Aplica uma transição de ciclo (Iniciar/Concluir/Cancelar) à OS rastreada, traduzindo
@@ -179,10 +207,24 @@ public sealed class OrdemServicoService : IOrdemServicoService
     private static string NomeCliente(OrdemServico o) =>
         o.Cliente?.RazaoSocial ?? o.NomeClienteAvulso ?? "CONSUMIDOR";
 
-    private static OrdemServicoDto Mapear(OrdemServico o) => new(
-        o.Id, o.CodOrdemServico, o.Situacao, o.IdCliente, o.NomeClienteAvulso, o.IdMecanico,
-        o.VeiculoMontadora, o.VeiculoModelo, o.VeiculoAno, o.VeiculoPlaca, o.QtdKm,
-        o.SubtotalItens, o.SubtotalPecas, o.SubtotalServicos, o.VlrDesconto, o.VlrTotal, o.Observacao, o.FlgAtivo,
-        o.Itens.Select(i => new OrdemServicoItemDetalheDto(
-            i.Id, i.Tipo, i.IdProduto, i.IdServico, i.DescricaoItem, i.Qtd, i.VlrUnitario, i.VlrDesconto, i.VlrTotalItem)).ToList());
+    /// <summary>Monta o DTO da OS enriquecendo cada linha de PEÇA com o código e a referência do
+    /// produto (cod_produto / cod_fabricante) — exibidos na grade de itens. Busca todos os produtos das
+    /// peças numa única query (sem N+1); serviços ficam com código/referência nulos.</summary>
+    private async Task<OrdemServicoDto> MapearAsync(OrdemServico o, CancellationToken ct)
+    {
+        var idsProdutos = o.Itens.Where(i => i.IdProduto is not null).Select(i => i.IdProduto!.Value).Distinct().ToList();
+        var codigos = await _produtos.ObterCodigosPorIdsAsync(idsProdutos, ct);
+
+        return new(
+            o.Id, o.CodOrdemServico, o.Situacao, o.IdCliente, o.NomeClienteAvulso, o.IdMecanico,
+            o.VeiculoMontadora, o.VeiculoModelo, o.VeiculoAno, o.VeiculoPlaca, o.QtdKm,
+            o.SubtotalItens, o.SubtotalPecas, o.SubtotalServicos, o.VlrDesconto, o.VlrTotal, o.Observacao, o.FlgAtivo,
+            o.Itens.Select(i =>
+            {
+                var cod = i.IdProduto is Guid pid && codigos.TryGetValue(pid, out var c) ? c : null;
+                return new OrdemServicoItemDetalheDto(
+                    i.Id, i.Tipo, i.IdProduto, i.IdServico, i.DescricaoItem, i.Qtd, i.VlrUnitario, i.VlrDesconto, i.VlrTotalItem,
+                    cod?.CodProduto, cod?.CodFabricante);
+            }).ToList());
+    }
 }

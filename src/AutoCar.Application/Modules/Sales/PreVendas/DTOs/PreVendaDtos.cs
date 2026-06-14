@@ -22,7 +22,8 @@ public sealed record SalvarPreVendaDto(
     string? Observacao,
     IReadOnlyList<PreVendaItemDto> Itens);
 
-/// <summary>Item da pré-venda para o formulário (com o total da linha já calculado).</summary>
+/// <summary>Item da pré-venda para o formulário (com o total da linha já calculado). CodProduto e
+/// CodFabricante (referência) vêm do produto — exibidos na grade.</summary>
 public sealed record PreVendaItemDetalheDto(
     Guid Id,
     Guid IdProduto,
@@ -30,7 +31,9 @@ public sealed record PreVendaItemDetalheDto(
     decimal Qtd,
     decimal VlrUnitario,
     decimal VlrDesconto,
-    decimal VlrTotalItem);
+    decimal VlrTotalItem,
+    int? CodProduto,
+    string? CodFabricante);
 
 /// <summary>Pré-venda completa para o formulário (visualização/edição).</summary>
 public sealed record PreVendaDto(

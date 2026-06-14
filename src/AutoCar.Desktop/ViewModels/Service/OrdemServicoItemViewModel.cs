@@ -18,12 +18,15 @@ public partial class OrdemServicoItemViewModel : ViewModelBase
 
     public OrdemServicoItemViewModel(
         TipoItemOrdemServico tipo, Guid? idProduto, Guid? idServico,
-        string descricaoItem, int qtd, decimal vlrUnitario, decimal vlrDesconto)
+        string descricaoItem, int qtd, decimal vlrUnitario, decimal vlrDesconto,
+        int? codProduto = null, string? codFabricante = null)
     {
         Tipo = tipo;
         IdProduto = idProduto;
         IdServico = idServico;
         DescricaoItem = descricaoItem;
+        CodProduto = codProduto;
+        CodFabricante = codFabricante;
         _qtd = qtd;
         _vlrUnitario = vlrUnitario;
         _vlrDesconto = vlrDesconto;
@@ -40,6 +43,18 @@ public partial class OrdemServicoItemViewModel : ViewModelBase
 
     /// <summary>Descrição (do produto ou serviço) no momento da inclusão (snapshot, read-only).</summary>
     public string DescricaoItem { get; }
+
+    /// <summary>Código legível do produto (cod_produto) — só nas linhas de peça. Null em serviço.</summary>
+    public int? CodProduto { get; }
+
+    /// <summary>Referência do fabricante (cod_fabricante) — só nas linhas de peça. Null em serviço.</summary>
+    public string? CodFabricante { get; }
+
+    /// <summary>Código a exibir na grade: o número do produto nas peças, vazio nas linhas de serviço.</summary>
+    public string CodProdutoTexto => CodProduto?.ToString(CultureInfo.InvariantCulture) ?? string.Empty;
+
+    /// <summary>Referência a exibir na grade: o cod. fabricante das peças, vazio se não houver/for serviço.</summary>
+    public string CodFabricanteTexto => CodFabricante ?? string.Empty;
 
     /// <summary>True quando a linha é uma peça (rótulo/realce de tipo na tela).</summary>
     public bool EhPeca => Tipo == TipoItemOrdemServico.Peca;

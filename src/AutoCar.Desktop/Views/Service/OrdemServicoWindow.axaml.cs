@@ -31,11 +31,13 @@ public partial class OrdemServicoWindow : Window
         DataContext = viewModel;
         viewModel.Salvo += Close;
         viewModel.Cancelado += Close;
+        viewModel.Faturado += Close;
         viewModel.AbrirCatalogoSolicitado += AbrirCatalogo;
         viewModel.AbrirSeletorClienteSolicitado += AbrirSeletorCliente;
         viewModel.AbrirSeletorServicoSolicitado += AbrirSeletorServico;
         viewModel.AbrirSeletorMecanicoSolicitado += AbrirSeletorMecanico;
         viewModel.ConfirmacaoCancelamentoSolicitada += ConfirmarCancelamento;
+        viewModel.ConfirmacaoFaturamentoSolicitada += ConfirmarFaturamento;
     }
 
     private void InitializeComponent() => AvaloniaXamlLoader.Load(this);
@@ -112,5 +114,25 @@ public partial class OrdemServicoWindow : Window
 
         if (confirmado)
             await _vm.ConfirmarCancelamentoAsync();
+    }
+
+    /// <summary>
+    /// Confirmação antes de faturar (ação irreversível que baixa o estoque das peças e torna a OS
+    /// imutável). Se o usuário confirmar, o ViewModel efetiva o faturamento; em sucesso, ele dispara
+    /// Faturado e a janela fecha.
+    /// </summary>
+    private async void ConfirmarFaturamento()
+    {
+        if (_vm is null)
+            return;
+
+        var confirmado = await ConfirmacaoWindow.MostrarAsync(
+            this,
+            "Faturar ordem de serviço",
+            "Ao faturar, o estoque das peças será baixado e a OS não poderá mais ser alterada. Deseja continuar?",
+            textoConfirmar: "Faturar");
+
+        if (confirmado)
+            await _vm.ConfirmarFaturamentoAsync();
     }
 }

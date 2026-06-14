@@ -8,6 +8,11 @@ public interface IProdutoRepository
     /// <summary>Obtém o produto com as navegações (categoria, marca, fornecedor, aplicações) carregadas.</summary>
     Task<Produto?> ObterPorIdAsync(Guid id, CancellationToken ct = default);
 
+    /// <summary>Projeta (código + referência) de vários produtos de uma vez, indexado por Id. Usado para
+    /// enriquecer os itens de documentos (pré-venda/OS) ao reabrir, sem N+1 — uma única query para todos.</summary>
+    Task<IReadOnlyDictionary<Guid, ProdutoCodigoLeitura>> ObterCodigosPorIdsAsync(
+        IReadOnlyCollection<Guid> ids, CancellationToken ct = default);
+
     /// <summary>Lista produtos ativos (com navegações), opcionalmente filtrando por descrição,
     /// código de barras ou código de fabricante.</summary>
     Task<IReadOnlyList<Produto>> ListarAsync(string? filtro, CancellationToken ct = default);
@@ -35,3 +40,7 @@ public interface IProdutoRepository
     /// <summary>Modelos distintos cadastrados; filtra por montadora se informada.</summary>
     Task<IReadOnlyList<string>> ListarModelosAsync(string? montadora, CancellationToken ct = default);
 }
+
+/// <summary>Projeção enxuta do produto para exibir nos itens de documento: código legível
+/// (cod_produto) e referência do fabricante (cod_fabricante).</summary>
+public sealed record ProdutoCodigoLeitura(Guid Id, int CodProduto, string? CodFabricante);

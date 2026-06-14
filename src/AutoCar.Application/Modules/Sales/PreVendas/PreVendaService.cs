@@ -52,7 +52,7 @@ public sealed class PreVendaService : IPreVendaService
             await _preVendas.AdicionarAsync(preVenda, ct);
 
             var criada = await _preVendas.ObterPorIdAsync(preVenda.Id, ct);
-            return Result.Ok(Mapear(criada!));
+            return Result.Ok(await MapearAsync(criada!, ct));
         }
         catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
         {
@@ -86,7 +86,7 @@ public sealed class PreVendaService : IPreVendaService
         }
 
         var atualizada = await _preVendas.ObterPorIdAsync(id, ct);
-        return Result.Ok(Mapear(atualizada!));
+        return Result.Ok(await MapearAsync(atualizada!, ct));
     }
 
     public async Task<Result> FaturarAsync(Guid id, Guid idUsuario, CancellationToken ct = default)
@@ -144,7 +144,7 @@ public sealed class PreVendaService : IPreVendaService
         var preVenda = await _preVendas.ObterPorIdAsync(id, ct);
         return preVenda is null
             ? Result.Falhar<PreVendaDto>(Error.NaoEncontrado("Pré-venda não encontrada."))
-            : Result.Ok(Mapear(preVenda));
+            : Result.Ok(await MapearAsync(preVenda, ct));
     }
 
     /// <summary>Valida o DTO e confere as FKs (cliente quando informado, produtos dos itens). Retorna o erro ou null.</summary>
@@ -175,10 +175,23 @@ public sealed class PreVendaService : IPreVendaService
     private static string NomeCliente(PreVenda p) =>
         p.Cliente?.RazaoSocial ?? p.NomeClienteAvulso ?? "CONSUMIDOR";
 
-    private static PreVendaDto Mapear(PreVenda p) => new(
-        p.Id, p.CodPreVenda, p.Situacao, p.IdCliente, p.NomeClienteAvulso,
-        p.VeiculoMontadora, p.VeiculoModelo, p.VeiculoAno, p.VeiculoPlaca,
-        p.SubtotalItens, p.VlrDesconto, p.VlrTotal, p.Observacao, p.FlgAtivo,
-        p.Itens.Select(i => new PreVendaItemDetalheDto(
-            i.Id, i.IdProduto, i.DescricaoProduto, i.Qtd, i.VlrUnitario, i.VlrDesconto, i.VlrTotalItem)).ToList());
+    /// <summary>Monta o DTO da pré-venda enriquecendo cada item com o código e a referência do produto
+    /// (cod_produto / cod_fabricante) — exibidos na grade. Busca todos os produtos numa única query (sem N+1).</summary>
+    private async Task<PreVendaDto> MapearAsync(PreVenda p, CancellationToken ct)
+    {
+        var idsProdutos = p.Itens.Select(i => i.IdProduto).Distinct().ToList();
+        var codigos = await _produtos.ObterCodigosPorIdsAsync(idsProdutos, ct);
+
+        return new(
+            p.Id, p.CodPreVenda, p.Situacao, p.IdCliente, p.NomeClienteAvulso,
+            p.VeiculoMontadora, p.VeiculoModelo, p.VeiculoAno, p.VeiculoPlaca,
+            p.SubtotalItens, p.VlrDesconto, p.VlrTotal, p.Observacao, p.FlgAtivo,
+            p.Itens.Select(i =>
+            {
+                var cod = codigos.TryGetValue(i.IdProduto, out var c) ? c : null;
+                return new PreVendaItemDetalheDto(
+                    i.Id, i.IdProduto, i.DescricaoProduto, i.Qtd, i.VlrUnitario, i.VlrDesconto, i.VlrTotalItem,
+                    cod?.CodProduto, cod?.CodFabricante);
+            }).ToList());
+    }
 }

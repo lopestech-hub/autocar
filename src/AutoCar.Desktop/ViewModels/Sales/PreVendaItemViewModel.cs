@@ -15,10 +15,13 @@ public partial class PreVendaItemViewModel : ViewModelBase
 {
     private static readonly CultureInfo PtBr = new("pt-BR");
 
-    public PreVendaItemViewModel(Guid idProduto, string descricaoProduto, decimal qtd, decimal vlrUnitario, decimal vlrDesconto)
+    public PreVendaItemViewModel(Guid idProduto, string descricaoProduto, decimal qtd, decimal vlrUnitario, decimal vlrDesconto,
+        int? codProduto = null, string? codFabricante = null)
     {
         IdProduto = idProduto;
         DescricaoProduto = descricaoProduto;
+        CodProduto = codProduto;
+        CodFabricante = codFabricante;
         _qtd = qtd;
         _vlrUnitario = vlrUnitario;
         _vlrDesconto = vlrDesconto;
@@ -29,6 +32,18 @@ public partial class PreVendaItemViewModel : ViewModelBase
 
     /// <summary>Descrição do produto no momento da inclusão (snapshot, read-only).</summary>
     public string DescricaoProduto { get; }
+
+    /// <summary>Código legível do produto (cod_produto). Exibido na grade.</summary>
+    public int? CodProduto { get; }
+
+    /// <summary>Referência do fabricante (cod_fabricante). Exibido na grade.</summary>
+    public string? CodFabricante { get; }
+
+    /// <summary>Código a exibir na grade (vazio se não houver).</summary>
+    public string CodProdutoTexto => CodProduto?.ToString(CultureInfo.InvariantCulture) ?? string.Empty;
+
+    /// <summary>Referência a exibir na grade (vazio se não houver).</summary>
+    public string CodFabricanteTexto => CodFabricante ?? string.Empty;
 
     [ObservableProperty] private decimal _qtd;
     [ObservableProperty] private decimal _vlrUnitario;

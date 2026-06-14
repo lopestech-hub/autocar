@@ -28,6 +28,23 @@ public class ProdutoRepository : IProdutoRepository
             .FirstOrDefaultAsync(p => p.Id == id, ct);
     }
 
+    public async Task<IReadOnlyDictionary<Guid, ProdutoCodigoLeitura>> ObterCodigosPorIdsAsync(
+        IReadOnlyCollection<Guid> ids, CancellationToken ct = default)
+    {
+        if (ids.Count == 0)
+            return new Dictionary<Guid, ProdutoCodigoLeitura>();
+
+        await using var db = await _factory.CreateDbContextAsync(ct);
+        // Projeção direta (sem materializar a entidade): uma única query para todos os ids das peças.
+        var leituras = await db.Produtos
+            .AsNoTracking()
+            .Where(p => ids.Contains(p.Id))
+            .Select(p => new ProdutoCodigoLeitura(p.Id, p.CodProduto, p.CodFabricante))
+            .ToListAsync(ct);
+
+        return leituras.ToDictionary(l => l.Id);
+    }
+
     public async Task<IReadOnlyList<Produto>> ListarAsync(string? filtro, CancellationToken ct = default)
     {
         await using var db = await _factory.CreateDbContextAsync(ct);

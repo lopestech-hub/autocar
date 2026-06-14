@@ -152,19 +152,25 @@
                         </Grid>
 
                         <!-- Cabeçalho das colunas do grid de itens -->
-                        <Grid ColumnDefinitions="*,80,100,90,100,28" Width="820" HorizontalAlignment="Left"
+                        <Grid ColumnDefinitions="64,110,*,80,100,90,100,28" Width="820" HorizontalAlignment="Left"
                               Margin="0,0,0,2"
                               IsVisible="{Binding Itens.Count}">
-                            <TextBlock Grid.Column="0" Text="DESCRIÇÃO" FontSize="10" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource BrushTextoSecundario}" />
-                            <TextBlock Grid.Column="1" Text="QTD" FontSize="10" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource BrushTextoSecundario}" HorizontalAlignment="Right" Margin="0,0,4,0" />
-                            <TextBlock Grid.Column="2" Text="UNITÁRIO" FontSize="10" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource BrushTextoSecundario}" HorizontalAlignment="Right" Margin="0,0,4,0" />
-                            <TextBlock Grid.Column="3" Text="DESCONTO" FontSize="10" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource BrushTextoSecundario}" HorizontalAlignment="Right" Margin="0,0,4,0" />
-                            <TextBlock Grid.Column="4" Text="TOTAL" FontSize="10" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource BrushTextoSecundario}" HorizontalAlignment="Right" Margin="0,0,4,0" />
+                            <!-- Headers recuados 6px (5 padding + 1 borda do TextBox) para o título
+                                 alinhar com o conteúdo dentro da caixa. À direita: 6 do padding + 4 do gap = 10. -->
+                            <TextBlock Grid.Column="0" Text="CÓDIGO" FontSize="10" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource BrushTextoSecundario}" Margin="6,0,4,0" />
+                            <TextBlock Grid.Column="1" Text="REFERÊNCIA" FontSize="10" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource BrushTextoSecundario}" Margin="6,0,4,0" />
+                            <TextBlock Grid.Column="2" Text="DESCRIÇÃO" FontSize="10" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource BrushTextoSecundario}" Margin="6,0,0,0" />
+                            <TextBlock Grid.Column="3" Text="QTD" FontSize="10" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource BrushTextoSecundario}" Margin="6,0,4,0" />
+                            <TextBlock Grid.Column="4" Text="UNITÁRIO" FontSize="10" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource BrushTextoSecundario}" Margin="6,0,4,0" />
+                            <TextBlock Grid.Column="5" Text="DESCONTO" FontSize="10" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource BrushTextoSecundario}" Margin="6,0,4,0" />
+                            <TextBlock Grid.Column="6" Text="TOTAL" FontSize="10" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource BrushTextoSecundario}" Margin="6,0,4,0" />
                         </Grid>
 
                         <!-- Linhas editáveis -->
@@ -173,19 +179,27 @@
                                 <DataTemplate x:DataType="vm:PreVendaItemViewModel">
                                   <!-- Fundo da linha pisca amarelo (#FEF9C3) ao adicionar a peça. -->
                                   <Border Background="{Binding BrushFundoLinha}" CornerRadius="2" Padding="2,0" Margin="0,0,0,2">
-                                    <Grid ColumnDefinitions="*,80,100,90,100,28">
-                                        <TextBox Grid.Column="0" Text="{Binding DescricaoProduto}"
+                                    <Grid ColumnDefinitions="64,110,*,80,100,90,100,28">
+                                        <!-- CÓDIGO e REFERÊNCIA: dados read-only do produto.
+                                             Mesmo TextBox bloqueado da DESCRIÇÃO — borda uniforme com a linha. -->
+                                        <TextBox Grid.Column="0" Text="{Binding CodProdutoTexto}"
+                                                 IsEnabled="False" FontFamily="{DynamicResource FonteMono}"
+                                                 Margin="0,0,4,0" />
+                                        <TextBox Grid.Column="1" Text="{Binding CodFabricanteTexto}"
+                                                 IsEnabled="False" FontFamily="{DynamicResource FonteMono}"
+                                                 Margin="0,0,4,0" ToolTip.Tip="{Binding CodFabricanteTexto}" />
+                                        <TextBox Grid.Column="2" Text="{Binding DescricaoProduto}"
                                                  IsEnabled="False" Margin="0,0,4,0" />
-                                        <TextBox Grid.Column="1" Text="{Binding QtdTexto}"
+                                        <TextBox Grid.Column="3" Text="{Binding QtdTexto}"
                                                  b:SelecionarTudoBehavior.Ativo="True"
                                                  IsEnabled="{Binding $parent[ItemsControl].((vm:PreVendaFormViewModel)DataContext).ModoVisualizacao, Converter={x:Static BoolConverters.Not}}"
                                                  TextAlignment="Right" Margin="0,0,4,0" Watermark="1,00" />
-                                        <TextBox Grid.Column="2" Text="{Binding VlrUnitarioTexto}"
+                                        <TextBox Grid.Column="4" Text="{Binding VlrUnitarioTexto}"
                                                  b:SelecionarTudoBehavior.Ativo="True"
                                                  IsEnabled="{Binding $parent[ItemsControl].((vm:PreVendaFormViewModel)DataContext).ModoVisualizacao, Converter={x:Static BoolConverters.Not}}"
                                                  TextAlignment="Right" Margin="0,0,4,0" Watermark="0,00" />
                                         <!-- Realce âmbar atrás do campo quando a linha tem desconto. -->
-                                        <Border Grid.Column="3" Margin="0,0,4,0" CornerRadius="2"
+                                        <Border Grid.Column="5" Margin="0,0,4,0" CornerRadius="2"
                                                 Background="{Binding TemDesconto, Converter={x:Static conv:DescontoFundoConverter.Instancia}}">
                                             <TextBox Text="{Binding VlrDescontoTexto}"
                                                      b:SelecionarTudoBehavior.Ativo="True"
@@ -193,12 +207,11 @@
                                                      IsEnabled="{Binding $parent[ItemsControl].((vm:PreVendaFormViewModel)DataContext).ModoVisualizacao, Converter={x:Static BoolConverters.Not}}"
                                                      TextAlignment="Right" Watermark="0,00" />
                                         </Border>
-                                        <TextBlock Grid.Column="4" Text="{Binding VlrTotalItemTexto}"
-                                                   FontFamily="{DynamicResource FonteMono}" FontSize="12"
-                                                   Foreground="{DynamicResource BrushTexto}"
-                                                   VerticalAlignment="Center" HorizontalAlignment="Right"
-                                                   Margin="0,0,8,0" />
-                                        <Button Grid.Column="5" Classes="secundario"
+                                        <!-- TOTAL da linha: read-only, com borda uniforme; valor à direita. -->
+                                        <TextBox Grid.Column="6" Text="{Binding VlrTotalItemTexto}"
+                                                 IsEnabled="False" FontFamily="{DynamicResource FonteMono}"
+                                                 TextAlignment="Right" Margin="0,0,4,0" />
+                                        <Button Grid.Column="7" Classes="secundario"
                                                 Width="28" Padding="0"
                                                 Command="{Binding $parent[ItemsControl].((vm:PreVendaFormViewModel)DataContext).RemoverItemCommand}"
                                                 CommandParameter="{Binding}"
@@ -227,10 +240,10 @@
                                 <Grid ColumnDefinitions="*,120">
                                     <TextBlock Grid.Column="0" Text="Subtotal dos itens" Classes="formlabel"
                                                HorizontalAlignment="Right" />
-                                    <TextBlock Grid.Column="1" Text="{Binding SubtotalItensTexto}"
-                                               FontFamily="{DynamicResource FonteMono}" FontSize="12"
-                                               Foreground="{DynamicResource BrushTexto}"
-                                               HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                    <!-- Subtotal read-only com borda, alinhado ao campo Desconto logo abaixo. -->
+                                    <TextBox Grid.Column="1" Text="{Binding SubtotalItensTexto}"
+                                             IsEnabled="False" FontFamily="{DynamicResource FonteMono}"
+                                             TextAlignment="Right" />
                                 </Grid>
                                 <Grid ColumnDefinitions="*,120">
                                     <TextBlock Grid.Column="0" Text="Desconto" Classes="formlabel"

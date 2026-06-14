@@ -65,11 +65,13 @@ public partial class OrdensServicoView : UserControl
 
     /// <summary>
     /// Abre o formulário da OS numa janela separada maximizada (não-modal): o shell principal
-    /// continua acessível. Ao salvar (Salvo), recarrega a listagem.
+    /// continua acessível. Ao salvar (Salvo) ou faturar (Faturado), recarrega a listagem.
     /// </summary>
     private void AbrirJanelaOrdemServico(OrdemServicoFormViewModel form)
     {
+        // Recarrega a lista quando a OS é salva ou faturada (a janela fecha sozinha — ver OrdemServicoWindow).
         form.Salvo += () => _vm?.RecarregarAsync();
+        form.Faturado += () => _vm?.RecarregarAsync();
 
         var janela = new OrdemServicoWindow(form);
         var dono = TopLevel.GetTopLevel(this) as Window;

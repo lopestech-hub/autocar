@@ -214,7 +214,8 @@ public partial class PreVendaFormViewModel : ViewModelBase
 
             LimparItens();
             foreach (var i in p.Itens)
-                AdicionarItemVm(new PreVendaItemViewModel(i.IdProduto, i.DescricaoProduto, i.Qtd, i.VlrUnitario, i.VlrDesconto));
+                AdicionarItemVm(new PreVendaItemViewModel(i.IdProduto, i.DescricaoProduto, i.Qtd, i.VlrUnitario, i.VlrDesconto,
+                    i.CodProduto, i.CodFabricante));
 
             ModoVisualizacao = true;
             OnPropertyChanged(nameof(Titulo));
@@ -267,7 +268,8 @@ public partial class PreVendaFormViewModel : ViewModelBase
         }
         else
         {
-            var novo = new PreVendaItemViewModel(peca.Id, peca.Descricao, 1, peca.VlrVenda, 0);
+            var novo = new PreVendaItemViewModel(peca.Id, peca.Descricao, 1, peca.VlrVenda, 0,
+                peca.CodProduto, peca.CodFabricante);
             AdicionarItemVm(novo);
             novo.Realcar(); // pisca a linha recém-adicionada
         }

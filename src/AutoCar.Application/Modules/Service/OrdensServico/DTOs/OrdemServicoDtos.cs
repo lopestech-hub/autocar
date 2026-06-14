@@ -29,7 +29,8 @@ public sealed record SalvarOrdemServicoDto(
     string? Observacao,
     IReadOnlyList<OrdemServicoItemDto> Itens);
 
-/// <summary>Item da OS para o formulário (com o total da linha já calculado).</summary>
+/// <summary>Item da OS para o formulário (com o total da linha já calculado). CodProduto e
+/// CodFabricante (referência) só vêm preenchidos nas linhas de peça — exibidos na grade.</summary>
 public sealed record OrdemServicoItemDetalheDto(
     Guid Id,
     TipoItemOrdemServico Tipo,
@@ -39,7 +40,9 @@ public sealed record OrdemServicoItemDetalheDto(
     int Qtd,
     decimal VlrUnitario,
     decimal VlrDesconto,
-    decimal VlrTotalItem);
+    decimal VlrTotalItem,
+    int? CodProduto,
+    string? CodFabricante);
 
 /// <summary>OS completa para o formulário (visualização/edição).</summary>
 public sealed record OrdemServicoDto(
