@@ -171,12 +171,16 @@ Um perfil por usuário. Admin vê tudo.
 3. Tela de troca de senha no primeiro acesso
 4. (dívida) **Padronizar seleção≠adição nas listas de cadastro** — hoje só os seletores (Catálogo) usam;
    aplicar nas demais quando a marca tiver função (ex: habilitar Editar/Inativar). Ver padrão no system.md.
-5. (dívida) Paginação na listagem de Produto/Catálogo/Pré-venda/Compra quando o volume crescer (sem `Take`/`Skip`)
-6. (dívida) Migrar os demais repositórios para `IDbContextFactory` quando ganharem coleção filha
+5. **Migrar as 13 listagens restantes para `ListBox.tabela` virtualizado** — Produtos e Catálogo já
+   migrados (perf); aplicar o mesmo nas demais (Clientes, Fornecedores, Marcas, Categorias, Serviços,
+   Mecânicos, Pré-vendas, Compras, OS, Estoque + os 5 seletores F2/F3/F4/F5). Padrão validado.
+6. (dívida) Paginação na **query** de Produto/Catálogo/Pré-venda/Compra quando o volume crescer (sem
+   `Take`/`Skip`) — a UI já não trava (virtualizada); resta limitar o que vem do banco pela LAN
+7. (dívida) Migrar os demais repositórios para `IDbContextFactory` quando ganharem coleção filha
    (hoje `ProdutoRepository`, `PreVendaRepository`, `DevolucaoRepository` e `CompraRepository` usam; os outros usam `AppDbContext` injetado)
-7. (dívida) **Remover/gear por flag o seed demo do DbInitializer antes do deploy** — hoje cria 8
+8. (dívida) **Remover/gear por flag o seed demo do DbInitializer antes do deploy** — hoje cria 8
    produtos de teste em banco com ≤1 produto; inofensivo em dev, mas não pode rodar no cliente real
-8. (dívida) Estoque: tratar `DbUpdateException` por unique-violation no 1º movimento concorrente (mensagem
+9. (dívida) Estoque: tratar `DbUpdateException` por unique-violation no 1º movimento concorrente (mensagem
    genérica; integridade já garantida pelo índice) — vale p/ movimentação manual, faturamento, devolução e compra;
    e TOCTOU no saldo devolvível da Devolução (duas devoluções simultâneas da mesma venda sem lock).
 
@@ -210,4 +214,5 @@ Um perfil por usuário. Admin vê tudo.
 | 2026-06-03 | Fase 4.1b (`4da5dcd`): **cadastro de Mecânico** como entidade própria (não usuário — correção de modelo); FK da OS `id_usuario_mecanico`→`id_mecanico` (migration por rename, não-destrutiva) |
 | 2026-06-14 | Fase 4.4 (`edda0ea`): **Faturar a OS baixa estoque das peças** — `FaturamentoOrdemServicoRepository` (transação atômica única, espelha o `FaturamentoRepository`; só linhas Peça dão Saída, origem `OrdemServico`; rollback se faltar saldo). `OrdemServicoService.FaturarAsync` + UI (botão Faturar → `ConfirmacaoWindow` → badge FATURADA, lista recarrega). Validado no banco (OS nº 3 faturada, peça baixou, serviço ignorado) |
 | 2026-06-14 | UI (`edda0ea`): **código e referência da peça nos itens** de OS e Pré-venda — colunas CÓDIGO (`cod_produto`) e REFERÊNCIA (`cod_fabricante`) na grade, na adição (F2) e ao reabrir; enriquecimento por query batch (`IProdutoRepository.ObterCodigosPorIdsAsync`, sem N+1). Polimento: TOTAL e subtotais com borda, títulos do header alinhados ao conteúdo das caixas (header recua 6px = padding 5 + borda 1 do TextBox) |
+| 2026-06-14 | Perf (`7e7b29d`): **virtualização da listagem** (Produtos + Catálogo) — troca o "Grid único code-behind" por `ListBox` virtualizado (estilo `ListBox.tabela` no Tema, reutilizável). A tela de Produtos **travava com 256 produtos** (montava ~11 controles/linha de uma vez na UI thread); agora abre instantânea e escala. Catálogo migrado nos 2 modos (consulta + seletor F2, API pública preservada); seletor F2 abre maximizado. Falta migrar as 13 listagens restantes |
 | 2026-06-06 | Fase 4.3 (`beee975`): **UI completa da OS** — listagem (badge das 5 situações, coluna VEÍCULO=modelo+placa), janela maximizada (F2/F3/F4/F5 todos seletores por janela), form (grid peça+serviço, totais por tipo, botões de ciclo). Mecânico vira **botão-seletor por janela** (era combo). UX: "Cancelar OS (encerrar)" com confirmação ≠ "Fechar" (evita cancelar por engano). Feature **KM** (`qtd_km`, opcional; migration aditiva). Seletores `ServicoSeletorWindow`/`MecanicoSeletorWindow` (molde do Cliente) |
