@@ -1,6 +1,8 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:AutoCar.Desktop.ViewModels.Registrations"
+             xmlns:dtos="using:AutoCar.Application.Modules.Registrations.Produtos.DTOs"
+             xmlns:conv="using:AutoCar.Desktop.Converters"
              x:Class="AutoCar.Desktop.Views.Registrations.ProdutosView"
              x:DataType="vm:ProdutosViewModel">
 
@@ -50,7 +52,87 @@
                     BorderThickness="1"
                     CornerRadius="6"
                     ClipToBounds="True">
-                <Panel Name="TabelaContainer">
+
+                <!-- Mensagem de erro fica por cima do conteúdo se houver. -->
+                <Panel>
+                    <!-- Tabela: header fixo + ListBox virtualizado. As colunas do header e da linha
+                         usam EXATAMENTE as mesmas larguras (80,*,140,130,50,90,90,90,90). O padding do
+                         ListBoxItem é zerado no Tema (Style ListBox.tabela) para o '*' alinhar. -->
+                    <DockPanel>
+                        <!-- ===== HEADER FIXO ===== -->
+                        <Grid DockPanel.Dock="Top" Height="28"
+                              Background="{DynamicResource BrushFundoHeader}"
+                              ColumnDefinitions="80,*,140,130,50,90,90,90,90">
+                            <Border Grid.ColumnSpan="9" Height="1" Background="#CBD5E1"
+                                    VerticalAlignment="Bottom" />
+                            <TextBlock Grid.Column="0" Text="CÓDIGO"    Classes="th" />
+                            <TextBlock Grid.Column="1" Text="DESCRIÇÃO" Classes="th" />
+                            <TextBlock Grid.Column="2" Text="CATEGORIA" Classes="th" />
+                            <TextBlock Grid.Column="3" Text="MARCA"     Classes="th" />
+                            <TextBlock Grid.Column="4" Text="UN"        Classes="th" />
+                            <TextBlock Grid.Column="5" Text="POSIÇÃO"   Classes="th" />
+                            <TextBlock Grid.Column="6" Text="LADO"      Classes="th" />
+                            <TextBlock Grid.Column="7" Text="VENDA"     Classes="th" />
+                            <TextBlock Grid.Column="8" Text="STATUS"    Classes="th" />
+                        </Grid>
+
+                        <!-- ===== CORPO VIRTUALIZADO ===== -->
+                        <!-- Vazio: mensagem central (some quando há itens). -->
+                        <TextBlock IsVisible="{Binding !Produtos.Count}"
+                                   Text="Nenhum produto cadastrado. Clique em &quot;+ Novo produto&quot; para começar."
+                                   FontSize="12"
+                                   Foreground="{DynamicResource BrushTextoMudo}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Top"
+                                   Margin="0,40,0,0" />
+
+                        <ListBox Name="ListaProdutos"
+                                 Classes="tabela"
+                                 IsVisible="{Binding !!Produtos.Count}"
+                                 ItemsSource="{Binding Produtos}"
+                                 SelectionMode="Single">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="dtos:ProdutoListaDto">
+                                    <Grid Height="28" Cursor="Hand" Background="Transparent"
+                                          ColumnDefinitions="80,*,140,130,50,90,90,90,90">
+                                        <!-- Barra azul da linha selecionada (visível via Style :selected). -->
+                                        <Border Name="BarraSel" Grid.ColumnSpan="9" Width="3"
+                                                Background="{DynamicResource BrushPrimario}"
+                                                HorizontalAlignment="Left" IsVisible="False" />
+
+                                        <TextBlock Grid.Column="0" Text="{Binding CodProduto}"
+                                                   Classes="td mono" />
+                                        <TextBlock Grid.Column="1" Text="{Binding Descricao}"
+                                                   Classes="td" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="2" Text="{Binding Categoria}"
+                                                   Classes="td" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="3" Text="{Binding Marca}"
+                                                   Classes="td" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="4" Text="{Binding Unidade}"
+                                                   Classes="td" />
+                                        <TextBlock Grid.Column="5"
+                                                   Text="{Binding Posicao, Converter={x:Static conv:PosicaoPecaConverter.Instancia}}"
+                                                   Classes="td" />
+                                        <TextBlock Grid.Column="6"
+                                                   Text="{Binding Lado, Converter={x:Static conv:LadoPecaConverter.Instancia}}"
+                                                   Classes="td" />
+                                        <TextBlock Grid.Column="7"
+                                                   Text="{Binding VlrVenda, StringFormat='{}{0:N2}'}"
+                                                   Classes="td mono" HorizontalAlignment="Right" />
+                                        <Border Grid.Column="8"
+                                                Background="{Binding FlgAtivo, Converter={x:Static conv:StatusAtivoFundoConverter.Instancia}}"
+                                                CornerRadius="2" Padding="6,2"
+                                                HorizontalAlignment="Left" VerticalAlignment="Center"
+                                                Margin="8,0">
+                                            <TextBlock Text="{Binding FlgAtivo, Converter={x:Static conv:StatusAtivoTextoConverter.Instancia}}"
+                                                       FontSize="10" FontWeight="Medium"
+                                                       Foreground="{Binding FlgAtivo, Converter={x:Static conv:StatusAtivoTextoCorConverter.Instancia}}" />
+                                        </Border>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </DockPanel>
+
                     <TextBlock Text="{Binding MensagemErro}"
                                IsVisible="{Binding MensagemErro, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                                Foreground="{DynamicResource BrushErro}"

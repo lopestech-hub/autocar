@@ -3,6 +3,7 @@
         xmlns:cat="using:AutoCar.Desktop.Views.Catalogo"
         x:Class="AutoCar.Desktop.Views.Sales.CatalogoSeletorWindow"
         Width="980" Height="640"
+        WindowState="Maximized"
         WindowStartupLocation="CenterOwner"
         Title="Catálogo — selecionar peça"
         Background="{DynamicResource BrushFundo}"

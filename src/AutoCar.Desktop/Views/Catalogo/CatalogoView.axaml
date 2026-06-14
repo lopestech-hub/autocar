@@ -1,6 +1,8 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:AutoCar.Desktop.ViewModels.Catalogo"
+             xmlns:dtos="using:AutoCar.Application.Modules.Registrations.Produtos.DTOs"
+             xmlns:conv="using:AutoCar.Desktop.Converters"
              xmlns:b="using:AutoCar.Desktop.Behaviors"
              x:Class="AutoCar.Desktop.Views.Catalogo.CatalogoView"
              x:DataType="vm:CatalogoViewModel">
@@ -60,6 +62,75 @@
                 CornerRadius="6"
                 ClipToBounds="True">
             <Panel Name="TabelaContainer">
+                <!-- Tabela: header fixo + ListBox virtualizado (só renderiza as linhas visíveis —
+                     o Catálogo pode listar muitas peças). Colunas iguais no header e no template
+                     (80,*,2*,90,90,120,160,50,90). Padding do ListBoxItem zerado no Tema (alinha o '*'). -->
+                <DockPanel>
+                    <!-- ===== HEADER FIXO ===== -->
+                    <Grid DockPanel.Dock="Top" Height="28"
+                          Background="{DynamicResource BrushFundoHeader}"
+                          ColumnDefinitions="80,*,2*,90,90,120,160,50,90">
+                        <Border Grid.ColumnSpan="9" Height="1" Background="#CBD5E1"
+                                VerticalAlignment="Bottom" />
+                        <TextBlock Grid.Column="0" Text="CÓDIGO"     Classes="th" />
+                        <TextBlock Grid.Column="1" Text="DESCRIÇÃO"  Classes="th" />
+                        <TextBlock Grid.Column="2" Text="APLICAÇÃO"  Classes="th" />
+                        <TextBlock Grid.Column="3" Text="POSIÇÃO"    Classes="th" />
+                        <TextBlock Grid.Column="4" Text="LADO"       Classes="th" />
+                        <TextBlock Grid.Column="5" Text="COD.FABRIC" Classes="th" />
+                        <TextBlock Grid.Column="6" Text="EQUIVALE A" Classes="th" />
+                        <TextBlock Grid.Column="7" Text="UN"         Classes="th" />
+                        <TextBlock Grid.Column="8" Text="VENDA"      Classes="th" />
+                    </Grid>
+
+                    <!-- Vazio: mensagem central (some quando há resultados). -->
+                    <TextBlock IsVisible="{Binding !Resultados.Count}"
+                               Text="Nenhuma peça encontrada. Ajuste os filtros de veículo ou o termo da peça."
+                               FontSize="12"
+                               Foreground="{DynamicResource BrushTextoMudo}"
+                               HorizontalAlignment="Center" VerticalAlignment="Top"
+                               Margin="0,40,0,0" />
+
+                    <ListBox Name="ListaResultados"
+                             Classes="tabela"
+                             IsVisible="{Binding !!Resultados.Count}"
+                             ItemsSource="{Binding Resultados}"
+                             SelectionMode="Single">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate x:DataType="dtos:CatalogoItemDto">
+                                <Grid Height="28" Cursor="Hand" Background="Transparent"
+                                      ColumnDefinitions="80,*,2*,90,90,120,160,50,90">
+                                    <Border Name="BarraSel" Grid.ColumnSpan="9" Width="3"
+                                            Background="{DynamicResource BrushPrimario}"
+                                            HorizontalAlignment="Left" IsVisible="False" />
+
+                                    <TextBlock Grid.Column="0" Text="{Binding CodProduto}"
+                                               Classes="td mono" />
+                                    <TextBlock Grid.Column="1" Text="{Binding Descricao}"
+                                               Classes="td" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="2" Text="{Binding Aplicacoes}"
+                                               Classes="td suave" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="3"
+                                               Text="{Binding Posicao, Converter={x:Static conv:PosicaoPecaConverter.Instancia}}"
+                                               Classes="td" />
+                                    <TextBlock Grid.Column="4"
+                                               Text="{Binding Lado, Converter={x:Static conv:LadoPecaConverter.Instancia}}"
+                                               Classes="td" />
+                                    <TextBlock Grid.Column="5" Text="{Binding CodFabricante}"
+                                               Classes="td mono" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="6" Text="{Binding Similares}"
+                                               Classes="td suave" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="7" Text="{Binding Unidade}"
+                                               Classes="td" />
+                                    <TextBlock Grid.Column="8"
+                                               Text="{Binding VlrVenda, StringFormat='{}{0:N2}'}"
+                                               Classes="td mono" HorizontalAlignment="Right" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+
                 <TextBlock Text="{Binding MensagemErro}"
                            IsVisible="{Binding MensagemErro, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                            Foreground="{DynamicResource BrushErro}"

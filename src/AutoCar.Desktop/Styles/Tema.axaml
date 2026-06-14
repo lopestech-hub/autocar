@@ -519,6 +519,86 @@
     </Style>
 
     <!-- ===================================================================
+         TABELA VIRTUALIZADA (ListBox.tabela) — listagem de cadastro
+         Substitui o "Grid único code-behind" nas listas com volume real (Produto).
+         O ListBox traz virtualização (só renderiza linhas visíveis), seleção, hover,
+         teclado (↑/↓) e scroll de graça. Cores e barra de seleção seguem o PADRÃO de
+         "Seleção por teclado nas listas de cadastro" (fundo #DBEAFE + barra 3px #3B82F6,
+         hover #EFF6FF). Enter/duplo-clique → AbrirCommand é ligado no code-behind.
+         =================================================================== -->
+    <Style Selector="ListBox.tabela">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="CornerRadius" Value="0" />
+    </Style>
+    <!-- Zera o padding interno do ScrollViewer/Border do ListBox para o '*' do template
+         alinhar exatamente com o header (Grids separados com '*' desalinham se houver
+         padding invisível — lição registrada na memória do projeto). -->
+    <Style Selector="ListBox.tabela /template/ Border#border">
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <!-- Cada linha: 28px, sem padding/margin (o conteúdo já vem espaçado no template),
+         borda inferior suave (separador), cursor de mão. -->
+    <Style Selector="ListBox.tabela ListBoxItem">
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="MinHeight" Value="28" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BrushBordaSuave}" />
+        <Setter Property="BorderThickness" Value="0,0,0,1" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    </Style>
+    <!-- Fundo dos estados (o FluentTheme aplica cores próprias que destoam do padrão):
+         hover #EFF6FF (passageiro), seleção #DBEAFE (marca). Fixar no /template/ Border
+         interno do ContentPresenter do ListBoxItem para vencer o tema sem flicker. -->
+    <Style Selector="ListBox.tabela ListBoxItem /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Padding" Value="0" />
+    </Style>
+    <Style Selector="ListBox.tabela ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource BrushFundoSelecionado}" />
+    </Style>
+    <Style Selector="ListBox.tabela ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="#DBEAFE" />
+    </Style>
+    <!-- Seleção vence o hover: linha marcada continua #DBEAFE mesmo sob o mouse. -->
+    <Style Selector="ListBox.tabela ListBoxItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="#DBEAFE" />
+    </Style>
+    <!-- Barra lateral 3px azul (a "régua") da linha selecionada: o Border#BarraSel vive
+         dentro do ItemTemplate; mostra quando o ListBoxItem está selecionado. -->
+    <Style Selector="ListBox.tabela ListBoxItem:selected Border#BarraSel">
+        <Setter Property="IsVisible" Value="True" />
+    </Style>
+
+    <!-- Célula de texto da tabela (td) e cabeçalho de coluna (th). -->
+    <Style Selector="TextBlock.td">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontFamily" Value="{DynamicResource FonteInterface}" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushTexto}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="8,0" />
+    </Style>
+    <Style Selector="TextBlock.td.mono">
+        <Setter Property="FontFamily" Value="{DynamicResource FonteMono}" />
+    </Style>
+    <!-- Texto de célula com leve hierarquia (slate-700) — colunas secundárias mas legíveis,
+         ex: APLICAÇÃO/EQUIVALE A do Catálogo (o operador lê, mas não competem com a descrição). -->
+    <Style Selector="TextBlock.td.suave">
+        <Setter Property="Foreground" Value="#334155" />
+    </Style>
+    <Style Selector="TextBlock.th">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="#475569" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="8,0" />
+    </Style>
+
+    <!-- ===================================================================
          SHELL ESTILO ERP CLÁSSICO (menu de texto + toolbar de ícones)
          =================================================================== -->
 
