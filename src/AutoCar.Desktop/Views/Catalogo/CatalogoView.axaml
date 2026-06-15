@@ -61,7 +61,7 @@
                 BorderThickness="1"
                 CornerRadius="6"
                 ClipToBounds="True">
-            <Panel Name="TabelaContainer">
+            <Panel>
                 <!-- Tabela: header fixo + ListBox virtualizado (só renderiza as linhas visíveis —
                      o Catálogo pode listar muitas peças). Colunas iguais no header e no template
                      (80,*,2*,90,90,120,160,50,90). Padding do ListBoxItem zerado no Tema (alinha o '*'). -->

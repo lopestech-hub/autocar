@@ -50,6 +50,32 @@ public sealed class TipoPessoaTextoCorConverter : IValueConverter
 }
 
 /// <summary>
+/// Máscara de documento detectada pelo COMPRIMENTO (11 = CPF, 14 = CNPJ), sem precisar do tipo.
+/// Usada nos seletores (busca rápida), onde só temos o documento à mão. Tolerante: se não for
+/// puramente numérico (dado legado), exibe o valor cru em vez de lançar.
+/// </summary>
+public sealed class DocumentoMascaraSimplesConverter : IValueConverter
+{
+    public static readonly DocumentoMascaraSimplesConverter Instancia = new();
+    private static readonly CultureInfo PtBr = new("pt-BR");
+
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not string doc || string.IsNullOrEmpty(doc)) return "";
+        if (!ulong.TryParse(doc, out var n)) return doc;
+        return doc.Length switch
+        {
+            11 => n.ToString(@"000\.000\.000\-00", PtBr),
+            14 => n.ToString(@"00\.000\.000\/0000\-00", PtBr),
+            _ => doc,
+        };
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        throw new NotSupportedException();
+}
+
+/// <summary>
 /// Máscara de exibição do documento (o banco guarda só dígitos): CPF 000.000.000-00 (PF) ou
 /// CNPJ 00.000.000/0000-00 (PJ). MultiValue: [0]=Documento (string), [1]=TipoPessoa (enum).
 /// </summary>

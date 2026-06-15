@@ -1,6 +1,10 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:dtos="using:AutoCar.Application.Modules.Registrations.Clientes.DTOs"
+        xmlns:conv="using:AutoCar.Desktop.Converters"
+        xmlns:sel="using:AutoCar.Desktop.Views.Sales"
         x:Class="AutoCar.Desktop.Views.Sales.ClienteSeletorWindow"
+        x:DataType="sel:ClienteSeletorWindow"
         Width="720" Height="560"
         WindowStartupLocation="CenterOwner"
         Title="Selecionar cliente"
@@ -23,7 +27,55 @@
                 Background="{DynamicResource BrushFundoCard}"
                 BorderBrush="{DynamicResource BrushBorda}" BorderThickness="1"
                 CornerRadius="6" ClipToBounds="True">
-            <Panel Name="TabelaContainer" />
+            <Panel>
+                <!-- Tabela: header fixo + ListBox virtualizado (colunas 70,*,150,130). -->
+                <DockPanel>
+                    <Grid DockPanel.Dock="Top" Height="28"
+                          Background="{DynamicResource BrushFundoHeader}"
+                          ColumnDefinitions="70,*,150,130">
+                        <Border Grid.ColumnSpan="4" Height="1" Background="#CBD5E1"
+                                VerticalAlignment="Bottom" />
+                        <TextBlock Grid.Column="0" Text="CÓDIGO"              Classes="th" />
+                        <TextBlock Grid.Column="1" Text="NOME / RAZÃO SOCIAL" Classes="th" />
+                        <TextBlock Grid.Column="2" Text="DOCUMENTO"           Classes="th" />
+                        <TextBlock Grid.Column="3" Text="TELEFONE"            Classes="th" />
+                    </Grid>
+
+                    <TextBlock IsVisible="{Binding !Resultado.Count}"
+                               Text="Nenhum cliente encontrado. Ajuste a busca ou use &quot;Consumidor (sem cliente)&quot;."
+                               FontSize="12"
+                               Foreground="{DynamicResource BrushTextoMudo}"
+                               HorizontalAlignment="Center" VerticalAlignment="Top"
+                               Margin="0,40,0,0" />
+
+                    <ListBox Name="ListaResultado"
+                             Classes="tabela"
+                             IsVisible="{Binding !!Resultado.Count}"
+                             ItemsSource="{Binding Resultado}"
+                             SelectionMode="Single">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate x:DataType="dtos:ClienteListaDto">
+                                <Grid Height="28" Cursor="Hand" Background="Transparent"
+                                      ColumnDefinitions="70,*,150,130">
+                                    <Border Name="BarraSel" Grid.ColumnSpan="4" Width="3"
+                                            Background="{DynamicResource BrushPrimario}"
+                                            HorizontalAlignment="Left" IsVisible="False" />
+
+                                    <TextBlock Grid.Column="0" Text="{Binding CodCliente}"
+                                               Classes="td mono" />
+                                    <TextBlock Grid.Column="1" Text="{Binding RazaoSocial}"
+                                               Classes="td" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="2"
+                                               Text="{Binding Documento, Converter={x:Static conv:DocumentoMascaraSimplesConverter.Instancia}}"
+                                               Classes="td mono" />
+                                    <TextBlock Grid.Column="3" Text="{Binding Telefone}"
+                                               Classes="td mono" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </Panel>
         </Border>
 
         <Border Grid.Row="3" BorderBrush="{DynamicResource BrushBorda}" BorderThickness="0,1,0,0" Padding="0,10,0,0" Margin="0,12,0,0">
