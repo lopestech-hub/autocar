@@ -247,11 +247,13 @@ normalizado de montadora/modelo). Sem `cod_` (registro filho). Migration: `Aplic
   injetado dos demais repos — evita estado defasado de contexto de longa duração no desktop.
 - **Aplicações novas forçadas a `State = Added`** no `AtualizarAsync` — a PK gerada no cliente
   (`Guid.NewGuid`) fazia o EF inferir `Modified` → UPDATE em linha inexistente. Ver lição global.
-- **Listagem virtualizada** (`ListBox.tabela`, 2026-06-14) — a `ProdutosView` migrou do "Grid único
-  code-behind" para `ListBox` virtualizado (só renderiza linhas visíveis). Motivo: o code-behind
+- **Listagem virtualizada** (`ListBox.tabela`, 2026-06-14/15) — todas as listagens migraram do "Grid
+  único code-behind" para `ListBox` virtualizado (só renderiza linhas visíveis). Motivo: o code-behind
   montava ~11 controles por linha de uma vez na UI thread e **travava com 256 produtos**. Padrão
-  reutilizável no `Tema.axaml`; ver memória local `feedback-padrao-listagem`. A **query** ainda não
-  pagina (`ListarAsync` sem `LIMIT`) — dívida separada, só relevante quando o volume crescer muito.
+  reutilizável no `Tema.axaml` (`ListBox.tabela` + classes `th`/`td`/`td.mono`/`td.suave`) — **universal
+  no projeto** (todos os cadastros, movimentos e os 5 seletores F2–F5). Ver memória local
+  `feedback-padrao-listagem`. A **query** ainda não pagina (`ListarAsync` sem `LIMIT`) — dívida
+  separada, só relevante quando o volume crescer muito.
 
 ## Decisões Técnicas (UI do módulo)
 
