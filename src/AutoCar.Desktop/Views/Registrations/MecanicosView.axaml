@@ -1,6 +1,8 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:AutoCar.Desktop.ViewModels.Registrations"
+             xmlns:dtos="using:AutoCar.Application.Modules.Registrations.Mecanicos.DTOs"
+             xmlns:conv="using:AutoCar.Desktop.Converters"
              x:Class="AutoCar.Desktop.Views.Registrations.MecanicosView"
              x:DataType="vm:MecanicosViewModel">
 
@@ -50,7 +52,61 @@
                     BorderThickness="1"
                     CornerRadius="6"
                     ClipToBounds="True">
-                <Panel Name="TabelaContainer">
+                <Panel>
+                    <!-- Tabela: header fixo + ListBox virtualizado (colunas 80,*,140,90). -->
+                    <DockPanel>
+                        <Grid DockPanel.Dock="Top" Height="28"
+                              Background="{DynamicResource BrushFundoHeader}"
+                              ColumnDefinitions="80,*,140,90">
+                            <Border Grid.ColumnSpan="4" Height="1" Background="#CBD5E1"
+                                    VerticalAlignment="Bottom" />
+                            <TextBlock Grid.Column="0" Text="CÓDIGO"   Classes="th" />
+                            <TextBlock Grid.Column="1" Text="NOME"     Classes="th" />
+                            <TextBlock Grid.Column="2" Text="TELEFONE" Classes="th" />
+                            <TextBlock Grid.Column="3" Text="STATUS"   Classes="th" />
+                        </Grid>
+
+                        <TextBlock IsVisible="{Binding !Mecanicos.Count}"
+                                   Text="Nenhum mecânico cadastrado. Clique em &quot;+ Novo mecânico&quot; para começar."
+                                   FontSize="12"
+                                   Foreground="{DynamicResource BrushTextoMudo}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Top"
+                                   Margin="0,40,0,0" />
+
+                        <ListBox Name="ListaMecanicos"
+                                 Classes="tabela"
+                                 IsVisible="{Binding !!Mecanicos.Count}"
+                                 ItemsSource="{Binding Mecanicos}"
+                                 SelectionMode="Single">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="dtos:MecanicoDto">
+                                    <Grid Height="28" Cursor="Hand" Background="Transparent"
+                                          ColumnDefinitions="80,*,140,90">
+                                        <Border Name="BarraSel" Grid.ColumnSpan="4" Width="3"
+                                                Background="{DynamicResource BrushPrimario}"
+                                                HorizontalAlignment="Left" IsVisible="False" />
+
+                                        <TextBlock Grid.Column="0" Text="{Binding CodMecanico}"
+                                                   Classes="td mono" />
+                                        <TextBlock Grid.Column="1" Text="{Binding Nome}"
+                                                   Classes="td" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="2" Text="{Binding Telefone}"
+                                                   Classes="td" />
+                                        <Border Grid.Column="3"
+                                                Background="{Binding FlgAtivo, Converter={x:Static conv:StatusAtivoFundoConverter.Instancia}}"
+                                                CornerRadius="2" Padding="6,2"
+                                                HorizontalAlignment="Left" VerticalAlignment="Center"
+                                                Margin="8,0">
+                                            <TextBlock Text="{Binding FlgAtivo, Converter={x:Static conv:StatusAtivoTextoConverter.Instancia}}"
+                                                       FontSize="10" FontWeight="Medium"
+                                                       Foreground="{Binding FlgAtivo, Converter={x:Static conv:StatusAtivoTextoCorConverter.Instancia}}" />
+                                        </Border>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </DockPanel>
+
                     <TextBlock Text="{Binding MensagemErro}"
                                IsVisible="{Binding MensagemErro, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                                Foreground="{DynamicResource BrushErro}"

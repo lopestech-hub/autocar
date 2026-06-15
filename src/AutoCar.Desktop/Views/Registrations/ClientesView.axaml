@@ -1,6 +1,8 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:AutoCar.Desktop.ViewModels.Registrations"
+             xmlns:dtos="using:AutoCar.Application.Modules.Registrations.Clientes.DTOs"
+             xmlns:conv="using:AutoCar.Desktop.Converters"
              x:Class="AutoCar.Desktop.Views.Registrations.ClientesView"
              x:DataType="vm:ClientesViewModel">
 
@@ -52,7 +54,82 @@
                     BorderThickness="1"
                     CornerRadius="6"
                     ClipToBounds="True">
-                <Panel Name="TabelaContainer">
+                <Panel>
+                    <!-- Tabela: header fixo + ListBox virtualizado (colunas 70,60,150,*,130,90). -->
+                    <DockPanel>
+                        <Grid DockPanel.Dock="Top" Height="28"
+                              Background="{DynamicResource BrushFundoHeader}"
+                              ColumnDefinitions="70,60,150,*,130,90">
+                            <Border Grid.ColumnSpan="6" Height="1" Background="#CBD5E1"
+                                    VerticalAlignment="Bottom" />
+                            <TextBlock Grid.Column="0" Text="CÓDIGO"              Classes="th" />
+                            <TextBlock Grid.Column="1" Text="TIPO"                Classes="th" />
+                            <TextBlock Grid.Column="2" Text="DOCUMENTO"           Classes="th" />
+                            <TextBlock Grid.Column="3" Text="NOME / RAZÃO SOCIAL" Classes="th" />
+                            <TextBlock Grid.Column="4" Text="TELEFONE"            Classes="th" />
+                            <TextBlock Grid.Column="5" Text="STATUS"              Classes="th" />
+                        </Grid>
+
+                        <TextBlock IsVisible="{Binding !Clientes.Count}"
+                                   Text="Nenhum cliente cadastrado. Clique em &quot;+ Novo cliente&quot; para começar."
+                                   FontSize="12"
+                                   Foreground="{DynamicResource BrushTextoMudo}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Top"
+                                   Margin="0,40,0,0" />
+
+                        <ListBox Name="ListaClientes"
+                                 Classes="tabela"
+                                 IsVisible="{Binding !!Clientes.Count}"
+                                 ItemsSource="{Binding Clientes}"
+                                 SelectionMode="Single">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="dtos:ClienteListaDto">
+                                    <Grid Height="28" Cursor="Hand" Background="Transparent"
+                                          ColumnDefinitions="70,60,150,*,130,90">
+                                        <Border Name="BarraSel" Grid.ColumnSpan="6" Width="3"
+                                                Background="{DynamicResource BrushPrimario}"
+                                                HorizontalAlignment="Left" IsVisible="False" />
+
+                                        <TextBlock Grid.Column="0" Text="{Binding CodCliente}"
+                                                   Classes="td mono" />
+                                        <!-- Badge PF/PJ (azul/roxo) -->
+                                        <Border Grid.Column="1"
+                                                Background="{Binding TipoPessoa, Converter={x:Static conv:TipoPessoaFundoConverter.Instancia}}"
+                                                CornerRadius="2" Padding="6,2"
+                                                HorizontalAlignment="Left" VerticalAlignment="Center"
+                                                Margin="8,0">
+                                            <TextBlock Text="{Binding TipoPessoa, Converter={x:Static conv:TipoPessoaTextoConverter.Instancia}}"
+                                                       FontSize="10" FontWeight="Medium"
+                                                       Foreground="{Binding TipoPessoa, Converter={x:Static conv:TipoPessoaTextoCorConverter.Instancia}}" />
+                                        </Border>
+                                        <!-- Documento com máscara CPF/CNPJ (depende de Documento + TipoPessoa) -->
+                                        <TextBlock Grid.Column="2" Classes="td mono">
+                                            <TextBlock.Text>
+                                                <MultiBinding Converter="{x:Static conv:DocumentoMascaraConverter.Instancia}">
+                                                    <Binding Path="Documento" />
+                                                    <Binding Path="TipoPessoa" />
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
+                                        <TextBlock Grid.Column="3" Text="{Binding RazaoSocial}"
+                                                   Classes="td" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="4" Text="{Binding Telefone}"
+                                                   Classes="td mono" />
+                                        <Border Grid.Column="5"
+                                                Background="{Binding FlgAtivo, Converter={x:Static conv:StatusAtivoFundoConverter.Instancia}}"
+                                                CornerRadius="2" Padding="6,2"
+                                                HorizontalAlignment="Left" VerticalAlignment="Center"
+                                                Margin="8,0">
+                                            <TextBlock Text="{Binding FlgAtivo, Converter={x:Static conv:StatusAtivoTextoConverter.Instancia}}"
+                                                       FontSize="10" FontWeight="Medium"
+                                                       Foreground="{Binding FlgAtivo, Converter={x:Static conv:StatusAtivoTextoCorConverter.Instancia}}" />
+                                        </Border>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </DockPanel>
+
                     <TextBlock Text="{Binding MensagemErro}"
                                IsVisible="{Binding MensagemErro, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                                Foreground="{DynamicResource BrushErro}"
