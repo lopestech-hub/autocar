@@ -167,6 +167,15 @@
         <Setter Property="FontFamily" Value="{DynamicResource FonteInterface}" />
     </Style>
 
+    <!-- Tooltip de IMAGEM (preview de produto no Catálogo): o conteúdo já é um Border branco
+         próprio, então o container do tooltip fica "limpo" (sem o fundo azul-ardósia e o padding
+         do estilo global, que criariam uma moldura dupla em volta da foto). -->
+    <Style Selector="ToolTip.imagem">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+    </Style>
+
     <!-- Label de formulário denso (à esquerda do campo, alinhado à direita) -->
     <Style Selector="TextBlock.formlabel">
         <Setter Property="FontSize" Value="12" />

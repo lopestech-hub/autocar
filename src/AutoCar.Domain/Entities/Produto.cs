@@ -26,7 +26,8 @@ public class Produto : EntidadeBase
         decimal vlrCusto,
         decimal vlrVenda,
         Guid? idMarca,
-        Guid? idFornecedor)
+        Guid? idFornecedor,
+        string? arquivoImagem = null)
     {
         IdCategoria = idCategoria;
         Descricao = descricao.Trim().ToUpperInvariant();
@@ -40,6 +41,7 @@ public class Produto : EntidadeBase
         VlrVenda = vlrVenda;
         IdMarca = idMarca;
         IdFornecedor = idFornecedor;
+        ArquivoImagem = NormalizarCodigo(arquivoImagem);
         FlgAtivo = true;
     }
 
@@ -67,6 +69,11 @@ public class Produto : EntidadeBase
     public decimal VlrCusto { get; protected set; }
 
     public decimal VlrVenda { get; protected set; }
+
+    /// <summary>Nome do arquivo de imagem do produto (ex: "27022.jpg"). Opcional. NÃO guarda caminho
+    /// nem URL — só o nome; a pasta-base é configurável por terminal (appsettings: Imagens:PastaBase),
+    /// porque o sistema é 2-tier multi-terminal e o caminho físico varia entre as máquinas da LAN.</summary>
+    public string? ArquivoImagem { get; protected set; }
 
     // --- FKs ---
 
@@ -112,7 +119,8 @@ public class Produto : EntidadeBase
         decimal vlrCusto,
         decimal vlrVenda,
         Guid? idMarca,
-        Guid? idFornecedor)
+        Guid? idFornecedor,
+        string? arquivoImagem = null)
     {
         IdCategoria = idCategoria;
         Descricao = descricao.Trim().ToUpperInvariant();
@@ -126,6 +134,7 @@ public class Produto : EntidadeBase
         VlrVenda = vlrVenda;
         IdMarca = idMarca;
         IdFornecedor = idFornecedor;
+        ArquivoImagem = NormalizarCodigo(arquivoImagem);
         MarcarAtualizada();
     }
 

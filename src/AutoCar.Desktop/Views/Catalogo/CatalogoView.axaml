@@ -100,6 +100,30 @@
                             <DataTemplate x:DataType="dtos:CatalogoItemDto">
                                 <Grid Height="28" Cursor="Hand" Background="Transparent"
                                       ColumnDefinitions="80,*,2*,90,90,120,160,50,90">
+                                    <!-- Imagem da peça no hover: tooltip só aparece quando há foto na
+                                         pasta-base; o Bitmap carrega sob demanda (Avalonia só materializa
+                                         o tooltip ao abrir). Borda branca + título com a descrição embaixo. -->
+                                    <ToolTip.Tip>
+                                        <ToolTip Classes="imagem"
+                                                 IsVisible="{Binding ArquivoImagem, Converter={x:Static conv:TemImagemProdutoConverter.Instancia}}">
+                                            <Border Background="White" CornerRadius="3" Padding="6"
+                                                    BorderBrush="#CBD5E1" BorderThickness="1">
+                                                <StackPanel Spacing="4">
+                                                    <Image Width="320" Height="320" Stretch="Uniform"
+                                                           Source="{Binding ArquivoImagem, Converter={x:Static conv:ImagemProdutoConverter.Instancia}}" />
+                                                    <TextBlock Text="{Binding Descricao}"
+                                                               FontSize="11" FontWeight="SemiBold"
+                                                               Foreground="#1E293B"
+                                                               HorizontalAlignment="Center" />
+                                                    <TextBlock Text="{Binding CodFabricante}"
+                                                               FontSize="10" Foreground="#64748B"
+                                                               FontFamily="{DynamicResource FonteMono}"
+                                                               HorizontalAlignment="Center" />
+                                                </StackPanel>
+                                            </Border>
+                                        </ToolTip>
+                                    </ToolTip.Tip>
+
                                     <Border Name="BarraSel" Grid.ColumnSpan="9" Width="3"
                                             Background="{DynamicResource BrushPrimario}"
                                             HorizontalAlignment="Left" IsVisible="False" />

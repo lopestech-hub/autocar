@@ -68,6 +68,13 @@ public class ProdutoConfiguration : IEntityTypeConfiguration<Produto>
             .HasColumnType("decimal(10,2)")
             .IsRequired();
 
+        // Nome do arquivo de imagem (só o nome, ex: "27022.jpg"; a pasta-base é configurável por
+        // terminal). Opcional. Criada inicialmente fora do EF como "url_imagem" — a migration
+        // RenomearArquivoImagem renomeia para "arquivo_imagem" e limpa os caminhos legados.
+        builder.Property(p => p.ArquivoImagem)
+            .HasColumnName("arquivo_imagem")
+            .HasMaxLength(300);
+
         builder.Property(p => p.IdCategoria)
             .HasColumnName("id_categoria")
             .IsRequired();

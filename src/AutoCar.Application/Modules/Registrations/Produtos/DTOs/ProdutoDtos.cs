@@ -35,7 +35,8 @@ public sealed record SalvarProdutoDto(
     Guid? IdMarca,
     Guid? IdFornecedor,
     IReadOnlyList<AplicacaoDto> Aplicacoes,
-    IReadOnlyList<SimilarDto> Similares);
+    IReadOnlyList<SimilarDto> Similares,
+    string? ArquivoImagem = null);
 
 /// <summary>Produto completo para o formulário (visualização/edição).</summary>
 public sealed record ProdutoDto(
@@ -55,7 +56,8 @@ public sealed record ProdutoDto(
     Guid? IdFornecedor,
     bool FlgAtivo,
     IReadOnlyList<AplicacaoDto> Aplicacoes,
-    IReadOnlyList<SimilarDto> Similares);
+    IReadOnlyList<SimilarDto> Similares,
+    string? ArquivoImagem = null);
 
 /// <summary>Linha enxuta para a listagem de produtos (com nomes das FKs já resolvidos).</summary>
 public sealed record ProdutoListaDto(
@@ -94,4 +96,5 @@ public sealed record CatalogoItemDto(
     string? CodFabricante,
     decimal VlrVenda,
     string Aplicacoes,
-    string Similares);
+    string Similares,
+    string? ArquivoImagem = null);

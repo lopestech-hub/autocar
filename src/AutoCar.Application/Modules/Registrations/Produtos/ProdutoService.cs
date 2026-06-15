@@ -40,7 +40,8 @@ public sealed class ProdutoService : IProdutoService
 
         var produto = new Produto(
             dto.IdCategoria, dto.Descricao, dto.DescricaoComplementar, dto.CodBarras,
-            dto.CodFabricante, dto.Unidade, dto.Posicao, dto.Lado, dto.VlrCusto, dto.VlrVenda, dto.IdMarca, dto.IdFornecedor);
+            dto.CodFabricante, dto.Unidade, dto.Posicao, dto.Lado, dto.VlrCusto, dto.VlrVenda, dto.IdMarca, dto.IdFornecedor,
+            dto.ArquivoImagem);
         produto.DefinirAplicacoes(MapearAplicacoes(dto.Aplicacoes));
         produto.DefinirSimilares(MapearSimilares(dto.Similares));
 
@@ -64,7 +65,8 @@ public sealed class ProdutoService : IProdutoService
         {
             produto.AlterarDados(
                 dto.IdCategoria, dto.Descricao, dto.DescricaoComplementar, dto.CodBarras,
-                dto.CodFabricante, dto.Unidade, dto.Posicao, dto.Lado, dto.VlrCusto, dto.VlrVenda, dto.IdMarca, dto.IdFornecedor);
+                dto.CodFabricante, dto.Unidade, dto.Posicao, dto.Lado, dto.VlrCusto, dto.VlrVenda, dto.IdMarca, dto.IdFornecedor,
+                dto.ArquivoImagem);
             produto.DefinirAplicacoes(MapearAplicacoes(dto.Aplicacoes));
             produto.DefinirSimilares(MapearSimilares(dto.Similares));
         }, ct);
@@ -125,7 +127,7 @@ public sealed class ProdutoService : IProdutoService
         return produtos.Select(p => new CatalogoItemDto(
             p.Id, p.CodProduto, p.Descricao, p.Categoria?.Descricao, p.Marca?.Descricao,
             p.Unidade, p.Posicao, p.Lado, p.CodFabricante, p.VlrVenda,
-            ResumirAplicacoes(p), ResumirSimilares(p))).ToList();
+            ResumirAplicacoes(p), ResumirSimilares(p), p.ArquivoImagem)).ToList();
     }
 
     public Task<IReadOnlyList<string>> ListarMontadorasAsync(CancellationToken ct = default) =>
@@ -191,5 +193,6 @@ public sealed class ProdutoService : IProdutoService
         p.Aplicacoes.Select(a => new AplicacaoDto(
             a.Montadora, a.Modelo, a.AnoInicio, a.AnoFim, a.Motorizacao, a.Combustivel, a.Observacao)).ToList(),
         p.Similares.Select(s => new SimilarDto(
-            s.Marca, s.CodReferencia, s.IdProdutoEquivalente, s.Observacao)).ToList());
+            s.Marca, s.CodReferencia, s.IdProdutoEquivalente, s.Observacao)).ToList(),
+        p.ArquivoImagem);
 }
