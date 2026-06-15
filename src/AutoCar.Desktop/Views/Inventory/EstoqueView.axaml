@@ -1,6 +1,8 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:AutoCar.Desktop.ViewModels.Inventory"
+             xmlns:dtos="using:AutoCar.Application.Modules.Estoque.DTOs"
+             xmlns:conv="using:AutoCar.Desktop.Converters"
              x:Class="AutoCar.Desktop.Views.Inventory.EstoqueView"
              x:DataType="vm:EstoqueViewModel">
 
@@ -44,7 +46,66 @@
                     BorderThickness="1"
                     CornerRadius="6"
                     ClipToBounds="True">
-                <Panel Name="TabelaContainer">
+                <Panel>
+                    <!-- Tabela: header fixo + ListBox virtualizado (colunas 90,*,70,110,110). -->
+                    <DockPanel>
+                        <Grid DockPanel.Dock="Top" Height="28"
+                              Background="{DynamicResource BrushFundoHeader}"
+                              ColumnDefinitions="90,*,70,110,110">
+                            <Border Grid.ColumnSpan="5" Height="1" Background="#CBD5E1"
+                                    VerticalAlignment="Bottom" />
+                            <TextBlock Grid.Column="0" Text="CÓDIGO"     Classes="th" />
+                            <TextBlock Grid.Column="1" Text="PRODUTO"    Classes="th" />
+                            <TextBlock Grid.Column="2" Text="UN"         Classes="th" />
+                            <TextBlock Grid.Column="3" Text="SALDO"      Classes="th" />
+                            <TextBlock Grid.Column="4" Text="DISPONÍVEL" Classes="th" />
+                        </Grid>
+
+                        <TextBlock IsVisible="{Binding !Saldos.Count}"
+                                   Text="Nenhum produto com saldo. Cadastre produtos e registre entradas."
+                                   FontSize="12"
+                                   Foreground="{DynamicResource BrushTextoMudo}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Top"
+                                   Margin="0,40,0,0" />
+
+                        <ListBox Name="ListaSaldos"
+                                 Classes="tabela"
+                                 IsVisible="{Binding !!Saldos.Count}"
+                                 ItemsSource="{Binding Saldos}"
+                                 SelectionMode="Single">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="dtos:SaldoEstoqueListaDto">
+                                    <Grid Height="28" Cursor="Hand" Background="Transparent"
+                                          ColumnDefinitions="90,*,70,110,110">
+                                        <Border Name="BarraSel" Grid.ColumnSpan="5" Width="3"
+                                                Background="{DynamicResource BrushPrimario}"
+                                                HorizontalAlignment="Left" IsVisible="False" />
+
+                                        <TextBlock Grid.Column="0" Text="{Binding CodProduto}"
+                                                   Classes="td mono" />
+                                        <TextBlock Grid.Column="1" Text="{Binding Descricao}"
+                                                   Classes="td" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="2" Text="{Binding Unidade}"
+                                                   Classes="td" />
+                                        <!-- Saldo/Disponível: realce > 0 (escuro/SemiBold) vs zero (cinza). -->
+                                        <TextBlock Grid.Column="3"
+                                                   Text="{Binding QtdSaldo, StringFormat='{}{0:N0}'}"
+                                                   FontSize="12" FontFamily="{DynamicResource FonteMono}"
+                                                   VerticalAlignment="Center" HorizontalAlignment="Right" Margin="8,0"
+                                                   Foreground="{Binding QtdSaldo, Converter={x:Static conv:SaldoCorConverter.Instancia}}"
+                                                   FontWeight="{Binding QtdSaldo, Converter={x:Static conv:SaldoPesoConverter.Instancia}}" />
+                                        <TextBlock Grid.Column="4"
+                                                   Text="{Binding QtdDisponivel, StringFormat='{}{0:N0}'}"
+                                                   FontSize="12" FontFamily="{DynamicResource FonteMono}"
+                                                   VerticalAlignment="Center" HorizontalAlignment="Right" Margin="8,0"
+                                                   Foreground="{Binding QtdDisponivel, Converter={x:Static conv:SaldoCorConverter.Instancia}}"
+                                                   FontWeight="{Binding QtdDisponivel, Converter={x:Static conv:SaldoPesoConverter.Instancia}}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </DockPanel>
+
                     <TextBlock Text="{Binding MensagemErro}"
                                IsVisible="{Binding MensagemErro, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                                Foreground="{DynamicResource BrushErro}"

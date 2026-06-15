@@ -1,6 +1,8 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:AutoCar.Desktop.ViewModels.Service"
+             xmlns:dtos="using:AutoCar.Application.Modules.Service.OrdensServico.DTOs"
+             xmlns:conv="using:AutoCar.Desktop.Converters"
              x:Class="AutoCar.Desktop.Views.Service.OrdensServicoView"
              x:DataType="vm:OrdensServicoViewModel">
 
@@ -46,7 +48,79 @@
                 BorderThickness="1"
                 CornerRadius="6"
                 ClipToBounds="True">
-            <Panel Name="TabelaContainer">
+            <Panel>
+                <!-- Tabela: header fixo + ListBox virtualizado (colunas 80,110,*,140,70,110,130). -->
+                <DockPanel>
+                    <Grid DockPanel.Dock="Top" Height="28"
+                          Background="{DynamicResource BrushFundoHeader}"
+                          ColumnDefinitions="80,110,*,140,70,110,130">
+                        <Border Grid.ColumnSpan="7" Height="1" Background="#CBD5E1"
+                                VerticalAlignment="Bottom" />
+                        <TextBlock Grid.Column="0" Text="Nº"       Classes="th" />
+                        <TextBlock Grid.Column="1" Text="DATA"     Classes="th" />
+                        <TextBlock Grid.Column="2" Text="CLIENTE"  Classes="th" />
+                        <TextBlock Grid.Column="3" Text="VEÍCULO"  Classes="th" />
+                        <TextBlock Grid.Column="4" Text="ITENS"    Classes="th" />
+                        <TextBlock Grid.Column="5" Text="TOTAL"    Classes="th" />
+                        <TextBlock Grid.Column="6" Text="SITUAÇÃO" Classes="th" />
+                    </Grid>
+
+                    <TextBlock IsVisible="{Binding !Ordens.Count}"
+                               Text="Nenhuma ordem de serviço. Clique em &quot;+ Nova OS&quot; para começar."
+                               FontSize="12"
+                               Foreground="{DynamicResource BrushTextoMudo}"
+                               HorizontalAlignment="Center" VerticalAlignment="Top"
+                               Margin="0,40,0,0" />
+
+                    <ListBox Name="ListaOrdens"
+                             Classes="tabela"
+                             IsVisible="{Binding !!Ordens.Count}"
+                             ItemsSource="{Binding Ordens}"
+                             SelectionMode="Single">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate x:DataType="dtos:OrdemServicoListaDto">
+                                <Grid Height="28" Cursor="Hand" Background="Transparent"
+                                      ColumnDefinitions="80,110,*,140,70,110,130">
+                                    <Border Name="BarraSel" Grid.ColumnSpan="7" Width="3"
+                                            Background="{DynamicResource BrushPrimario}"
+                                            HorizontalAlignment="Left" IsVisible="False" />
+
+                                    <TextBlock Grid.Column="0" Text="{Binding CodOrdemServico}"
+                                               Classes="td mono" />
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding DataCriacao, Converter={x:Static conv:DataBrasiliaCurtaConverter.Instancia}}"
+                                               Classes="td mono" />
+                                    <TextBlock Grid.Column="2" Text="{Binding Cliente}"
+                                               Classes="td" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="3" Classes="td" TextTrimming="CharacterEllipsis">
+                                        <TextBlock.Text>
+                                            <MultiBinding Converter="{x:Static conv:VeiculoConverter.Instancia}">
+                                                <Binding Path="VeiculoModelo" />
+                                                <Binding Path="VeiculoPlaca" />
+                                            </MultiBinding>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                    <TextBlock Grid.Column="4" Text="{Binding QtdItens}"
+                                               Classes="td mono" HorizontalAlignment="Right" />
+                                    <TextBlock Grid.Column="5"
+                                               Text="{Binding VlrTotal, StringFormat='{}{0:N2}'}"
+                                               Classes="td mono" HorizontalAlignment="Right" />
+                                    <Border Grid.Column="6"
+                                            Background="{Binding Situacao, Converter={x:Static conv:SituacaoOrdemFundoConverter.Instancia}}"
+                                            BorderBrush="{Binding Situacao, Converter={x:Static conv:SituacaoOrdemBordaConverter.Instancia}}"
+                                            BorderThickness="1" CornerRadius="2" Padding="6,1"
+                                            HorizontalAlignment="Left" VerticalAlignment="Center"
+                                            Margin="8,0">
+                                        <TextBlock Text="{Binding Situacao, Converter={x:Static conv:SituacaoOrdemTextoConverter.Instancia}}"
+                                                   FontSize="10" FontWeight="SemiBold"
+                                                   Foreground="{Binding Situacao, Converter={x:Static conv:SituacaoOrdemTextoCorConverter.Instancia}}" />
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+
                 <TextBlock Text="{Binding MensagemErro}"
                            IsVisible="{Binding MensagemErro, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                            Foreground="{DynamicResource BrushErro}"

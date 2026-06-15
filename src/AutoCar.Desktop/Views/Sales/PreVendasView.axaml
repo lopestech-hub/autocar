@@ -1,6 +1,8 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:AutoCar.Desktop.ViewModels.Sales"
+             xmlns:dtos="using:AutoCar.Application.Modules.Sales.PreVendas.DTOs"
+             xmlns:conv="using:AutoCar.Desktop.Converters"
              x:Class="AutoCar.Desktop.Views.Sales.PreVendasView"
              x:DataType="vm:PreVendasViewModel">
 
@@ -49,7 +51,70 @@
                     BorderThickness="1"
                     CornerRadius="6"
                     ClipToBounds="True">
-                <Panel Name="TabelaContainer">
+                <Panel>
+                    <!-- Tabela: header fixo + ListBox virtualizado (colunas 80,110,*,70,110,110). -->
+                    <DockPanel>
+                        <Grid DockPanel.Dock="Top" Height="28"
+                              Background="{DynamicResource BrushFundoHeader}"
+                              ColumnDefinitions="80,110,*,70,110,110">
+                            <Border Grid.ColumnSpan="6" Height="1" Background="#CBD5E1"
+                                    VerticalAlignment="Bottom" />
+                            <TextBlock Grid.Column="0" Text="Nº"       Classes="th" />
+                            <TextBlock Grid.Column="1" Text="DATA"     Classes="th" />
+                            <TextBlock Grid.Column="2" Text="CLIENTE"  Classes="th" />
+                            <TextBlock Grid.Column="3" Text="ITENS"    Classes="th" />
+                            <TextBlock Grid.Column="4" Text="TOTAL"    Classes="th" />
+                            <TextBlock Grid.Column="5" Text="SITUAÇÃO" Classes="th" />
+                        </Grid>
+
+                        <TextBlock IsVisible="{Binding !PreVendas.Count}"
+                                   Text="Nenhuma pré-venda. Clique em &quot;+ Nova pré-venda&quot; para começar."
+                                   FontSize="12"
+                                   Foreground="{DynamicResource BrushTextoMudo}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Top"
+                                   Margin="0,40,0,0" />
+
+                        <ListBox Name="ListaPreVendas"
+                                 Classes="tabela"
+                                 IsVisible="{Binding !!PreVendas.Count}"
+                                 ItemsSource="{Binding PreVendas}"
+                                 SelectionMode="Single">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="dtos:PreVendaListaDto">
+                                    <Grid Height="28" Cursor="Hand" Background="Transparent"
+                                          ColumnDefinitions="80,110,*,70,110,110">
+                                        <Border Name="BarraSel" Grid.ColumnSpan="6" Width="3"
+                                                Background="{DynamicResource BrushPrimario}"
+                                                HorizontalAlignment="Left" IsVisible="False" />
+
+                                        <TextBlock Grid.Column="0" Text="{Binding CodPreVenda}"
+                                                   Classes="td mono" />
+                                        <TextBlock Grid.Column="1"
+                                                   Text="{Binding DataCriacao, Converter={x:Static conv:DataBrasiliaCurtaConverter.Instancia}}"
+                                                   Classes="td mono" />
+                                        <TextBlock Grid.Column="2" Text="{Binding Cliente}"
+                                                   Classes="td" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="3" Text="{Binding QtdItens}"
+                                                   Classes="td mono" HorizontalAlignment="Right" />
+                                        <TextBlock Grid.Column="4"
+                                                   Text="{Binding VlrTotal, StringFormat='{}{0:N2}'}"
+                                                   Classes="td mono" HorizontalAlignment="Right" />
+                                        <Border Grid.Column="5"
+                                                Background="{Binding Situacao, Converter={x:Static conv:SituacaoPreVendaFundoConverter.Instancia}}"
+                                                BorderBrush="{Binding Situacao, Converter={x:Static conv:SituacaoPreVendaBordaConverter.Instancia}}"
+                                                BorderThickness="1" CornerRadius="2" Padding="6,1"
+                                                HorizontalAlignment="Left" VerticalAlignment="Center"
+                                                Margin="8,0">
+                                            <TextBlock Text="{Binding Situacao, Converter={x:Static conv:SituacaoPreVendaTextoConverter.Instancia}}"
+                                                       FontSize="10" FontWeight="SemiBold"
+                                                       Foreground="{Binding Situacao, Converter={x:Static conv:SituacaoPreVendaTextoCorConverter.Instancia}}" />
+                                        </Border>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </DockPanel>
+
                     <TextBlock Text="{Binding MensagemErro}"
                                IsVisible="{Binding MensagemErro, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                                Foreground="{DynamicResource BrushErro}"
