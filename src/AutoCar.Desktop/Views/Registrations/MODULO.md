@@ -188,6 +188,10 @@ estoque NÃO mora aqui** — fica no módulo de Estoque (Fase 3).
   **independente** da posição/eixo — distingue peças com versão esquerda/direita (faróis, coxins,
   pontas de eixo). Cada lado é um produto separado; é só atributo descritivo/filtro. Migration: `LadoProduto`.
 - `vlr_custo`, `vlr_venda` (decimal 10,2)
+- `arquivo_imagem` (varchar 300, opcional) — **só o nome do arquivo** (ex: `27022.jpg`), não o caminho.
+  A pasta-base é configurável por terminal (`appsettings: Imagens:PastaBase`), porque o sistema é 2-tier
+  e o caminho físico varia entre as máquinas da LAN. Migration `RenomearArquivoImagem` (renomeou a
+  coluna `url_imagem`, criada fora do EF, e limpou os caminhos legados para só o nome).
 - `id_categoria` (FK **obrigatória** → `categoria_produto`, `Restrict`)
 - `id_marca`, `id_fornecedor` (FKs **opcionais** → `marca`/`fornecedor`, `Restrict`)
 - `flg_ativo`, `dat_criacao`, `dat_atualizacao` (UTC), `xmin` (concorrência)
