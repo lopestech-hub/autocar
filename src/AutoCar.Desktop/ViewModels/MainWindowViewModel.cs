@@ -38,6 +38,9 @@ public partial class MainWindowViewModel : ViewModelBase
         // --- Só no menu de texto ---
         new ItemMenu("Marcas", "fa-solid fa-tags", "Cadastros", flgToolbar: false, new[] { PerfilUsuario.Vendedor }, rota: "marcas"),
         new ItemMenu("Categorias", "fa-solid fa-layer-group", "Cadastros", flgToolbar: false, new[] { PerfilUsuario.Vendedor }, rota: "categorias"),
+        new ItemMenu("Grupos", "fa-solid fa-sitemap", "Cadastros", flgToolbar: false, new[] { PerfilUsuario.Vendedor }, rota: "grupos"),
+        new ItemMenu("Posições", "fa-solid fa-arrows-up-down", "Cadastros", flgToolbar: false, new[] { PerfilUsuario.Vendedor }, rota: "posicoes"),
+        new ItemMenu("Lados", "fa-solid fa-arrows-left-right", "Cadastros", flgToolbar: false, new[] { PerfilUsuario.Vendedor }, rota: "lados"),
         new ItemMenu("Serviços", "fa-solid fa-wrench", "Cadastros", flgToolbar: false, new[] { PerfilUsuario.Vendedor }, rota: "servicos"),
         new ItemMenu("Mecânicos", "fa-solid fa-user-gear", "Cadastros", flgToolbar: false, new[] { PerfilUsuario.Vendedor }, rota: "mecanicos"),
         new ItemMenu("Usuários", "fa-solid fa-users", "Cadastros", flgToolbar: false, Array.Empty<PerfilUsuario>()), // só Admin

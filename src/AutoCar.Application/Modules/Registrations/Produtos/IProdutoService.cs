@@ -21,6 +21,15 @@ public interface IProdutoService
     /// <summary>Fornecedores ativos para o combo (opcional no produto).</summary>
     Task<IReadOnlyList<OpcaoDto>> ListarFornecedoresAsync(CancellationToken ct = default);
 
+    /// <summary>Posições ativas para o combo (opcional no produto).</summary>
+    Task<IReadOnlyList<OpcaoDto>> ListarPosicoesAsync(CancellationToken ct = default);
+
+    /// <summary>Lados ativos para o combo (opcional no produto).</summary>
+    Task<IReadOnlyList<OpcaoDto>> ListarLadosAsync(CancellationToken ct = default);
+
+    /// <summary>Grupos ativos de uma categoria (combo dependente — só faz sentido após escolher a categoria).</summary>
+    Task<IReadOnlyList<OpcaoDto>> ListarGruposAsync(Guid idCategoria, CancellationToken ct = default);
+
     /// <summary>Busca de peças por veículo (tela Catálogo). Cruza produto × aplicação;
     /// todos os filtros são opcionais e vão estreitando o resultado.</summary>
     Task<IReadOnlyList<CatalogoItemDto>> BuscarCatalogoAsync(BuscaCatalogoDto filtro, CancellationToken ct = default);

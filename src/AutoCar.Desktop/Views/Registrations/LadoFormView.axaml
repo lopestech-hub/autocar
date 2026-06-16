@@ -1,0 +1,90 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AutoCar.Desktop.ViewModels.Registrations"
+             xmlns:b="using:AutoCar.Desktop.Behaviors"
+             x:Class="AutoCar.Desktop.Views.Registrations.LadoFormView"
+             x:DataType="vm:LadoFormViewModel">
+
+    <!-- ESC fecha o formulário (mesma ação do botão Cancelar/Fechar). -->
+    <UserControl.KeyBindings>
+        <KeyBinding Gesture="Escape" Command="{Binding CancelarCommand}" />
+    </UserControl.KeyBindings>
+
+    <Border Margin="16"
+            Background="{DynamicResource BrushFundoCard}"
+            BorderBrush="{DynamicResource BrushBorda}"
+            BorderThickness="1"
+            CornerRadius="6">
+        <Grid RowDefinitions="Auto,*,Auto,Auto">
+
+            <!-- HEADER -->
+            <Border Grid.Row="0"
+                    BorderBrush="{DynamicResource BrushBorda}"
+                    BorderThickness="0,0,0,1"
+                    Padding="16,10">
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="{Binding Titulo}"
+                               FontSize="14" FontWeight="SemiBold"
+                               Foreground="{DynamicResource BrushTexto}"
+                               VerticalAlignment="Center" />
+                    <Border Background="#E0F2FE" CornerRadius="2" Padding="6,2"
+                            VerticalAlignment="Center" IsVisible="{Binding ModoVisualizacao}">
+                        <TextBlock Text="VISUALIZAÇÃO" FontSize="10" FontWeight="Medium" Foreground="#075985" />
+                    </Border>
+                    <Border Background="#FEF3C7" CornerRadius="2" Padding="6,2"
+                            VerticalAlignment="Center" IsVisible="{Binding !ModoVisualizacao}">
+                        <TextBlock Text="EDIÇÃO" FontSize="10" FontWeight="Medium" Foreground="#92400E" />
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <!-- CORPO -->
+            <ScrollViewer Grid.Row="1" Padding="16,12" VerticalScrollBarVisibility="Auto">
+                <Grid RowSpacing="6" ColumnDefinitions="100,*">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" /><!-- 0: Descrição -->
+                        <RowDefinition Height="Auto" /><!-- 1: mensagem de erro -->
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Classes="formlabel" Text="Descrição" />
+                    <TextBox Grid.Row="0" Grid.Column="1"
+                             Text="{Binding Descricao}" IsEnabled="{Binding !ModoVisualizacao}"
+                             b:MaiusculoBehavior.Ativo="True"
+                             Watermark="Ex: Esquerdo, Direito" />
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                               Text="{Binding MensagemErro}"
+                               IsVisible="{Binding MensagemErro, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                               Foreground="{DynamicResource BrushErro}" FontSize="11"
+                               TextWrapping="Wrap" Margin="0,8,0,0" />
+                </Grid>
+            </ScrollViewer>
+
+            <ProgressBar Grid.Row="2" IsIndeterminate="True" Height="2"
+                         IsVisible="{Binding Carregando}" />
+
+            <!-- RODAPÉ dois modos -->
+            <Border Grid.Row="3"
+                    BorderBrush="{DynamicResource BrushBorda}"
+                    BorderThickness="0,1,0,0"
+                    Padding="16,12">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                    <Button Content="Fechar" Classes="secundario"
+                            Command="{Binding CancelarCommand}"
+                            IsVisible="{Binding ModoVisualizacao}" Cursor="Hand" />
+                    <Button Content="Editar" Classes="primario"
+                            Command="{Binding HabilitarEdicaoCommand}"
+                            IsVisible="{Binding ModoVisualizacao}" Cursor="Hand" />
+                    <Button Content="Cancelar" Classes="secundario"
+                            Command="{Binding CancelarCommand}"
+                            IsVisible="{Binding !ModoVisualizacao}"
+                            IsEnabled="{Binding !Carregando}" Cursor="Hand" />
+                    <Button Content="Salvar" Classes="primario"
+                            Command="{Binding SalvarCommand}"
+                            IsVisible="{Binding !ModoVisualizacao}"
+                            IsEnabled="{Binding !Carregando}" Cursor="Hand" />
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>

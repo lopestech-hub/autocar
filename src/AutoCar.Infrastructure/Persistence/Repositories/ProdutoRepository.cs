@@ -21,8 +21,11 @@ public class ProdutoRepository : IProdutoRepository
         return await db.Produtos
             .AsNoTracking()
             .Include(p => p.Categoria)
+            .Include(p => p.Grupo)
             .Include(p => p.Marca)
             .Include(p => p.Fornecedor)
+            .Include(p => p.Posicao)
+            .Include(p => p.Lado)
             .Include(p => p.Aplicacoes)
             .Include(p => p.Similares)
             .FirstOrDefaultAsync(p => p.Id == id, ct);
@@ -51,7 +54,10 @@ public class ProdutoRepository : IProdutoRepository
         var query = db.Produtos
             .AsNoTracking()
             .Include(p => p.Categoria)
+            .Include(p => p.Grupo)
             .Include(p => p.Marca)
+            .Include(p => p.Posicao)
+            .Include(p => p.Lado)
             .Where(p => p.FlgAtivo);
 
         if (!string.IsNullOrWhiteSpace(filtro))
@@ -131,6 +137,8 @@ public class ProdutoRepository : IProdutoRepository
             .AsNoTracking()
             .Include(p => p.Categoria)
             .Include(p => p.Marca)
+            .Include(p => p.Posicao)
+            .Include(p => p.Lado)
             .Include(p => p.Aplicacoes)
             .Include(p => p.Similares)
             .Where(p => p.FlgAtivo);

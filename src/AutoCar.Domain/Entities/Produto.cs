@@ -3,6 +3,7 @@ using AutoCar.Domain.Enums;
 
 namespace AutoCar.Domain.Entities;
 
+
 /// <summary>
 /// Produto (peça/item) do AutoCar. Tabela mestre: id + cod_produto. Categoria é
 /// obrigatória (organiza e permite buscar a peça); marca e fornecedor são opcionais
@@ -21,12 +22,13 @@ public class Produto : EntidadeBase
         string? codBarras,
         string? codFabricante,
         UnidadeMedida unidade,
-        PosicaoPeca posicao,
-        LadoPeca lado,
+        Guid? idPosicao,
+        Guid? idLado,
         decimal vlrCusto,
         decimal vlrVenda,
         Guid? idMarca,
         Guid? idFornecedor,
+        Guid? idGrupo,
         string? arquivoImagem = null)
     {
         IdCategoria = idCategoria;
@@ -35,12 +37,13 @@ public class Produto : EntidadeBase
         CodBarras = NormalizarCodigo(codBarras);
         CodFabricante = NormalizarCodigo(codFabricante);
         Unidade = unidade;
-        Posicao = posicao;
-        Lado = lado;
+        IdPosicao = idPosicao;
+        IdLado = idLado;
         VlrCusto = vlrCusto;
         VlrVenda = vlrVenda;
         IdMarca = idMarca;
         IdFornecedor = idFornecedor;
+        IdGrupo = idGrupo;
         ArquivoImagem = NormalizarCodigo(arquivoImagem);
         FlgAtivo = true;
     }
@@ -59,12 +62,6 @@ public class Produto : EntidadeBase
     public string? CodFabricante { get; protected set; }
 
     public UnidadeMedida Unidade { get; protected set; }
-
-    /// <summary>Posição/eixo da peça (dianteira/traseira). NaoAplica para peças sem distinção.</summary>
-    public PosicaoPeca Posicao { get; protected set; }
-
-    /// <summary>Lado da peça (esquerdo/direito). NaoAplica para peças sem distinção de lado.</summary>
-    public LadoPeca Lado { get; protected set; }
 
     public decimal VlrCusto { get; protected set; }
 
@@ -86,10 +83,25 @@ public class Produto : EntidadeBase
     /// <summary>Fornecedor preferencial (opcional).</summary>
     public Guid? IdFornecedor { get; protected set; }
 
+    /// <summary>Grupo/família dentro da categoria (Amortecedor, Pastilha...). Opcional. Cadastro
+    /// editável que pertence à categoria (ver <see cref="GrupoProduto"/>). Nível Categoria → Grupo → Produto.</summary>
+    public Guid? IdGrupo { get; protected set; }
+
+    /// <summary>Posição/eixo da peça (Dianteira/Traseira...). Opcional — peça sem distinção de eixo
+    /// (óleo, filtro) não tem posição. Cadastro editável (ver <see cref="PosicaoPeca"/>).</summary>
+    public Guid? IdPosicao { get; protected set; }
+
+    /// <summary>Lado da peça (Esquerdo/Direito...). Opcional — peça sem distinção de lado não tem lado.
+    /// Cadastro editável (ver <see cref="LadoPeca"/>).</summary>
+    public Guid? IdLado { get; protected set; }
+
     // Navegações (carregadas só quando necessário, ex: exibição com nomes).
     public CategoriaProduto? Categoria { get; protected set; }
     public Marca? Marca { get; protected set; }
     public Fornecedor? Fornecedor { get; protected set; }
+    public GrupoProduto? Grupo { get; protected set; }
+    public PosicaoPeca? Posicao { get; protected set; }
+    public LadoPeca? Lado { get; protected set; }
 
     // Aplicações por veículo (1:N). Backing field para expor como somente leitura.
     private readonly List<ProdutoAplicacao> _aplicacoes = new();
@@ -114,12 +126,13 @@ public class Produto : EntidadeBase
         string? codBarras,
         string? codFabricante,
         UnidadeMedida unidade,
-        PosicaoPeca posicao,
-        LadoPeca lado,
+        Guid? idPosicao,
+        Guid? idLado,
         decimal vlrCusto,
         decimal vlrVenda,
         Guid? idMarca,
         Guid? idFornecedor,
+        Guid? idGrupo,
         string? arquivoImagem = null)
     {
         IdCategoria = idCategoria;
@@ -128,12 +141,13 @@ public class Produto : EntidadeBase
         CodBarras = NormalizarCodigo(codBarras);
         CodFabricante = NormalizarCodigo(codFabricante);
         Unidade = unidade;
-        Posicao = posicao;
-        Lado = lado;
+        IdPosicao = idPosicao;
+        IdLado = idLado;
         VlrCusto = vlrCusto;
         VlrVenda = vlrVenda;
         IdMarca = idMarca;
         IdFornecedor = idFornecedor;
+        IdGrupo = idGrupo;
         ArquivoImagem = NormalizarCodigo(arquivoImagem);
         MarcarAtualizada();
     }
@@ -153,6 +167,14 @@ public class Produto : EntidadeBase
     {
         _similares.Clear();
         _similares.AddRange(similares);
+        MarcarAtualizada();
+    }
+
+    /// <summary>Define (ou limpa) o grupo do produto isoladamente — útil para vínculo em lote/seed
+    /// sem reenviar os demais campos.</summary>
+    public void DefinirGrupo(Guid? idGrupo)
+    {
+        IdGrupo = idGrupo;
         MarcarAtualizada();
     }
 

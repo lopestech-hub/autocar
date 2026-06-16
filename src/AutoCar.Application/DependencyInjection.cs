@@ -51,8 +51,17 @@ public static class DependencyInjection
         services.AddScoped<IMarcaService, MarcaService>();
         services.AddScoped<IValidator<SalvarMarcaDto>, SalvarMarcaValidator>();
 
+        services.AddScoped<IPosicaoPecaService, PosicaoPecaService>();
+        services.AddScoped<IValidator<SalvarPosicaoPecaDto>, SalvarPosicaoPecaValidator>();
+
+        services.AddScoped<ILadoPecaService, LadoPecaService>();
+        services.AddScoped<IValidator<SalvarLadoPecaDto>, SalvarLadoPecaValidator>();
+
         services.AddScoped<ICategoriaProdutoService, CategoriaProdutoService>();
         services.AddScoped<IValidator<SalvarCategoriaProdutoDto>, SalvarCategoriaProdutoValidator>();
+
+        services.AddScoped<IGrupoProdutoService, GrupoProdutoService>();
+        services.AddScoped<IValidator<SalvarGrupoProdutoDto>, SalvarGrupoProdutoValidator>();
 
         services.AddScoped<IProdutoService, ProdutoService>();
         services.AddScoped<IValidator<SalvarProdutoDto>, SalvarProdutoValidator>();

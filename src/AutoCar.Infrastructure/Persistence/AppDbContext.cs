@@ -23,6 +23,12 @@ public class AppDbContext : DbContext
 
     public DbSet<CategoriaProduto> Categorias => Set<CategoriaProduto>();
 
+    public DbSet<GrupoProduto> GruposProduto => Set<GrupoProduto>();
+
+    public DbSet<PosicaoPeca> PosicoesPeca => Set<PosicaoPeca>();
+
+    public DbSet<LadoPeca> LadosPeca => Set<LadoPeca>();
+
     public DbSet<Produto> Produtos => Set<Produto>();
 
     public DbSet<ProdutoAplicacao> ProdutoAplicacoes => Set<ProdutoAplicacao>();

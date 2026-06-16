@@ -15,17 +15,9 @@
     </UserControl.KeyBindings>
 
     <UserControl.Resources>
-        <!-- Combo de opção (Categoria/Marca/Fornecedor): mostra a descrição; item nulo vira "—". -->
+        <!-- Combo de opção (Categoria/Marca/Fornecedor/Posição/Lado): mostra a descrição; item nulo vira "—". -->
         <DataTemplate x:Key="OpcaoTemplate" x:DataType="dto:OpcaoDto">
             <TextBlock Text="{Binding Descricao, FallbackValue=—, TargetNullValue=—}" />
-        </DataTemplate>
-        <!-- Combo de posição: rótulo amigável (NaoAplica vira "—"). -->
-        <DataTemplate x:Key="PosicaoTemplate" x:DataType="enums:PosicaoPeca">
-            <TextBlock Text="{Binding Converter={x:Static conv:PosicaoPecaConverter.Instancia}}" />
-        </DataTemplate>
-        <!-- Combo de lado: rótulo amigável (NaoAplica vira "—"). -->
-        <DataTemplate x:Key="LadoTemplate" x:DataType="enums:LadoPeca">
-            <TextBlock Text="{Binding Converter={x:Static conv:LadoPecaConverter.Instancia}}" />
         </DataTemplate>
         <!-- Combo de combustível: rótulo amigável (NaoAplica vira "—"). -->
         <DataTemplate x:Key="CombustivelTemplate" x:DataType="enums:Combustivel">
@@ -173,10 +165,10 @@
                                   ItemTemplate="{StaticResource OpcaoTemplate}"
                                   IsEnabled="{Binding !ModoVisualizacao}"
                                   HorizontalAlignment="Left" Width="260" />
-                        <TextBlock Grid.Row="0" Grid.Column="2" Classes="formlabel" Text="Marca" />
+                        <TextBlock Grid.Row="0" Grid.Column="2" Classes="formlabel" Text="Grupo" />
                         <ComboBox Grid.Row="0" Grid.Column="3"
-                                  ItemsSource="{Binding Marcas}"
-                                  SelectedItem="{Binding MarcaSelecionada}"
+                                  ItemsSource="{Binding Grupos}"
+                                  SelectedItem="{Binding GrupoSelecionado}"
                                   ItemTemplate="{StaticResource OpcaoTemplate}"
                                   IsEnabled="{Binding !ModoVisualizacao}"
                                   HorizontalAlignment="Left" Width="200" />
@@ -190,14 +182,14 @@
                                       Width="100" />
                             <TextBlock Classes="formlabel" Text="Posição" VerticalAlignment="Center" />
                             <ComboBox ItemsSource="{Binding Posicoes}"
-                                      SelectedItem="{Binding Posicao}"
-                                      ItemTemplate="{StaticResource PosicaoTemplate}"
+                                      SelectedItem="{Binding PosicaoSelecionada}"
+                                      ItemTemplate="{StaticResource OpcaoTemplate}"
                                       IsEnabled="{Binding !ModoVisualizacao}"
                                       Width="130" />
                             <TextBlock Classes="formlabel" Text="Lado" VerticalAlignment="Center" />
                             <ComboBox ItemsSource="{Binding Lados}"
-                                      SelectedItem="{Binding Lado}"
-                                      ItemTemplate="{StaticResource LadoTemplate}"
+                                      SelectedItem="{Binding LadoSelecionado}"
+                                      ItemTemplate="{StaticResource OpcaoTemplate}"
                                       IsEnabled="{Binding !ModoVisualizacao}"
                                       Width="130" />
                         </StackPanel>
@@ -205,6 +197,13 @@
                         <ComboBox Grid.Row="2" Grid.Column="1"
                                   ItemsSource="{Binding Fornecedores}"
                                   SelectedItem="{Binding FornecedorSelecionado}"
+                                  ItemTemplate="{StaticResource OpcaoTemplate}"
+                                  IsEnabled="{Binding !ModoVisualizacao}"
+                                  HorizontalAlignment="Left" Width="200" />
+                        <TextBlock Grid.Row="2" Grid.Column="2" Classes="formlabel" Text="Marca" />
+                        <ComboBox Grid.Row="2" Grid.Column="3"
+                                  ItemsSource="{Binding Marcas}"
+                                  SelectedItem="{Binding MarcaSelecionada}"
                                   ItemTemplate="{StaticResource OpcaoTemplate}"
                                   IsEnabled="{Binding !ModoVisualizacao}"
                                   HorizontalAlignment="Left" Width="200" />

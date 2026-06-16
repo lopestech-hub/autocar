@@ -26,6 +26,10 @@ public partial class ProdutoFormViewModel : ViewModelBase
     private readonly ILogger<ProdutoFormViewModel> _logger;
     private Guid? _id;
 
+    // Durante a carga de um produto, a categoria é setada programaticamente; nesse caso o combo de
+    // grupo é montado/selecionado manualmente (sem o trigger reativo limpar a seleção).
+    private bool _carregandoProduto;
+
     public ProdutoFormViewModel(IProdutoService produtos, ILogger<ProdutoFormViewModel> logger)
     {
         _produtos = produtos;
@@ -38,14 +42,18 @@ public partial class ProdutoFormViewModel : ViewModelBase
     /// <summary>Unidades de medida disponíveis (combo).</summary>
     public IReadOnlyList<UnidadeMedida> Unidades { get; } = Enum.GetValues<UnidadeMedida>();
 
-    /// <summary>Posições/eixo disponíveis (combo). NaoAplica é o padrão (peça sem eixo).</summary>
-    public IReadOnlyList<PosicaoPeca> Posicoes { get; } = Enum.GetValues<PosicaoPeca>();
+    /// <summary>Posições para o combo (opcional — inclui item nulo "—"). Cadastro editável.</summary>
+    public ObservableCollection<OpcaoDto?> Posicoes { get; } = new();
 
-    /// <summary>Lados disponíveis (combo). NaoAplica é o padrão (peça sem distinção de lado).</summary>
-    public IReadOnlyList<LadoPeca> Lados { get; } = Enum.GetValues<LadoPeca>();
+    /// <summary>Lados para o combo (opcional — inclui item nulo "—"). Cadastro editável.</summary>
+    public ObservableCollection<OpcaoDto?> Lados { get; } = new();
 
     /// <summary>Categorias para o combo (obrigatório). Carregadas ao abrir o form.</summary>
     public ObservableCollection<OpcaoDto> Categorias { get; } = new();
+
+    /// <summary>Grupos da categoria selecionada (opcional — combo DEPENDENTE, inclui item nulo "—").
+    /// Recarregado sempre que a categoria muda.</summary>
+    public ObservableCollection<OpcaoDto?> Grupos { get; } = new();
 
     /// <summary>Marcas para o combo (opcional — inclui item nulo "—").</summary>
     public ObservableCollection<OpcaoDto?> Marcas { get; } = new();
@@ -64,11 +72,12 @@ public partial class ProdutoFormViewModel : ViewModelBase
     [ObservableProperty] private string? _codBarras;
     [ObservableProperty] private string? _codFabricante;
     [ObservableProperty] private UnidadeMedida _unidade = UnidadeMedida.UN;
-    [ObservableProperty] private PosicaoPeca _posicao = PosicaoPeca.NaoAplica;
-    [ObservableProperty] private LadoPeca _lado = LadoPeca.NaoAplica;
+    [ObservableProperty] private OpcaoDto? _posicaoSelecionada;
+    [ObservableProperty] private OpcaoDto? _ladoSelecionado;
     [ObservableProperty] private decimal _vlrCusto;
     [ObservableProperty] private decimal _vlrVenda;
     [ObservableProperty] private OpcaoDto? _categoriaSelecionada;
+    [ObservableProperty] private OpcaoDto? _grupoSelecionado;
     [ObservableProperty] private OpcaoDto? _marcaSelecionada;
     [ObservableProperty] private OpcaoDto? _fornecedorSelecionado;
 
@@ -142,10 +151,15 @@ public partial class ProdutoFormViewModel : ViewModelBase
         Descricao = string.Empty;
         DescricaoComplementar = CodBarras = CodFabricante = null;
         Unidade = UnidadeMedida.UN;
-        Posicao = PosicaoPeca.NaoAplica;
-        Lado = LadoPeca.NaoAplica;
+        PosicaoSelecionada = null;
+        LadoSelecionado = null;
         VlrCusto = VlrVenda = 0;
+        _carregandoProduto = true;
         CategoriaSelecionada = null;
+        Grupos.Clear();
+        Grupos.Add(null); // "—" (sem categoria ainda, sem grupos)
+        GrupoSelecionado = null;
+        _carregandoProduto = false;
         MarcaSelecionada = null;
         FornecedorSelecionado = null;
         Aplicacoes.Clear();
@@ -179,15 +193,22 @@ public partial class ProdutoFormViewModel : ViewModelBase
             CodBarras = p.CodBarras;
             CodFabricante = p.CodFabricante;
             Unidade = p.Unidade;
-            Posicao = p.Posicao;
-            Lado = p.Lado;
             VlrCusto = p.VlrCusto;
             VlrVenda = p.VlrVenda;
 
             // Selecionar pelo Id dentro da coleção do combo (matching por referência do Avalonia).
+            // Grupo é combo dependente: monta a lista da categoria do produto ANTES de selecionar,
+            // com o trigger suprimido (senão ele zeraria a seleção que vamos restaurar).
+            _carregandoProduto = true;
             CategoriaSelecionada = Categorias.FirstOrDefault(c => c.Id == p.IdCategoria);
+            await RecarregarGruposAsync(p.IdCategoria);
+            GrupoSelecionado = Grupos.FirstOrDefault(x => x?.Id == p.IdGrupo);
+            _carregandoProduto = false;
+
             MarcaSelecionada = Marcas.FirstOrDefault(m => m?.Id == p.IdMarca);
             FornecedorSelecionado = Fornecedores.FirstOrDefault(f => f?.Id == p.IdFornecedor);
+            PosicaoSelecionada = Posicoes.FirstOrDefault(x => x?.Id == p.IdPosicao);
+            LadoSelecionado = Lados.FirstOrDefault(x => x?.Id == p.IdLado);
 
             Aplicacoes.Clear();
             foreach (var a in p.Aplicacoes)
@@ -244,8 +265,8 @@ public partial class ProdutoFormViewModel : ViewModelBase
 
             var dto = new SalvarProdutoDto(
                 CategoriaSelecionada.Id, Descricao, DescricaoComplementar, CodBarras,
-                CodFabricante, Unidade, Posicao, Lado, VlrCusto, VlrVenda,
-                MarcaSelecionada?.Id, FornecedorSelecionado?.Id, aplicacoes, similares);
+                CodFabricante, Unidade, PosicaoSelecionada?.Id, LadoSelecionado?.Id, VlrCusto, VlrVenda,
+                MarcaSelecionada?.Id, FornecedorSelecionado?.Id, GrupoSelecionado?.Id, aplicacoes, similares);
 
             var resultado = _id is null
                 ? await _produtos.CriarAsync(dto)
@@ -293,12 +314,55 @@ public partial class ProdutoFormViewModel : ViewModelBase
     [RelayCommand]
     private void Cancelar() => Cancelado?.Invoke();
 
+    // Combo dependente: quando o usuário troca a categoria, o grupo anterior pode não pertencer mais
+    // a ela. Recarrega a lista de grupos e zera a seleção. Suprimido durante a carga de um produto
+    // (lá o grupo é restaurado manualmente pelo Id salvo, em CarregarAsync).
+    partial void OnCategoriaSelecionadaChanged(OpcaoDto? value)
+    {
+        if (_carregandoProduto) return;
+        _ = AtualizarGruposPorCategoriaAsync(value?.Id);
+    }
+
+    private async Task AtualizarGruposPorCategoriaAsync(Guid? idCategoria)
+    {
+        // Disparado por troca de categoria (fire-and-forget no trigger): trata o erro aqui, senão
+        // uma falha na consulta de grupos viraria exceção não observada. Grupo é opcional, então
+        // degrada para lista vazia e avisa.
+        try
+        {
+            await RecarregarGruposAsync(idCategoria);
+            GrupoSelecionado = null;
+        }
+        catch (Exception ex)
+        {
+            Grupos.Clear();
+            Grupos.Add(null);
+            GrupoSelecionado = null;
+            MensagemErro = "Falha ao carregar os grupos da categoria.";
+            _logger.LogError(ex, "Erro ao recarregar grupos da categoria {IdCategoria}.", idCategoria);
+        }
+    }
+
+    // Monta a lista de grupos da categoria (com "—" no topo). Sem categoria, fica só o "—".
+    private async Task RecarregarGruposAsync(Guid? idCategoria)
+    {
+        Grupos.Clear();
+        Grupos.Add(null); // "—" (sem grupo)
+        if (idCategoria is Guid cat)
+        {
+            var grupos = await _produtos.ListarGruposAsync(cat);
+            foreach (var g in grupos) Grupos.Add(g);
+        }
+    }
+
     // Carrega as opções dos combos. Marca/Fornecedor começam com item nulo (opção "—").
     private async Task CarregarOpcoesAsync()
     {
         var categorias = await _produtos.ListarCategoriasAsync();
         var marcas = await _produtos.ListarMarcasAsync();
         var fornecedores = await _produtos.ListarFornecedoresAsync();
+        var posicoes = await _produtos.ListarPosicoesAsync();
+        var lados = await _produtos.ListarLadosAsync();
 
         Categorias.Clear();
         foreach (var c in categorias) Categorias.Add(c);
@@ -310,6 +374,14 @@ public partial class ProdutoFormViewModel : ViewModelBase
         Fornecedores.Clear();
         Fornecedores.Add(null); // "—" (sem fornecedor)
         foreach (var f in fornecedores) Fornecedores.Add(f);
+
+        Posicoes.Clear();
+        Posicoes.Add(null); // "—" (sem posição)
+        foreach (var p in posicoes) Posicoes.Add(p);
+
+        Lados.Clear();
+        Lados.Add(null); // "—" (sem lado)
+        foreach (var l in lados) Lados.Add(l);
     }
 
     private static decimal ParseMoeda(string? texto)

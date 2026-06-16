@@ -3,6 +3,7 @@ using System;
 using AutoCar.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AutoCar.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260616163406_PosicaoLadoComoCadastro")]
+    partial class PosicaoLadoComoCadastro
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -508,61 +511,6 @@ namespace AutoCar.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_fornecedor_razao_social");
 
                     b.ToTable("fornecedor", (string)null);
-                });
-
-            modelBuilder.Entity("AutoCar.Domain.Entities.GrupoProduto", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id_grupo");
-
-                    b.Property<DateTime>("AtualizadoEm")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("dat_atualizacao");
-
-                    b.Property<int>("CodGrupo")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("cod_grupo");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CodGrupo"));
-
-                    b.Property<DateTime>("CriadoEm")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("dat_criacao");
-
-                    b.Property<string>("Descricao")
-                        .IsRequired()
-                        .HasMaxLength(80)
-                        .HasColumnType("character varying(80)")
-                        .HasColumnName("descricao");
-
-                    b.Property<bool>("FlgAtivo")
-                        .HasColumnType("boolean")
-                        .HasColumnName("flg_ativo");
-
-                    b.Property<Guid>("IdCategoria")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id_categoria");
-
-                    b.Property<uint>("xmin")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
-                        .HasColumnName("xmin");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CodGrupo")
-                        .IsUnique()
-                        .HasDatabaseName("ix_grupo_produto_cod");
-
-                    b.HasIndex("IdCategoria", "Descricao")
-                        .IsUnique()
-                        .HasDatabaseName("ix_grupo_produto_categoria_descricao");
-
-                    b.ToTable("grupo_produto", (string)null);
                 });
 
             modelBuilder.Entity("AutoCar.Domain.Entities.LadoPeca", b =>
@@ -1238,10 +1186,6 @@ namespace AutoCar.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id_fornecedor");
 
-                    b.Property<Guid?>("IdGrupo")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id_grupo");
-
                     b.Property<Guid?>("IdLado")
                         .HasColumnType("uuid")
                         .HasColumnName("id_lado");
@@ -1283,8 +1227,6 @@ namespace AutoCar.Infrastructure.Persistence.Migrations
                     b.HasIndex("IdCategoria");
 
                     b.HasIndex("IdFornecedor");
-
-                    b.HasIndex("IdGrupo");
 
                     b.HasIndex("IdLado");
 
@@ -1716,17 +1658,6 @@ namespace AutoCar.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("AutoCar.Domain.Entities.GrupoProduto", b =>
-                {
-                    b.HasOne("AutoCar.Domain.Entities.CategoriaProduto", "Categoria")
-                        .WithMany()
-                        .HasForeignKey("IdCategoria")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Categoria");
-                });
-
             modelBuilder.Entity("AutoCar.Domain.Entities.MovimentoEstoque", b =>
                 {
                     b.HasOne("AutoCar.Domain.Entities.Produto", null)
@@ -1826,11 +1757,6 @@ namespace AutoCar.Infrastructure.Persistence.Migrations
                         .HasForeignKey("IdFornecedor")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("AutoCar.Domain.Entities.GrupoProduto", "Grupo")
-                        .WithMany()
-                        .HasForeignKey("IdGrupo")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("AutoCar.Domain.Entities.LadoPeca", "Lado")
                         .WithMany()
                         .HasForeignKey("IdLado")
@@ -1849,8 +1775,6 @@ namespace AutoCar.Infrastructure.Persistence.Migrations
                     b.Navigation("Categoria");
 
                     b.Navigation("Fornecedor");
-
-                    b.Navigation("Grupo");
 
                     b.Navigation("Lado");
 

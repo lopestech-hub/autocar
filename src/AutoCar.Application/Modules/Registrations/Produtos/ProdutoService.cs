@@ -16,6 +16,9 @@ public sealed class ProdutoService : IProdutoService
     private readonly ICategoriaProdutoRepository _categorias;
     private readonly IMarcaRepository _marcas;
     private readonly IFornecedorRepository _fornecedores;
+    private readonly IPosicaoPecaRepository _posicoes;
+    private readonly ILadoPecaRepository _lados;
+    private readonly IGrupoProdutoRepository _grupos;
     private readonly IValidator<SalvarProdutoDto> _validator;
 
     public ProdutoService(
@@ -23,12 +26,18 @@ public sealed class ProdutoService : IProdutoService
         ICategoriaProdutoRepository categorias,
         IMarcaRepository marcas,
         IFornecedorRepository fornecedores,
+        IPosicaoPecaRepository posicoes,
+        ILadoPecaRepository lados,
+        IGrupoProdutoRepository grupos,
         IValidator<SalvarProdutoDto> validator)
     {
         _produtos = produtos;
         _categorias = categorias;
         _marcas = marcas;
         _fornecedores = fornecedores;
+        _posicoes = posicoes;
+        _lados = lados;
+        _grupos = grupos;
         _validator = validator;
     }
 
@@ -40,7 +49,7 @@ public sealed class ProdutoService : IProdutoService
 
         var produto = new Produto(
             dto.IdCategoria, dto.Descricao, dto.DescricaoComplementar, dto.CodBarras,
-            dto.CodFabricante, dto.Unidade, dto.Posicao, dto.Lado, dto.VlrCusto, dto.VlrVenda, dto.IdMarca, dto.IdFornecedor,
+            dto.CodFabricante, dto.Unidade, dto.IdPosicao, dto.IdLado, dto.VlrCusto, dto.VlrVenda, dto.IdMarca, dto.IdFornecedor, dto.IdGrupo,
             dto.ArquivoImagem);
         produto.DefinirAplicacoes(MapearAplicacoes(dto.Aplicacoes));
         produto.DefinirSimilares(MapearSimilares(dto.Similares));
@@ -65,7 +74,7 @@ public sealed class ProdutoService : IProdutoService
         {
             produto.AlterarDados(
                 dto.IdCategoria, dto.Descricao, dto.DescricaoComplementar, dto.CodBarras,
-                dto.CodFabricante, dto.Unidade, dto.Posicao, dto.Lado, dto.VlrCusto, dto.VlrVenda, dto.IdMarca, dto.IdFornecedor,
+                dto.CodFabricante, dto.Unidade, dto.IdPosicao, dto.IdLado, dto.VlrCusto, dto.VlrVenda, dto.IdMarca, dto.IdFornecedor, dto.IdGrupo,
                 dto.ArquivoImagem);
             produto.DefinirAplicacoes(MapearAplicacoes(dto.Aplicacoes));
             produto.DefinirSimilares(MapearSimilares(dto.Similares));
@@ -90,7 +99,7 @@ public sealed class ProdutoService : IProdutoService
         var produtos = await _produtos.ListarAsync(filtro, ct);
         return produtos.Select(p => new ProdutoListaDto(
             p.Id, p.CodProduto, p.Descricao, p.CodBarras,
-            p.Categoria?.Descricao, p.Marca?.Descricao, p.Unidade, p.Posicao, p.Lado, p.VlrVenda, p.FlgAtivo)).ToList();
+            p.Categoria?.Descricao, p.Grupo?.Descricao, p.Marca?.Descricao, p.Unidade, p.Posicao?.Descricao, p.Lado?.Descricao, p.VlrVenda, p.FlgAtivo)).ToList();
     }
 
     public async Task<Result<ProdutoDto>> ObterPorIdAsync(Guid id, CancellationToken ct = default)
@@ -119,6 +128,24 @@ public sealed class ProdutoService : IProdutoService
         return lista.Select(f => new OpcaoDto(f.Id, f.RazaoSocial)).ToList();
     }
 
+    public async Task<IReadOnlyList<OpcaoDto>> ListarPosicoesAsync(CancellationToken ct = default)
+    {
+        var lista = await _posicoes.ListarAsync(null, ct);
+        return lista.Select(p => new OpcaoDto(p.Id, p.Descricao)).ToList();
+    }
+
+    public async Task<IReadOnlyList<OpcaoDto>> ListarLadosAsync(CancellationToken ct = default)
+    {
+        var lista = await _lados.ListarAsync(null, ct);
+        return lista.Select(l => new OpcaoDto(l.Id, l.Descricao)).ToList();
+    }
+
+    public async Task<IReadOnlyList<OpcaoDto>> ListarGruposAsync(Guid idCategoria, CancellationToken ct = default)
+    {
+        var lista = await _grupos.ListarPorCategoriaAsync(idCategoria, ct);
+        return lista.Select(g => new OpcaoDto(g.Id, g.Descricao)).ToList();
+    }
+
     public async Task<IReadOnlyList<CatalogoItemDto>> BuscarCatalogoAsync(BuscaCatalogoDto filtro, CancellationToken ct = default)
     {
         var produtos = await _produtos.BuscarPorVeiculoAsync(
@@ -126,7 +153,7 @@ public sealed class ProdutoService : IProdutoService
 
         return produtos.Select(p => new CatalogoItemDto(
             p.Id, p.CodProduto, p.Descricao, p.Categoria?.Descricao, p.Marca?.Descricao,
-            p.Unidade, p.Posicao, p.Lado, p.CodFabricante, p.VlrVenda,
+            p.Unidade, p.Posicao?.Descricao, p.Lado?.Descricao, p.CodFabricante, p.VlrVenda,
             ResumirAplicacoes(p), ResumirSimilares(p), p.ArquivoImagem)).ToList();
     }
 
@@ -189,7 +216,7 @@ public sealed class ProdutoService : IProdutoService
 
     private static ProdutoDto Mapear(Produto p) => new(
         p.Id, p.CodProduto, p.IdCategoria, p.Descricao, p.DescricaoComplementar, p.CodBarras,
-        p.CodFabricante, p.Unidade, p.Posicao, p.Lado, p.VlrCusto, p.VlrVenda, p.IdMarca, p.IdFornecedor, p.FlgAtivo,
+        p.CodFabricante, p.Unidade, p.IdPosicao, p.IdLado, p.VlrCusto, p.VlrVenda, p.IdMarca, p.IdFornecedor, p.IdGrupo, p.FlgAtivo,
         p.Aplicacoes.Select(a => new AplicacaoDto(
             a.Montadora, a.Modelo, a.AnoInicio, a.AnoFim, a.Motorizacao, a.Combustivel, a.Observacao)).ToList(),
         p.Similares.Select(s => new SimilarDto(

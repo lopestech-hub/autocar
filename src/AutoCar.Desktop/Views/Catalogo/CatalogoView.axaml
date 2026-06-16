@@ -135,10 +135,10 @@
                                     <TextBlock Grid.Column="2" Text="{Binding Aplicacoes}"
                                                Classes="td suave" TextTrimming="CharacterEllipsis" />
                                     <TextBlock Grid.Column="3"
-                                               Text="{Binding Posicao, Converter={x:Static conv:PosicaoPecaConverter.Instancia}}"
+                                               Text="{Binding Posicao, TargetNullValue=—}"
                                                Classes="td" />
                                     <TextBlock Grid.Column="4"
-                                               Text="{Binding Lado, Converter={x:Static conv:LadoPecaConverter.Instancia}}"
+                                               Text="{Binding Lado, TargetNullValue=—}"
                                                Classes="td" />
                                     <TextBlock Grid.Column="5" Text="{Binding CodFabricante}"
                                                Classes="td mono" TextTrimming="CharacterEllipsis" />

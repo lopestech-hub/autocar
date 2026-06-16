@@ -46,18 +46,6 @@ public class ProdutoConfiguration : IEntityTypeConfiguration<Produto>
             .HasConversion<int>()
             .IsRequired();
 
-        builder.Property(p => p.Posicao)
-            .HasColumnName("sts_posicao")
-            .HasConversion<int>()
-            .HasDefaultValue(Domain.Enums.PosicaoPeca.NaoAplica)
-            .IsRequired();
-
-        builder.Property(p => p.Lado)
-            .HasColumnName("sts_lado")
-            .HasConversion<int>()
-            .HasDefaultValue(Domain.Enums.LadoPeca.NaoAplica)
-            .IsRequired();
-
         builder.Property(p => p.VlrCusto)
             .HasColumnName("vlr_custo")
             .HasColumnType("decimal(10,2)")
@@ -84,6 +72,15 @@ public class ProdutoConfiguration : IEntityTypeConfiguration<Produto>
 
         builder.Property(p => p.IdFornecedor)
             .HasColumnName("id_fornecedor");
+
+        builder.Property(p => p.IdGrupo)
+            .HasColumnName("id_grupo");
+
+        builder.Property(p => p.IdPosicao)
+            .HasColumnName("id_posicao");
+
+        builder.Property(p => p.IdLado)
+            .HasColumnName("id_lado");
 
         builder.Property(p => p.FlgAtivo)
             .HasColumnName("flg_ativo")
@@ -115,6 +112,27 @@ public class ProdutoConfiguration : IEntityTypeConfiguration<Produto>
         builder.HasOne(p => p.Fornecedor)
             .WithMany()
             .HasForeignKey(p => p.IdFornecedor)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired(false);
+
+        // Grupo opcional (cadastro editável que pertence à categoria). Restrict evita apagar grupo com produtos vinculados.
+        builder.HasOne(p => p.Grupo)
+            .WithMany()
+            .HasForeignKey(p => p.IdGrupo)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired(false);
+
+        // Posição opcional (cadastro editável). Restrict evita apagar posição com produtos vinculados.
+        builder.HasOne(p => p.Posicao)
+            .WithMany()
+            .HasForeignKey(p => p.IdPosicao)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired(false);
+
+        // Lado opcional (cadastro editável). Restrict evita apagar lado com produtos vinculados.
+        builder.HasOne(p => p.Lado)
+            .WithMany()
+            .HasForeignKey(p => p.IdLado)
             .OnDelete(DeleteBehavior.Restrict)
             .IsRequired(false);
 

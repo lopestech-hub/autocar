@@ -3,8 +3,8 @@
              xmlns:vm="using:AutoCar.Desktop.ViewModels.Registrations"
              xmlns:dtos="using:AutoCar.Application.Modules.Registrations.Produtos.DTOs"
              xmlns:conv="using:AutoCar.Desktop.Converters"
-             x:Class="AutoCar.Desktop.Views.Registrations.ProdutosView"
-             x:DataType="vm:ProdutosViewModel">
+             x:Class="AutoCar.Desktop.Views.Registrations.GruposView"
+             x:DataType="vm:GruposViewModel">
 
     <Panel>
         <!-- ===== LISTAGEM ===== -->
@@ -14,11 +14,10 @@
             <Grid Grid.Row="0" ColumnDefinitions="Auto,Auto,*,Auto,Auto" Margin="0,0,0,12">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8"
                             VerticalAlignment="Center" Margin="0,0,16,0">
-                    <TextBlock Text="Produtos"
+                    <TextBlock Text="Grupos"
                                FontSize="14" FontWeight="SemiBold"
                                Foreground="{DynamicResource BrushTexto}"
                                VerticalAlignment="Center" />
-                    <!-- Contador: etiqueta azul-clara (informação), cantos retos no padrão do sistema. -->
                     <Border Background="#DBEAFE"
                             BorderBrush="#3B82F6" BorderThickness="1"
                             CornerRadius="2" Padding="8,1" VerticalAlignment="Center">
@@ -28,13 +27,13 @@
                     </Border>
                 </StackPanel>
 
-                <Button Grid.Column="1" Content="+ Novo produto"
+                <Button Grid.Column="1" Content="+ Novo grupo"
                         Classes="primario"
                         Command="{Binding NovoCommand}"
                         Cursor="Hand" />
 
-                <TextBox Grid.Column="3" Width="280"
-                         Watermark="Buscar por descrição, código de barras ou fabricante"
+                <TextBox Grid.Column="3" Width="260"
+                         Watermark="Buscar por descrição"
                          Text="{Binding Filtro}"
                          Margin="0,0,8,0" />
                 <Button Grid.Column="4" Content="Buscar"
@@ -52,76 +51,47 @@
                     BorderThickness="1"
                     CornerRadius="6"
                     ClipToBounds="True">
-
-                <!-- Mensagem de erro fica por cima do conteúdo se houver. -->
                 <Panel>
-                    <!-- Tabela: header fixo + ListBox virtualizado. As colunas do header e da linha
-                         usam EXATAMENTE as mesmas larguras (80,*,140,130,50,90,90,90,90). O padding do
-                         ListBoxItem é zerado no Tema (Style ListBox.tabela) para o '*' alinhar. -->
+                    <!-- Tabela: header fixo + ListBox virtualizado (colunas 80,*,180,90). -->
                     <DockPanel>
-                        <!-- ===== HEADER FIXO ===== -->
                         <Grid DockPanel.Dock="Top" Height="28"
                               Background="{DynamicResource BrushFundoHeader}"
-                              ColumnDefinitions="80,*,140,130,130,50,90,90,90,90">
-                            <Border Grid.ColumnSpan="10" Height="1" Background="#CBD5E1"
+                              ColumnDefinitions="80,*,180,90">
+                            <Border Grid.ColumnSpan="4" Height="1" Background="#CBD5E1"
                                     VerticalAlignment="Bottom" />
                             <TextBlock Grid.Column="0" Text="CÓDIGO"    Classes="th" />
                             <TextBlock Grid.Column="1" Text="DESCRIÇÃO" Classes="th" />
                             <TextBlock Grid.Column="2" Text="CATEGORIA" Classes="th" />
-                            <TextBlock Grid.Column="3" Text="GRUPO"     Classes="th" />
-                            <TextBlock Grid.Column="4" Text="MARCA"     Classes="th" />
-                            <TextBlock Grid.Column="5" Text="UN"        Classes="th" />
-                            <TextBlock Grid.Column="6" Text="POSIÇÃO"   Classes="th" />
-                            <TextBlock Grid.Column="7" Text="LADO"      Classes="th" />
-                            <TextBlock Grid.Column="8" Text="VENDA"     Classes="th" />
-                            <TextBlock Grid.Column="9" Text="STATUS"    Classes="th" />
+                            <TextBlock Grid.Column="3" Text="STATUS"    Classes="th" />
                         </Grid>
 
-                        <!-- ===== CORPO VIRTUALIZADO ===== -->
-                        <!-- Vazio: mensagem central (some quando há itens). -->
-                        <TextBlock IsVisible="{Binding !Produtos.Count}"
-                                   Text="Nenhum produto cadastrado. Clique em &quot;+ Novo produto&quot; para começar."
+                        <TextBlock IsVisible="{Binding !Grupos.Count}"
+                                   Text="Nenhum grupo cadastrado. Clique em &quot;+ Novo grupo&quot; para começar."
                                    FontSize="12"
                                    Foreground="{DynamicResource BrushTextoMudo}"
                                    HorizontalAlignment="Center" VerticalAlignment="Top"
                                    Margin="0,40,0,0" />
 
-                        <ListBox Name="ListaProdutos"
+                        <ListBox Name="ListaGrupos"
                                  Classes="tabela"
-                                 IsVisible="{Binding !!Produtos.Count}"
-                                 ItemsSource="{Binding Produtos}"
+                                 IsVisible="{Binding !!Grupos.Count}"
+                                 ItemsSource="{Binding Grupos}"
                                  SelectionMode="Single">
                             <ListBox.ItemTemplate>
-                                <DataTemplate x:DataType="dtos:ProdutoListaDto">
+                                <DataTemplate x:DataType="dtos:GrupoProdutoDto">
                                     <Grid Height="28" Cursor="Hand" Background="Transparent"
-                                          ColumnDefinitions="80,*,140,130,130,50,90,90,90,90">
-                                        <!-- Barra azul da linha selecionada (visível via Style :selected). -->
-                                        <Border Name="BarraSel" Grid.ColumnSpan="10" Width="3"
+                                          ColumnDefinitions="80,*,180,90">
+                                        <Border Name="BarraSel" Grid.ColumnSpan="4" Width="3"
                                                 Background="{DynamicResource BrushPrimario}"
                                                 HorizontalAlignment="Left" IsVisible="False" />
 
-                                        <TextBlock Grid.Column="0" Text="{Binding CodProduto}"
+                                        <TextBlock Grid.Column="0" Text="{Binding CodGrupo}"
                                                    Classes="td mono" />
                                         <TextBlock Grid.Column="1" Text="{Binding Descricao}"
                                                    Classes="td" TextTrimming="CharacterEllipsis" />
                                         <TextBlock Grid.Column="2" Text="{Binding Categoria}"
-                                                   Classes="td" TextTrimming="CharacterEllipsis" />
-                                        <TextBlock Grid.Column="3" Text="{Binding Grupo, TargetNullValue=—}"
                                                    Classes="td suave" TextTrimming="CharacterEllipsis" />
-                                        <TextBlock Grid.Column="4" Text="{Binding Marca}"
-                                                   Classes="td" TextTrimming="CharacterEllipsis" />
-                                        <TextBlock Grid.Column="5" Text="{Binding Unidade}"
-                                                   Classes="td" />
-                                        <TextBlock Grid.Column="6"
-                                                   Text="{Binding Posicao, TargetNullValue=—}"
-                                                   Classes="td" />
-                                        <TextBlock Grid.Column="7"
-                                                   Text="{Binding Lado, TargetNullValue=—}"
-                                                   Classes="td" />
-                                        <TextBlock Grid.Column="8"
-                                                   Text="{Binding VlrVenda, StringFormat='{}{0:N2}'}"
-                                                   Classes="td mono" HorizontalAlignment="Right" />
-                                        <Border Grid.Column="9"
+                                        <Border Grid.Column="3"
                                                 Background="{Binding FlgAtivo, Converter={x:Static conv:StatusAtivoFundoConverter.Instancia}}"
                                                 CornerRadius="2" Padding="6,2"
                                                 HorizontalAlignment="Left" VerticalAlignment="Center"
