@@ -109,6 +109,45 @@ Cadastros mestre **auxiliares do Produto** (FK futura). Enxutos: só descrição
 - Descrição única (case-insensitive) e obrigatória; salva em CAIXA ALTA.
 - Inativar em vez de excluir (`flg_ativo`).
 
+## Grupo, Posição e Lado de Peça — atributos do Produto (cadastro)
+
+Cadastros mestre **auxiliares do Produto**, criados em 2026-06-16 (antes eram enums fixos). Todos no
+**molde de Marca** (id + cod_X, descrição CAIXA ALTA única, `flg_ativo`, `xmin`; CRUD com `Result<T>`,
+unicidade case-insensitive via `ILike`; listagem `ListBox.tabela` + form denso). Consumidos pelo
+Produto como **FK opcional** (sem FK = "—").
+
+### Tabelas
+
+- **`posicao_peca`** — `id_posicao`/`cod_posicao`, `descricao` (única). Eixo da peça (Dianteira,
+  Traseira, e o que mais cadastrarem). Seed base idempotente: DIANTEIRA, TRASEIRA.
+- **`lado_peca`** — `id_lado`/`cod_lado`, `descricao` (única). Lado da peça (Esquerdo, Direito).
+  Dimensão **independente** da posição. Seed base: ESQUERDO, DIREITO.
+- **`grupo_produto`** — `id_grupo`/`cod_grupo`, `descricao`, **`id_categoria`** (FK obrigatória →
+  `categoria_produto`, `Restrict`). Família dentro da categoria (AMORTECEDOR em SUSPENSÃO).
+  Descrição **única DENTRO da categoria** (índice composto `id_categoria`+`descricao`).
+
+### Camadas / Telas
+
+- **Domain:** `PosicaoPeca`, `LadoPeca`, `GrupoProduto` (+ repositórios). `Produto.DefinirGrupo` para
+  vínculo isolado. Os enums `PosicaoPeca`/`LadoPeca` foram **removidos** de `Domain/Enums`.
+- **Application:** services/DTOs/validators dos três no módulo `Produtos`. `ProdutoService` ganhou
+  `ListarPosicoesAsync`, `ListarLadosAsync` e `ListarGruposAsync(idCategoria)` (grupo filtrado).
+- **Infrastructure:** configurations + repositories; `GrupoProdutoRepository` tem `ListarPorCategoriaAsync`
+  (combo dependente). Migrations `PosicaoLadoComoCadastro` e `GrupoProduto` (aditivas).
+- **Desktop:** `PosicoesView`/`LadosView`/`GruposView` (+ forms). Grupo tem **combo de categoria** no
+  form; a listagem mostra a categoria. Rotas `posicoes`/`lados`/`grupos` (menu Cadastros, perfil Vendedor).
+
+### Regras / Decisões
+
+- **Por que cadastro e não enum:** régua do projeto — *atributo é lógica do sistema → enum; é rótulo
+  descritivo que o usuário escolhe → cadastro*. Posição/Lado/Grupo são puro rótulo do domínio
+  automotivo. Unidade e Combustível **continuam enum** (o código depende do valor / conjunto fechado).
+- **Grupo é combo dependente** no form do Produto: ao trocar a categoria, recarrega os grupos e zera a
+  seleção. O `ProdutoFormViewModel` usa flag `_carregandoProduto` para o trigger não atrapalhar a
+  restauração da seleção na edição.
+- Seed dos grupos demo num método **idempotente próprio** (`GarantirGruposDemo`) que roda sempre — o
+  seed de produtos só roda em banco vazio, então sem isso um banco com produtos nunca ganharia grupos.
+
 ## Serviço (catálogo de mão de obra) — Fase 4
 
 Cadastro mestre **auxiliar da Ordem de Serviço** (FK em `ordem_servico_item` quando a linha é do tipo
@@ -182,11 +221,11 @@ estoque NÃO mora aqui** — fica no módulo de Estoque (Fase 3).
   `WHERE cod_barras IS NOT NULL`)
 - `descricao` (varchar 120), `descricao_complementar` (varchar 160), `cod_fabricante` (varchar 40)
 - `sts_unidade` (int — enum `UnidadeMedida`: UN, PC, CX, JG, PAR, KIT, L, KG, M)
-- `sts_posicao` (int — enum `PosicaoPeca`: NaoAplica=0, Dianteira=1, Traseira=2; default 0). Distingue
-  peças com versão dianteira/traseira (freio, suspensão). Migration: `PosicaoProduto`.
-- `sts_lado` (int — enum `LadoPeca`: NaoAplica=0, Esquerdo=1, Direito=2; default 0). Dimensão
-  **independente** da posição/eixo — distingue peças com versão esquerda/direita (faróis, coxins,
-  pontas de eixo). Cada lado é um produto separado; é só atributo descritivo/filtro. Migration: `LadoProduto`.
+- `id_grupo` (FK **opcional** → `grupo_produto`, `Restrict`). Grupo/família dentro da categoria.
+- `id_posicao` (FK **opcional** → `posicao_peca`, `Restrict`). Eixo da peça (dianteira/traseira).
+- `id_lado` (FK **opcional** → `lado_peca`, `Restrict`). Lado da peça (esquerdo/direito).
+  > **Histórico:** Posição e Lado eram enums (`sts_posicao`/`sts_lado`); viraram cadastro editável
+  > em 2026-06-16 (migration `PosicaoLadoComoCadastro` dropa as colunas `sts_` e cria as FKs).
 - `vlr_custo`, `vlr_venda` (decimal 10,2)
 - `arquivo_imagem` (varchar 300, opcional) — **só o nome do arquivo** (ex: `27022.jpg`), não o caminho.
   A pasta-base é configurável por terminal (`appsettings: Imagens:PastaBase`), porque o sistema é 2-tier
@@ -194,6 +233,7 @@ estoque NÃO mora aqui** — fica no módulo de Estoque (Fase 3).
   coluna `url_imagem`, criada fora do EF, e limpou os caminhos legados para só o nome).
 - `id_categoria` (FK **obrigatória** → `categoria_produto`, `Restrict`)
 - `id_marca`, `id_fornecedor` (FKs **opcionais** → `marca`/`fornecedor`, `Restrict`)
+  > Hierarquia do catálogo: **Categoria → Grupo → Produto**. Grupo é opcional e depende da categoria.
 - `flg_ativo`, `dat_criacao`, `dat_atualizacao` (UTC), `xmin` (concorrência)
 - Índices: `ix_produto_cod` (único), `ix_produto_cod_barras` (único parcial), `ix_produto_descricao`,
   + os de FK. Migration: `CadastroProduto`.
@@ -208,10 +248,12 @@ estoque NÃO mora aqui** — fica no módulo de Estoque (Fase 3).
 - **Infrastructure:** `ProdutoConfiguration` (FKs + índice único parcial + xmin), `ProdutoRepository`
   (`Include` das navegações; filtro `ILike` por descrição/cod_barras/cod_fabricante).
 - **Desktop:** `ProdutosViewModel` (listagem) + `ProdutoFormViewModel` (form em blocos de seção,
-  combos de FK selecionados por Id, margem % calculada). `ProdutosView` (Grid único:
-  CÓDIGO · DESCRIÇÃO · CATEGORIA · MARCA · UN · POSIÇÃO · LADO · VENDA · STATUS) + `ProdutoFormView`. Rota `produtos`.
-  Posição e Lado são combos lado a lado na seção CLASSIFICAÇÃO (rótulo "—" para NaoAplica) via
-  `PosicaoPecaConverter` e `LadoPecaConverter`.
+  combos de FK selecionados por Id, margem % calculada). `ProdutosView` (`ListBox.tabela`:
+  CÓDIGO · DESCRIÇÃO · CATEGORIA · **GRUPO** · MARCA · UN · POSIÇÃO · LADO · VENDA · STATUS) + `ProdutoFormView`. Rota `produtos`.
+  Na seção CLASSIFICAÇÃO: **Categoria | Grupo** lado a lado (grupo é **combo dependente** — trocar a
+  categoria recarrega os grupos e zera a seleção); Posição e Lado são combos com item nulo "—".
+  Todos via `OpcaoDto` (Id+descrição); os converters de enum `PosicaoPecaConverter`/`LadoPecaConverter`
+  foram **removidos** (a descrição vem da navegação).
 
 ### Regras de Negócio
 

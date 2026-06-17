@@ -27,7 +27,7 @@ Concorrência de estoque tratada com controle otimista (`xmin`) — risco nº 1 
 | Módulo | Pasta (MODULO.md) | Estado |
 |--------|-------------------|--------|
 | Segurança (login, perfis) | [Security](src/AutoCar.Desktop/Views/Security/MODULO.md) | ✅ Fase 1 |
-| Cadastros (Cliente ✅; Fornecedor ✅; Marca ✅; Categoria ✅; Produto ✅ + aplicação ✅; Serviço ✅; Mecânico ✅) | [Registrations](src/AutoCar.Desktop/Views/Registrations/MODULO.md) | 🔄 |
+| Cadastros (Cliente ✅; Fornecedor ✅; Marca ✅; Categoria ✅; Grupo ✅; Posição ✅; Lado ✅; Produto ✅ + aplicação ✅; Serviço ✅; Mecânico ✅) | [Registrations](src/AutoCar.Desktop/Views/Registrations/MODULO.md) | 🔄 |
 | Catálogo automotivo (peça → veículo) | [Catalogo](src/AutoCar.Desktop/Views/Catalogo/) — busca de peça por veículo ✅ | ✅ Fase 2 |
 | Vendas (Pré-venda) | [Sales](src/AutoCar.Desktop/Views/Sales/MODULO.md) — Pré-venda (cabeçalho + itens) ✅ | 🔄 Fase 3 |
 | Estoque (saldo + movimentação) | [Inventory](src/AutoCar.Desktop/Views/Inventory/MODULO.md) — saldo, livro-razão, concorrência `xmin` ✅ | ✅ Fase 3 |
@@ -62,8 +62,10 @@ margem % calculada. Nesta rodada também: seções de formulário ganharam **tí
 divisória** (classes `formsecao`/`formsecaoLinha` no Tema), aplicado em Cliente, Fornecedor e Produto.
 Próximo: aplicação por veículo (montadora/modelo/ano — texto livre no MVP).
 
-Produto ganhou (Fase 3) o campo **`sts_posicao`** (enum `PosicaoPeca`: NaoAplica/Dianteira/Traseira) e a
-aplicação por veículo ganhou **`motorizacao`** (texto) + **`sts_combustivel`** (enum `Combustivel`).
+Produto tem **Posição** e **Lado** (eixo dianteiro/traseiro, lado esquerdo/direito) e **Grupo**
+(família dentro da categoria — Categoria → Grupo → Produto). Os três são **cadastros editáveis**
+(FKs opcionais `id_posicao`/`id_lado`/`id_grupo`), não enums (refatorado em 2026-06-16). A aplicação
+por veículo ganhou **`motorizacao`** (texto) + **`sts_combustivel`** (enum `Combustivel`).
 
 **Fase 3 (Vendas + Estoque) — em andamento.** Módulo **Pré-venda concluído** (ver [Sales](src/AutoCar.Desktop/Views/Sales/MODULO.md)):
 documento provisório de balcão (cabeçalho cliente opcional + veículo livre + itens), abre em **janela
@@ -187,6 +189,7 @@ Um perfil por usuário. Admin vê tudo.
 
 | Data | Mudança |
 | --- | --- |
+| 2026-06-16 | Cadastros: **Posição, Lado e Grupo** do produto viram cadastro editável (commit `89c90bb`). Posição/Lado deixam de ser enum; Grupo é nível novo do catálogo (**Categoria → Grupo → Produto**, grupo único por categoria, combo dependente no form). Produto ganha FKs opcionais `id_posicao`/`id_lado`/`id_grupo`. Migrations `PosicaoLadoComoCadastro` + `GrupoProduto` (aditivas); seed base idempotente |
 | 2026-05-29 | Fase 1 concluída: solution, banco, auth por usuário + perfis, logout |
 | 2026-05-29 | Shell redesenhado para layout ERP (menu de texto + toolbar) com ícones FontAwesome |
 | 2026-05-29 | Login mudado de e-mail para usuário (julio/123); Avalonia 12 → 11 (compat. ícones) |
