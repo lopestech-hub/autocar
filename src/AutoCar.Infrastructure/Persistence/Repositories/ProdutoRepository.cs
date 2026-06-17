@@ -63,12 +63,14 @@ public class ProdutoRepository : IProdutoRepository
         if (!string.IsNullOrWhiteSpace(filtro))
         {
             var termo = filtro.Trim();
+            // Busca tolerante: normaliza coluna E termo (sem acento/pontuação, minúsculo) na própria
+            // query — "CRV" acha "CR-V". O dado não muda; só a comparação. Ver AppDbContext.NormalizarBusca.
             query = query.Where(p =>
-                EF.Functions.ILike(p.Descricao, $"%{termo}%") ||
-                (p.CodBarras != null && EF.Functions.ILike(p.CodBarras, $"%{termo}%")) ||
-                (p.CodFabricante != null && EF.Functions.ILike(p.CodFabricante, $"%{termo}%")) ||
+                EF.Functions.Like(AppDbContext.NormalizarBusca(p.Descricao), "%" + AppDbContext.NormalizarBusca(termo) + "%") ||
+                (p.CodBarras != null && EF.Functions.Like(AppDbContext.NormalizarBusca(p.CodBarras), "%" + AppDbContext.NormalizarBusca(termo) + "%")) ||
+                (p.CodFabricante != null && EF.Functions.Like(AppDbContext.NormalizarBusca(p.CodFabricante), "%" + AppDbContext.NormalizarBusca(termo) + "%")) ||
                 // Espelhamento: acha o produto também pela referência de uma marca equivalente.
-                p.Similares.Any(s => EF.Functions.ILike(s.CodReferencia, $"%{termo}%")));
+                p.Similares.Any(s => EF.Functions.Like(AppDbContext.NormalizarBusca(s.CodReferencia), "%" + AppDbContext.NormalizarBusca(termo) + "%")));
         }
 
         return await query.OrderBy(p => p.Descricao).ToListAsync(ct);
@@ -145,14 +147,16 @@ public class ProdutoRepository : IProdutoRepository
 
         // Termo casa com descrição, código de barras, código de fabricante OU a referência de uma
         // marca equivalente (espelhamento: pedir "NAKATA 12345" acha a Cofap que aponta para ela).
+        // Busca tolerante: normaliza coluna E termo (sem acento/pontuação, minúsculo) na própria query,
+        // para "CRV" achar "CR-V". O dado não muda; só a comparação. Ver AppDbContext.NormalizarBusca.
         if (!string.IsNullOrWhiteSpace(termo))
         {
             var t = termo.Trim();
             query = query.Where(p =>
-                EF.Functions.ILike(p.Descricao, $"%{t}%") ||
-                (p.CodBarras != null && EF.Functions.ILike(p.CodBarras, $"%{t}%")) ||
-                (p.CodFabricante != null && EF.Functions.ILike(p.CodFabricante, $"%{t}%")) ||
-                p.Similares.Any(s => EF.Functions.ILike(s.CodReferencia, $"%{t}%")));
+                EF.Functions.Like(AppDbContext.NormalizarBusca(p.Descricao), "%" + AppDbContext.NormalizarBusca(t) + "%") ||
+                (p.CodBarras != null && EF.Functions.Like(AppDbContext.NormalizarBusca(p.CodBarras), "%" + AppDbContext.NormalizarBusca(t) + "%")) ||
+                (p.CodFabricante != null && EF.Functions.Like(AppDbContext.NormalizarBusca(p.CodFabricante), "%" + AppDbContext.NormalizarBusca(t) + "%")) ||
+                p.Similares.Any(s => EF.Functions.Like(AppDbContext.NormalizarBusca(s.CodReferencia), "%" + AppDbContext.NormalizarBusca(t) + "%")));
         }
 
         // Filtros de veículo: o produto precisa ter PELO MENOS UMA aplicação que case com todos
@@ -160,13 +164,15 @@ public class ProdutoRepository : IProdutoRepository
         if (!string.IsNullOrWhiteSpace(montadora))
         {
             var m = montadora.Trim();
-            query = query.Where(p => p.Aplicacoes.Any(a => EF.Functions.ILike(a.Montadora, $"%{m}%")));
+            query = query.Where(p => p.Aplicacoes.Any(a =>
+                EF.Functions.Like(AppDbContext.NormalizarBusca(a.Montadora), "%" + AppDbContext.NormalizarBusca(m) + "%")));
         }
 
         if (!string.IsNullOrWhiteSpace(modelo))
         {
             var mod = modelo.Trim();
-            query = query.Where(p => p.Aplicacoes.Any(a => EF.Functions.ILike(a.Modelo, $"%{mod}%")));
+            query = query.Where(p => p.Aplicacoes.Any(a =>
+                EF.Functions.Like(AppDbContext.NormalizarBusca(a.Modelo), "%" + AppDbContext.NormalizarBusca(mod) + "%")));
         }
 
         if (ano is int anoFiltro)

@@ -41,7 +41,7 @@ public class ProdutoAplicacaoConfiguration : IEntityTypeConfiguration<ProdutoApl
 
         builder.Property(a => a.Motorizacao)
             .HasColumnName("motorizacao")
-            .HasMaxLength(20);
+            .HasMaxLength(60);
 
         builder.Property(a => a.Combustivel)
             .HasColumnName("sts_combustivel")

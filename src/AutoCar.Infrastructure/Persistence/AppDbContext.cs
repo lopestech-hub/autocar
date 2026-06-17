@@ -59,10 +59,23 @@ public class AppDbContext : DbContext
 
     public DbSet<OrdemServicoItem> OrdemServicoItens => Set<OrdemServicoItem>();
 
+    /// <summary>
+    /// Normaliza texto para busca tolerante: remove acentos e pontuação e deixa minúsculo, para que
+    /// "CRV" case com "CR-V" e "GOL" com "Gól". Mapeada para a função SQL <c>normalizar_busca</c>
+    /// (criada por migration) — só pode ser usada DENTRO de uma query EF (o EF a traduz para SQL).
+    /// </summary>
+    public static string NormalizarBusca(string texto) =>
+        throw new NotSupportedException("NormalizarBusca só pode ser usada dentro de uma consulta EF (traduzida para SQL).");
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+        // Função SQL normalizar_busca(text): remove acento/pontuação + lower para a busca tolerante.
+        // O corpo é criado pela migration FuncaoNormalizarBusca; aqui só mapeia o método C# para ela.
+        modelBuilder.HasDbFunction(typeof(AppDbContext).GetMethod(nameof(NormalizarBusca), new[] { typeof(string) })!)
+            .HasName("normalizar_busca");
     }
 
     public override int SaveChanges()
