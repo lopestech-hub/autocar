@@ -33,8 +33,6 @@
                     <Grid DockPanel.Dock="Top" Height="28"
                           Background="{DynamicResource BrushFundoHeader}"
                           ColumnDefinitions="70,*,150,130">
-                        <Border Grid.ColumnSpan="4" Height="1" Background="#CBD5E1"
-                                VerticalAlignment="Bottom" />
                         <TextBlock Grid.Column="0" Text="CÓDIGO"        Classes="th" />
                         <TextBlock Grid.Column="1" Text="RAZÃO SOCIAL"  Classes="th" />
                         <TextBlock Grid.Column="2" Text="DOCUMENTO"     Classes="th" />
@@ -58,7 +56,7 @@
                                 <Grid Height="28" Cursor="Hand" Background="Transparent"
                                       ColumnDefinitions="70,*,150,130">
                                     <Border Name="BarraSel" Grid.ColumnSpan="4" Width="3"
-                                            Background="{DynamicResource BrushPrimario}"
+                                            Background="{DynamicResource BrushAcento}"
                                             HorizontalAlignment="Left" IsVisible="False" />
 
                                     <TextBlock Grid.Column="0" Text="{Binding CodFornecedor}"

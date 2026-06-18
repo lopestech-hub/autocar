@@ -19,12 +19,8 @@
                                Foreground="{DynamicResource BrushTexto}"
                                VerticalAlignment="Center" />
                     <!-- Contador: etiqueta azul-clara (informação), cantos retos no padrão do sistema. -->
-                    <Border Background="#DBEAFE"
-                            BorderBrush="#3B82F6" BorderThickness="1"
-                            CornerRadius="2" Padding="8,1" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding TextoContador}"
-                                   FontSize="11" FontWeight="Medium"
-                                   Foreground="#1E40AF" />
+                    <Border Classes="contador">
+                        <TextBlock Classes="contador" Text="{Binding TextoContador}" />
                     </Border>
                 </StackPanel>
 
@@ -58,8 +54,6 @@
                         <Grid DockPanel.Dock="Top" Height="28"
                               Background="{DynamicResource BrushFundoHeader}"
                               ColumnDefinitions="80,*,90">
-                            <Border Grid.ColumnSpan="3" Height="1" Background="#CBD5E1"
-                                    VerticalAlignment="Bottom" />
                             <TextBlock Grid.Column="0" Text="CÓDIGO"    Classes="th" />
                             <TextBlock Grid.Column="1" Text="DESCRIÇÃO" Classes="th" />
                             <TextBlock Grid.Column="2" Text="STATUS"    Classes="th" />
@@ -82,7 +76,7 @@
                                     <Grid Height="28" Cursor="Hand" Background="Transparent"
                                           ColumnDefinitions="80,*,90">
                                         <Border Name="BarraSel" Grid.ColumnSpan="3" Width="3"
-                                                Background="{DynamicResource BrushPrimario}"
+                                                Background="{DynamicResource BrushAcento}"
                                                 HorizontalAlignment="Left" IsVisible="False" />
 
                                         <TextBlock Grid.Column="0" Text="{Binding CodCategoria}"

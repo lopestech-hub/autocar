@@ -179,7 +179,7 @@
                         <Grid ColumnDefinitions="*,Auto" Width="820" HorizontalAlignment="Left">
                             <StackPanel Grid.Column="1" Spacing="4" Width="280" HorizontalAlignment="Right">
                                 <!-- Faixa de destaque do TOTAL da compra. -->
-                                <Border Background="#EFF6FF" CornerRadius="3" Padding="8,4">
+                                <Border Background="{DynamicResource BrushFundoSelecionado}" CornerRadius="3" Padding="8,4">
                                     <Grid ColumnDefinitions="*,120">
                                         <TextBlock Grid.Column="0" Text="TOTAL" FontSize="12" FontWeight="Bold"
                                                    Foreground="{DynamicResource BrushTexto}"

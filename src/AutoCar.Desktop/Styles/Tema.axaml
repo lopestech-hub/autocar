@@ -17,19 +17,20 @@
             <Color x:Key="ColorFundoCard">#FFFFFF</Color>
             <Color x:Key="ColorFundoSidebar">#1E293B</Color>
             <Color x:Key="ColorFundoSidebarHover">#334155</Color>
-            <Color x:Key="ColorFundoSidebarAtivo">#3B82F6</Color>
+            <Color x:Key="ColorFundoSidebarAtivo">#1E5CA5</Color>
             <Color x:Key="ColorFundoInput">#FFFFFF</Color>
             <Color x:Key="ColorFundoDesabilitado">#F1F5F9</Color>
             <Color x:Key="ColorFundoHover">#F8FAFC</Color>
-            <Color x:Key="ColorFundoSelecionado">#EFF6FF</Color>
-            <Color x:Key="ColorFundoHeader">#F8FAFC</Color>
+            <Color x:Key="ColorFundoSelecionado">#EAF2FA</Color>
+            <!-- Header de tabela e barra de status: faixa azul Cofap + texto branco (padrão Cofap). -->
+            <Color x:Key="ColorFundoHeader">#1E5CA5</Color>
 
             <!-- ===== BORDAS ===== -->
             <!-- Borda de repouso forte (azul-ardósia #1E293B) — campo bem definido, preferência do
                  Julio (validada na tela). O foco continua azul (#3B82F6, ColorBordaFoco). -->
             <Color x:Key="ColorBorda">#1E293B</Color>
             <Color x:Key="ColorBordaSuave">#E2E8F0</Color>
-            <Color x:Key="ColorBordaFoco">#3B82F6</Color>
+            <Color x:Key="ColorBordaFoco">#1E5CA5</Color>
             <Color x:Key="ColorBordaErro">#EF4444</Color>
 
             <!-- ===== TEXTO ===== -->
@@ -43,9 +44,24 @@
             <Color x:Key="ColorTextoSidebar">#CBD5E1</Color>
 
             <!-- ===== AÇÃO ===== -->
-            <Color x:Key="ColorPrimario">#3B82F6</Color>
-            <Color x:Key="ColorPrimarioHover">#2563EB</Color>
-            <Color x:Key="ColorPrimarioPressed">#1D4ED8</Color>
+            <!-- Paleta Cofap (identidade global): azul #1E5CA5 primário + laranja #F86518 acento.
+                 Migrado do azul-ardósia #3B82F6 do template em 2026-06-17. -->
+            <Color x:Key="ColorPrimario">#1E5CA5</Color>
+            <Color x:Key="ColorPrimarioHover">#184E8C</Color>
+            <Color x:Key="ColorPrimarioPressed">#143F70</Color>
+
+            <!-- Acento laranja Cofap (destaques pontuais: barra de seleção de linha, rótulos). -->
+            <Color x:Key="ColorAcento">#F86518</Color>
+
+            <!-- Badge contador (etiqueta "X itens" das listagens): família azul-claro Cofap. -->
+            <Color x:Key="ColorContadorFundo">#D6E4F2</Color>
+            <Color x:Key="ColorContadorBorda">#1E5CA5</Color>
+            <Color x:Key="ColorContadorTexto">#143F70</Color>
+
+            <!-- Fundo da linha SELECIONADA nas listagens (token próprio, distinto do hover):
+                 laranja-claro (acento Cofap), unificado com o Catálogo. Trocar aqui muda a marca de
+                 seleção em todas as listas de uma vez. A barra lateral da linha usa ColorAcento. -->
+            <Color x:Key="ColorSelecaoLinha">#FCD9C2</Color>
 
             <!-- ===== SEMÂNTICO ===== -->
             <Color x:Key="ColorSucesso">#22C55E</Color>
@@ -77,6 +93,11 @@
             <SolidColorBrush x:Key="BrushPrimario" Color="{StaticResource ColorPrimario}" />
             <SolidColorBrush x:Key="BrushPrimarioHover" Color="{StaticResource ColorPrimarioHover}" />
             <SolidColorBrush x:Key="BrushErro" Color="{StaticResource ColorErro}" />
+            <SolidColorBrush x:Key="BrushAcento" Color="{StaticResource ColorAcento}" />
+            <SolidColorBrush x:Key="BrushContadorFundo" Color="{StaticResource ColorContadorFundo}" />
+            <SolidColorBrush x:Key="BrushContadorBorda" Color="{StaticResource ColorContadorBorda}" />
+            <SolidColorBrush x:Key="BrushContadorTexto" Color="{StaticResource ColorContadorTexto}" />
+            <SolidColorBrush x:Key="BrushSelecaoLinha" Color="{StaticResource ColorSelecaoLinha}" />
 
             <!-- ===== OVERRIDE DO MENU (FluentTheme) =====
                  Por padrão o FluentTheme renderiza o popup do submenu com fundo escuro e
@@ -95,11 +116,12 @@
             <SolidColorBrush x:Key="MenuFlyoutItemForegroundSelected" Color="{StaticResource ColorTexto}" />
             <SolidColorBrush x:Key="MenuFlyoutItemForegroundSubMenuOpened" Color="{StaticResource ColorTexto}" />
 
-            <!-- Fundo dos itens: transparente normal, azul-claro no hover/seleção -->
+            <!-- Fundo dos itens: transparente normal, laranja-claro no hover/seleção (acento Cofap,
+                 mesma cor da linha selecionada nas listagens — coeso com o resto do sistema). -->
             <SolidColorBrush x:Key="MenuFlyoutItemBackground" Color="Transparent" />
-            <SolidColorBrush x:Key="MenuFlyoutItemBackgroundPointerOver" Color="{StaticResource ColorFundoSelecionado}" />
-            <SolidColorBrush x:Key="MenuFlyoutItemBackgroundPressed" Color="{StaticResource ColorFundoSelecionado}" />
-            <SolidColorBrush x:Key="MenuFlyoutItemBackgroundSelected" Color="{StaticResource ColorFundoSelecionado}" />
+            <SolidColorBrush x:Key="MenuFlyoutItemBackgroundPointerOver" Color="{StaticResource ColorSelecaoLinha}" />
+            <SolidColorBrush x:Key="MenuFlyoutItemBackgroundPressed" Color="{StaticResource ColorSelecaoLinha}" />
+            <SolidColorBrush x:Key="MenuFlyoutItemBackgroundSelected" Color="{StaticResource ColorSelecaoLinha}" />
 
             <!-- ===== OVERRIDE DO COMBOBOX (FluentTheme) =====
                  Mesmo gotcha do menu: o dropdown do ComboBox usa o tema do FluentTheme,
@@ -179,10 +201,12 @@
         <Setter Property="Padding" Value="0" />
     </Style>
 
-    <!-- Label de formulário denso (à esquerda do campo, alinhado à direita) -->
+    <!-- Label de formulário denso (à esquerda do campo, alinhado à direita).
+         Preto #000000 + Medium (padrão de legenda/navegação do sistema — escolha do Julio). -->
     <Style Selector="TextBlock.formlabel">
         <Setter Property="FontSize" Value="12" />
-        <Setter Property="Foreground" Value="{DynamicResource BrushTextoSecundario}" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="Foreground" Value="#000000" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="HorizontalAlignment" Value="Right" />
         <Setter Property="Margin" Value="0,0,8,0" />
@@ -574,11 +598,11 @@
         <Setter Property="Background" Value="{DynamicResource BrushFundoSelecionado}" />
     </Style>
     <Style Selector="ListBox.tabela ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="#DBEAFE" />
+        <Setter Property="Background" Value="{DynamicResource BrushSelecaoLinha}" />
     </Style>
-    <!-- Seleção vence o hover: linha marcada continua #DBEAFE mesmo sob o mouse. -->
+    <!-- Seleção vence o hover: linha marcada mantém a cor de seleção mesmo sob o mouse. -->
     <Style Selector="ListBox.tabela ListBoxItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="#DBEAFE" />
+        <Setter Property="Background" Value="{DynamicResource BrushSelecaoLinha}" />
     </Style>
     <!-- Barra lateral 3px azul (a "régua") da linha selecionada: o Border#BarraSel vive
          dentro do ItemTemplate; mostra quando o ListBoxItem está selecionado. -->
@@ -603,12 +627,33 @@
     <Style Selector="TextBlock.td.suave">
         <Setter Property="Foreground" Value="{DynamicResource BrushTexto}" />
     </Style>
+    <!-- Header de coluna: faixa azul Cofap (BrushFundoHeader) + texto branco (padrão Cofap). -->
     <Style Selector="TextBlock.th">
         <Setter Property="FontSize" Value="11" />
         <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="Foreground" Value="#475569" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushTextoInverso}" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="Margin" Value="8,0" />
+    </Style>
+
+    <!-- ===================================================================
+         BADGE CONTADOR (etiqueta "X itens" ao lado do título da listagem)
+         Centraliza o trio de cores que estava hardcoded em ~12 telas. Usar:
+         <Border Classes="contador"><TextBlock Classes="contador" Text="..."/></Border>
+         Cantos retos (cor = informação), Padding 8,1. Cores via tokens do contador.
+         =================================================================== -->
+    <Style Selector="Border.contador">
+        <Setter Property="Background" Value="{DynamicResource BrushContadorFundo}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BrushContadorBorda}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="2" />
+        <Setter Property="Padding" Value="8,1" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="TextBlock.contador">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushContadorTexto}" />
     </Style>
 
     <!-- ===================================================================
@@ -643,6 +688,9 @@
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Top" />
+        <!-- Foreground no Button: a legenda herda esta cor. Sem isto, o FluentTheme aplica o cinza
+             padrão do botão ao ContentPresenter, que vencia o Foreground do TextBlock da legenda. -->
+        <Setter Property="Foreground" Value="#000000" />
     </Style>
     <Style Selector="Button.toolbaritem:pointerover /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource BrushFundoHover}" />

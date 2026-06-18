@@ -255,7 +255,7 @@
                                 </Grid>
                                 <Border Background="{DynamicResource BrushBordaSuave}" Height="1" Margin="0,2" />
                                 <!-- Faixa de destaque do TOTAL (o número que o vendedor mais olha). -->
-                                <Border Background="#EFF6FF" CornerRadius="3" Padding="8,4">
+                                <Border Background="{DynamicResource BrushFundoSelecionado}" CornerRadius="3" Padding="8,4">
                                     <Grid ColumnDefinitions="*,120">
                                         <TextBlock Grid.Column="0" Text="TOTAL" FontSize="12" FontWeight="Bold"
                                                    Foreground="{DynamicResource BrushTexto}"

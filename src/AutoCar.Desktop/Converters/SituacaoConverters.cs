@@ -17,7 +17,7 @@ internal static class CoresSituacao
     {
         SituacaoPreVenda.Faturada => ("#DCFCE7", "#22C55E", "#166534", "Faturada"),
         SituacaoPreVenda.Cancelada => ("#FEE2E2", "#EF4444", "#991B1B", "Cancelada"),
-        _ => ("#DBEAFE", "#3B82F6", "#1E40AF", "Aberta"),
+        _ => ("#D6E4F2", "#1E5CA5", "#143F70", "Aberta"),
     };
 
     // (fundo, borda, texto, rótulo) por situação de Ordem de Serviço (5 estados).
@@ -27,7 +27,7 @@ internal static class CoresSituacao
         SituacaoOrdemServico.Concluida => ("#E0E7FF", "#6366F1", "#3730A3", "Concluída"),
         SituacaoOrdemServico.Faturada => ("#DCFCE7", "#22C55E", "#166534", "Faturada"),
         SituacaoOrdemServico.Cancelada => ("#FEE2E2", "#EF4444", "#991B1B", "Cancelada"),
-        _ => ("#DBEAFE", "#3B82F6", "#1E40AF", "Aberta"),
+        _ => ("#D6E4F2", "#1E5CA5", "#143F70", "Aberta"),
     };
 
     public static IBrush Brush(string hex) => new SolidColorBrush(Color.Parse(hex));
@@ -46,7 +46,7 @@ public sealed class SituacaoPreVendaFundoConverter : IValueConverter
 {
     public static readonly SituacaoPreVendaFundoConverter Instancia = new();
     public object Convert(object? v, Type t, object? p, CultureInfo c) =>
-        CoresSituacao.Brush(v is SituacaoPreVenda s ? CoresSituacao.PreVenda(s).fundo : "#DBEAFE");
+        CoresSituacao.Brush(v is SituacaoPreVenda s ? CoresSituacao.PreVenda(s).fundo : "#D6E4F2");
     public object ConvertBack(object? v, Type t, object? p, CultureInfo c) => throw new NotSupportedException();
 }
 
@@ -54,7 +54,7 @@ public sealed class SituacaoPreVendaBordaConverter : IValueConverter
 {
     public static readonly SituacaoPreVendaBordaConverter Instancia = new();
     public object Convert(object? v, Type t, object? p, CultureInfo c) =>
-        CoresSituacao.Brush(v is SituacaoPreVenda s ? CoresSituacao.PreVenda(s).borda : "#3B82F6");
+        CoresSituacao.Brush(v is SituacaoPreVenda s ? CoresSituacao.PreVenda(s).borda : "#1E5CA5");
     public object ConvertBack(object? v, Type t, object? p, CultureInfo c) => throw new NotSupportedException();
 }
 
@@ -62,7 +62,7 @@ public sealed class SituacaoPreVendaTextoCorConverter : IValueConverter
 {
     public static readonly SituacaoPreVendaTextoCorConverter Instancia = new();
     public object Convert(object? v, Type t, object? p, CultureInfo c) =>
-        CoresSituacao.Brush(v is SituacaoPreVenda s ? CoresSituacao.PreVenda(s).texto : "#1E40AF");
+        CoresSituacao.Brush(v is SituacaoPreVenda s ? CoresSituacao.PreVenda(s).texto : "#143F70");
     public object ConvertBack(object? v, Type t, object? p, CultureInfo c) => throw new NotSupportedException();
 }
 
@@ -79,7 +79,7 @@ public sealed class SituacaoOrdemFundoConverter : IValueConverter
 {
     public static readonly SituacaoOrdemFundoConverter Instancia = new();
     public object Convert(object? v, Type t, object? p, CultureInfo c) =>
-        CoresSituacao.Brush(v is SituacaoOrdemServico s ? CoresSituacao.Ordem(s).fundo : "#DBEAFE");
+        CoresSituacao.Brush(v is SituacaoOrdemServico s ? CoresSituacao.Ordem(s).fundo : "#D6E4F2");
     public object ConvertBack(object? v, Type t, object? p, CultureInfo c) => throw new NotSupportedException();
 }
 
@@ -87,7 +87,7 @@ public sealed class SituacaoOrdemBordaConverter : IValueConverter
 {
     public static readonly SituacaoOrdemBordaConverter Instancia = new();
     public object Convert(object? v, Type t, object? p, CultureInfo c) =>
-        CoresSituacao.Brush(v is SituacaoOrdemServico s ? CoresSituacao.Ordem(s).borda : "#3B82F6");
+        CoresSituacao.Brush(v is SituacaoOrdemServico s ? CoresSituacao.Ordem(s).borda : "#1E5CA5");
     public object ConvertBack(object? v, Type t, object? p, CultureInfo c) => throw new NotSupportedException();
 }
 
@@ -95,7 +95,7 @@ public sealed class SituacaoOrdemTextoCorConverter : IValueConverter
 {
     public static readonly SituacaoOrdemTextoCorConverter Instancia = new();
     public object Convert(object? v, Type t, object? p, CultureInfo c) =>
-        CoresSituacao.Brush(v is SituacaoOrdemServico s ? CoresSituacao.Ordem(s).texto : "#1E40AF");
+        CoresSituacao.Brush(v is SituacaoOrdemServico s ? CoresSituacao.Ordem(s).texto : "#143F70");
     public object ConvertBack(object? v, Type t, object? p, CultureInfo c) => throw new NotSupportedException();
 }
 

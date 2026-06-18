@@ -12,26 +12,44 @@ bordas no lugar de sombras, tipografia compacta. Cor só comunica significado.
 
 ## Paleta (em Styles/Tema.axaml — consumir via DynamicResource)
 
+> **Identidade Cofap (desde 2026-06-17):** azul `#1E5CA5` primário + laranja `#F86518` acento.
+> Migrada do azul-ardósia `#3B82F6` do template. Cores hardcoded foram centralizadas em tokens.
+
 | Token | Valor | Uso |
 | --- | --- | --- |
 | `BrushFundo` | #F0F2F5 | tela principal |
 | `BrushFundoCard` | #FFFFFF | cards, formulários, menu/toolbar |
 | `BrushFundoHover` | #F8FAFC | hover de linha/botão |
 | `BrushFundoHeader` | #F8FAFC | barra de status, header de tabela |
-| `BrushPrimario` | #3B82F6 | botão primário, foco, marca, ícone da toolbar |
-| `BrushBorda` | #1E293B | borda padrão de campo (repouso) — forte/bem definida; foco vira azul |
-| `BrushTexto` | #1E293B | texto principal |
-| `BrushTextoSecundario` | #64748B | labels, subtítulos, legendas |
+| `BrushPrimario` | **#1E5CA5** | botão primário, foco, marca ("Auto"), ícone da toolbar |
+| `BrushAcento` | **#F86518** | acento laranja: barra de seleção de linha, marca ("Car"), rótulos |
+| `BrushBorda` | #1E293B | borda padrão de campo (repouso) — forte/bem definida; foco vira azul Cofap |
+| `BrushTexto` | **#000000** | texto principal (preto, contraste máximo) |
+| `BrushTextoSecundario` | #64748B | subtítulos, textos auxiliares |
 | `BrushTextoInverso` | #FFFFFF | texto/ícone sobre fundo colorido |
 | `BrushErro` | #EF4444 | mensagens de erro, botão Sair |
+| `BrushContadorFundo/Borda/Texto` | #D6E4F2 / #1E5CA5 / #143F70 | badge contador (classe `Border.contador`) |
+| `BrushSelecaoLinha` | **#FCD9C2** | fundo da linha selecionada nas listagens (laranja-claro Cofap) |
 
 > Os tokens `BrushFundoSidebar*` ainda existem no Tema.axaml mas **não são mais usados** (o layout
 > deixou de ter sidebar escura). Podem ser removidos numa limpeza futura.
 
+### Legendas e navegação — PRETO #000000 + Medium (PADRÃO)
+
+> Escolha do Julio (2026-06-17): textos de navegação/rótulo ganham contraste forte.
+
+- **Legendas da toolbar** (Buscar, Clientes...), **menu de texto do topo** (Cadastros/Movimentos/
+  Financeiro) e **labels de formulário** (`formlabel`): `Foreground="#000000"` + `FontWeight="Medium"`.
+- ⚠️ **Legenda dentro de `Button` (toolbaritem):** o FluentTheme aplica um `Foreground` próprio do
+  botão ao `ContentPresenter`, que vence o `Foreground` do `TextBlock` filho. Setar `Foreground` no
+  **próprio `Button.toolbaritem`** (não só no TextBlock) para a legenda herdar o preto.
+- Texto principal em geral = `BrushTexto` (#000000). O cinza `BrushTextoSecundario` fica para
+  subtítulos/auxiliares, não para labels de campo.
+
 ## Tipografia
 
 - Fonte interface: **Segoe UI**. Dados/códigos/valores: **Consolas** (`FonteMono`).
-- Título janela 14px SemiBold · seção 12px SemiBold · corpo 12px · label 10px Medium.
+- Título janela 14px SemiBold · seção 12px SemiBold · corpo 12px · label 12px Medium (preto #000000).
 
 ## Tokens de densidade
 
@@ -150,7 +168,9 @@ CornerRadius: controles 2px · cards 6px · ícone-marcador 3px.
 - **Célula âmbar**: campo de desconto do item com desconto > 0 ganha fundo `#FEF3C7` (`DescontoFundoConverter`).
 - **Flash de item novo**: linha pisca `#FEF9C3` por ~1.2s ao ser adicionada — via **`DispatcherTimer`**
   (NUNCA `Style.Animations`: anima trava o Avalonia). Propriedade `BrushFundoLinha` no item-VM.
-- **Header de coluna**: texto `#475569` SemiBold (era `#64748B` Medium) — âncora visual mais forte.
+- **Header de coluna (tabelas)**: faixa **azul Cofap `#1E5CA5`** (`BrushFundoHeader`) + texto **branco**
+  SemiBold (classe `th`). Padrão Cofap desde 2026-06-18 (era cinza `#F8FAFC` + texto `#475569`). A barra
+  de status do rodapé compartilha o mesmo `BrushFundoHeader` (azul) com textos brancos.
 
 ### Documento de balcão em janela separada (PreVendaWindow) — PADRÃO
 
@@ -195,6 +215,36 @@ CornerRadius: controles 2px · cards 6px · ícone-marcador 3px.
   interno herda o fundo disabled e fica cinza mesmo habilitado; o popup posiciona mal). Foi descartado
   em favor do botão-seletor + janela. Ver [[licao-autocompletebox-avalonia11]] (memória global).
 
+### Módulo em janela própria maximizada — PADRÃO
+
+> Para um módulo de **consulta densa** abrir em tela cheia (sem o menu/toolbar do shell), em vez de
+> embutir na área central. Estabelecido no Catálogo (aberto pela toolbar).
+
+- `ItemMenu.FlgAbreEmJanela` (bool). O item marcado dispara `AbrirJanelaSolicitado(rota)` no
+  `MainWindowViewModel.SelecionarCommand` (em vez de `ConteudoAtivo = Resolver(...)`); o `MainWindow`
+  (code-behind) escuta o evento e abre a janela por rota (`App.Services` + `Show(this)`, não-modal).
+- Reusa o molde de janela do documento de balcão (maximizada, Esc/Fechar no rodapé).
+- Ao adicionar um 2º módulo em janela, incluir o `case` no switch de `MainWindow.AbrirEmJanela`.
+
+### Copiar célula por clique direito — PADRÃO
+
+> Menu de contexto "Copiar" em listagens/painéis de consulta (estabelecido no Catálogo, estilo Cofap).
+
+- `ContextMenu` (recurso `x:Shared="False"`) aplicado via `Style` às células copiáveis; item "Copiar".
+- ⚠️ **`ContextMenu` via Style NÃO popula `PlacementTarget` no Avalonia 11** (vem nulo). Capturar o
+  alvo no **`PointerPressed`** (botão direito) do contêiner — `e.Source as TextBlock` — e guardar numa
+  variável que o "Copiar" usa. Clipboard: `TopLevel.GetTopLevel(this)?.Clipboard?.SetTextAsync(...)`
+  com `await`. Ver [[licao-contextmenu-placementtarget]] (memória global).
+- Botão esquerdo segue selecionando a linha — sem conflito.
+
+### Foto fixa + ampliação — PADRÃO
+
+> Miniatura de imagem que amplia ao clicar (estabelecido no painel de detalhe do Catálogo).
+
+- Miniatura num `Border` com `ClipToBounds="True"` + `Cursor="Hand"`; `Image Stretch="UniformToFill"`
+  para preencher sem distorcer. Clique abre `ImagemAmpliadaWindow` (janela 600×500, foto `Uniform`,
+  Esc/clique fecha) — reutilizável para qualquer foto de produto via `ImagemProduto.Carregar`.
+
 ### Tooltip — PADRÃO
 
 - Fundo **azul-ardósia `#1E293B`** (ColorTexto), texto branco, borda sutil `#64748B`, radius 3, 11px.
@@ -205,8 +255,9 @@ CornerRadius: controles 2px · cards 6px · ícone-marcador 3px.
 
 > A "etiqueta" ao lado do título da listagem que mostra "X produtos", "9 peças", etc.
 
-- `Border` fundo **`#DBEAFE`** (azul-claro = informação) + borda **`#3B82F6`** 1px + texto **`#1E40AF`**
-  11px Medium, **CornerRadius 2** (cantos retos, nunca pílula arredondada), `Padding="8,1"`.
+- Usar a classe **`Border.contador`** (+ `TextBlock Classes="contador"`) — centraliza o trio de cores
+  via tokens `BrushContadorFundo`/`Borda`/`Texto` (azul-claro Cofap #D6E4F2 / #1E5CA5 / #143F70),
+  11px Medium, **CornerRadius 2** (cantos retos, nunca pílula), `Padding="8,1"`. NÃO hardcodar as cores.
 - Mesma família visual do badge "Aberta" da Pré-venda — cor comunica "informação", coeso e leve.
 - Aplicado em todas as listagens (Catálogo, Produtos, Clientes, Fornecedor, Marcas, Categorias, Pré-vendas).
 - ⚠️ Não usar `CornerRadius` alto (pílula) — destoa do enterprise compacto; o padrão é canto reto.

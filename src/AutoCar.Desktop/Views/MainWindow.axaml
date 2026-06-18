@@ -29,7 +29,8 @@
                     <Style Selector="Menu.topo > MenuItem" x:DataType="vm:CategoriaMenu">
                         <Setter Property="Header" Value="{Binding Nome}" />
                         <Setter Property="ItemsSource" Value="{Binding Itens}" />
-                        <Setter Property="Foreground" Value="#1E293B" />
+                        <Setter Property="Foreground" Value="#000000" />
+                        <Setter Property="FontWeight" Value="Medium" />
                     </Style>
                     <!-- Itens da categoria: MenuItem de segundo nível -->
                     <Style Selector="Menu.topo > MenuItem > MenuItem" x:DataType="vm:ItemMenu">
@@ -76,7 +77,8 @@
                                          mesma base, independente da legenda ocupar 1 ou 2 linhas. -->
                                     <TextBlock Text="{Binding Titulo}"
                                                FontSize="9"
-                                               Foreground="{DynamicResource BrushTextoSecundario}"
+                                               FontWeight="Medium"
+                                               Foreground="#000000"
                                                HorizontalAlignment="Center"
                                                TextAlignment="Center"
                                                TextWrapping="Wrap"
@@ -106,7 +108,8 @@
                         </Border>
                         <TextBlock Text="Sair"
                                    FontSize="9"
-                                   Foreground="{DynamicResource BrushTextoSecundario}"
+                                   FontWeight="Medium"
+                                   Foreground="#000000"
                                    HorizontalAlignment="Center"
                                    TextAlignment="Center"
                                    Height="22"
@@ -124,16 +127,16 @@
                         VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="2">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <TextBlock Text="Auto" FontSize="64" FontWeight="Bold"
-                               Foreground="{DynamicResource BrushTexto}" />
-                    <TextBlock Text="Car" FontSize="64" FontWeight="Bold"
                                Foreground="{DynamicResource BrushPrimario}" />
+                    <TextBlock Text="Car" FontSize="64" FontWeight="Bold"
+                               Foreground="{DynamicResource BrushAcento}" />
                 </StackPanel>
                 <TextBlock Text="ERP" FontSize="20" FontWeight="Medium"
-                           Foreground="{DynamicResource BrushTextoSecundario}"
+                           Foreground="{DynamicResource BrushTexto}"
                            HorizontalAlignment="Center" Margin="0,-8,0,0" />
                 <TextBlock Text="Autopeças e Oficina"
                            FontSize="12"
-                           Foreground="{DynamicResource BrushTextoMudo}"
+                           Foreground="{DynamicResource BrushTexto}"
                            HorizontalAlignment="Center" Margin="0,8,0,0" />
             </StackPanel>
 
@@ -167,22 +170,23 @@
                 BorderBrush="{DynamicResource BrushBorda}"
                 BorderThickness="0,1,0,0"
                 Height="24">
+            <!-- Barra de status sobre fundo azul Cofap: todos os textos em branco. -->
             <Grid ColumnDefinitions="Auto,*,Auto" Margin="12,0">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                     <TextBlock Text="{Binding NomeUsuario}" FontSize="11" FontWeight="Medium"
-                               Foreground="{DynamicResource BrushTexto}" />
-                    <TextBlock Text="·" FontSize="11" Foreground="{DynamicResource BrushTextoMudo}" />
+                               Foreground="{DynamicResource BrushTextoInverso}" />
+                    <TextBlock Text="·" FontSize="11" Foreground="{DynamicResource BrushTextoInverso}" />
                     <TextBlock Text="{Binding PerfilUsuarioTexto}" FontSize="11"
-                               Foreground="{DynamicResource BrushTextoSecundario}" />
+                               Foreground="{DynamicResource BrushTextoInverso}" />
                 </StackPanel>
 
                 <TextBlock Grid.Column="1" Text="AutoCar ERP" FontSize="11"
-                           Foreground="{DynamicResource BrushTextoMudo}"
+                           Foreground="{DynamicResource BrushTextoInverso}"
                            HorizontalAlignment="Center" VerticalAlignment="Center" />
 
                 <TextBlock Grid.Column="2" Text="{Binding DataAtual}" FontSize="11"
                            FontFamily="{DynamicResource FonteMono}"
-                           Foreground="{DynamicResource BrushTextoSecundario}"
+                           Foreground="{DynamicResource BrushTextoInverso}"
                            VerticalAlignment="Center" />
             </Grid>
         </Border>

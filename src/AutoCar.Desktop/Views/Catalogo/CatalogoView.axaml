@@ -8,15 +8,14 @@
              x:DataType="vm:CatalogoViewModel">
 
     <!-- ===================================================================
-         PALETA COFAP — LOCAL AO CATÁLOGO
-         Identidade visual inspirada no Catálogo Expresso Cofap (referência do Julio):
-         azul forte dominante + laranja como acento. Definida AQUI (não no Tema global)
-         de propósito: só o Catálogo veste essa cara; as demais telas seguem o tema
-         azul-ardósia do AutoCar. Não referenciar estes recursos fora desta View.
+         A paleta Cofap (azul + laranja) é GLOBAL (Tema.axaml): azul = ColorPrimario,
+         laranja = ColorAcento. Os aliases CofapAzul/CofapLaranja apontam para os tokens globais
+         (sem duplicar valor) — trocar a paleta no Tema reflete aqui. Os neutros (cinza) e o
+         laranja-claro da seleção da linha são específicos do Catálogo e ficam locais.
          =================================================================== -->
     <UserControl.Resources>
-        <SolidColorBrush x:Key="CofapAzul" Color="#1E5CA5" />
-        <SolidColorBrush x:Key="CofapLaranja" Color="#F86518" />
+        <SolidColorBrush x:Key="CofapAzul" Color="{StaticResource ColorPrimario}" />
+        <SolidColorBrush x:Key="CofapLaranja" Color="{StaticResource ColorAcento}" />
         <SolidColorBrush x:Key="CofapCinza" Color="#CFCFCF" />
         <SolidColorBrush x:Key="CofapCinzaClaro" Color="#F4F4F4" />
         <SolidColorBrush x:Key="CofapSelecionado" Color="#FCD9C2" />

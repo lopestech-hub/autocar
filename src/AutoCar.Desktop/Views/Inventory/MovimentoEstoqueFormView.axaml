@@ -27,7 +27,7 @@
             </StackPanel>
 
             <!-- Saldo atual: faixa azul-clara, número grande (o que o operador mais olha). -->
-            <Border Grid.Column="1" Background="#EFF6FF" CornerRadius="3"
+            <Border Grid.Column="1" Background="{DynamicResource BrushFundoSelecionado}" CornerRadius="3"
                     Padding="16,6" VerticalAlignment="Center">
                 <StackPanel Spacing="0">
                     <TextBlock Text="SALDO ATUAL" FontSize="9" FontWeight="Medium"
