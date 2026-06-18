@@ -28,7 +28,7 @@ Concorrência de estoque tratada com controle otimista (`xmin`) — risco nº 1 
 |--------|-------------------|--------|
 | Segurança (login, perfis) | [Security](src/AutoCar.Desktop/Views/Security/MODULO.md) | ✅ Fase 1 |
 | Cadastros (Cliente ✅; Fornecedor ✅; Marca ✅; Categoria ✅; Grupo ✅; Posição ✅; Lado ✅; Produto ✅ + aplicação ✅; Serviço ✅; Mecânico ✅) | [Registrations](src/AutoCar.Desktop/Views/Registrations/MODULO.md) | 🔄 |
-| Catálogo automotivo (peça → veículo) | [Catalogo](src/AutoCar.Desktop/Views/Catalogo/) — busca de peça por veículo ✅ | ✅ Fase 2 |
+| Catálogo automotivo (peça → veículo) | [Catalogo](src/AutoCar.Desktop/Views/Catalogo/) — busca peça×veículo ✅; layout mestre-detalhe estilo Cofap (Nº Conversão/Aplicação/Foto) ✅; abre em janela própria ✅; copiar por clique direito ✅ | ✅ Fase 2 |
 | Vendas (Pré-venda) | [Sales](src/AutoCar.Desktop/Views/Sales/MODULO.md) — Pré-venda (cabeçalho + itens) ✅ | 🔄 Fase 3 |
 | Estoque (saldo + movimentação) | [Inventory](src/AutoCar.Desktop/Views/Inventory/MODULO.md) — saldo, livro-razão, concorrência `xmin` ✅ | ✅ Fase 3 |
 | Compras (entrada por compra) | [Purchases](src/AutoCar.Desktop/Views/Purchases/MODULO.md) — documento fornecedor + itens → entrada no estoque ✅ | ✅ Fase 3 |
@@ -189,6 +189,10 @@ Um perfil por usuário. Admin vê tudo.
 
 | Data | Mudança |
 | --- | --- |
+| 2026-06-18 | **Paleta Cofap global** (`94817a5`): promove a identidade do Catálogo para todo o sistema — `ColorPrimario` #3B82F6→**#1E5CA5** + novo `ColorAcento` **#F86518** (laranja). Cores hardcoded centralizadas em tokens (classe `Border.contador`, `BrushSelecaoLinha`, trio do contador). Header de tabela e barra de status: **faixa azul + texto branco**. Seleção de linha unificada no **laranja-claro #FCD9C2** + barra lateral laranja. Logo: Auto(azul) Car(laranja). Legendas/menu/labels em **preto Medium**. Converters migrados (semânticos verde/vermelho/âmbar preservados). Grep confirma zero azul antigo fora do Tema |
+| 2026-06-17 | Catálogo estilo Cofap (`13347ba`): layout **mestre-detalhe** (tabela + painel Nº Conversão/Aplicação agrupada por montadora/Foto fixa); `CatalogoItemDto` ganha listas estruturadas (sem N+1, reusa projeção do `Mapear`); abre em **janela própria** maximizada (`ItemMenu.FlgAbreEmJanela` + evento no shell; `CatalogoSeletorWindow` com modo Consulta/AdicionarNaVenda, F2 da pré-venda intacto); foto contida + `ImagemAmpliadaWindow` (600×500); **copiar por clique direito** nas células; texto global **preto** (`ColorTexto #000000`). Paleta Cofap ainda **local** à View (migração global é o próximo passo) |
+| 2026-06-17 | Busca tolerante a acentos/pontuação: função SQL `normalizar_busca` (migration `FuncaoNormalizarBusca`) + `ProdutoRepository` troca `ILike` por `Like(NormalizarBusca())` em produto e catálogo (descrição, cod_barras, cod_fabricante, similar, montadora, modelo) |
+| 2026-06-17 | `produto_aplicacao.motorizacao`: alinhado schema EF Core para varchar(60) (migration `MotorizacaoMaxLength60`; banco já estava em 60) |
 | 2026-06-16 | Cadastros: **Posição, Lado e Grupo** do produto viram cadastro editável (commit `89c90bb`). Posição/Lado deixam de ser enum; Grupo é nível novo do catálogo (**Categoria → Grupo → Produto**, grupo único por categoria, combo dependente no form). Produto ganha FKs opcionais `id_posicao`/`id_lado`/`id_grupo`. Migrations `PosicaoLadoComoCadastro` + `GrupoProduto` (aditivas); seed base idempotente |
 | 2026-05-29 | Fase 1 concluída: solution, banco, auth por usuário + perfis, logout |
 | 2026-05-29 | Shell redesenhado para layout ERP (menu de texto + toolbar) com ícones FontAwesome |

@@ -271,7 +271,7 @@ normalizado de montadora/modelo). Sem `cod_` (registro filho). Migration: `Aplic
 - `id_aplicacao` (uuid PK), `id_produto` (FK → produto, **Cascade**)
 - `montadora`, `modelo` (varchar, CAIXA ALTA, obrigatórios), `ano_inicio`, `ano_fim` (int, opcionais —
   ano_fim vazio = "em diante")
-- `motorizacao` (varchar 20, opcional, CAIXA ALTA — texto livre: "1.0", "1.6 FIRE")
+- `motorizacao` (varchar 60, opcional, CAIXA ALTA — texto livre: "1.0", "1.6 FIRE", "2.0 16V TURBO FLEX")
 - `sts_combustivel` (int — enum `Combustivel`: NaoAplica=0, Flex, Gasolina, Diesel, Etanol, GNV; default 0)
 - `observacao` (varchar 120, opcional)
 - Índices: `ix_produto_aplicacao_veiculo` (montadora+modelo, busca), `ix_produto_aplicacao_produto` (FK)
