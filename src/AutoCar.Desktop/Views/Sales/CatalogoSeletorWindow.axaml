@@ -15,8 +15,7 @@
 
         <Border Grid.Row="1" BorderBrush="{DynamicResource BrushBorda}" BorderThickness="0,1,0,0" Padding="16,10">
             <DockPanel>
-                <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center"
-                           Text="Clique numa peça para adicionar à pré-venda. Esc para fechar."
+                <TextBlock Name="Dica" DockPanel.Dock="Left" VerticalAlignment="Center"
                            FontSize="11" Foreground="{DynamicResource BrushTextoMudo}" />
                 <Button Content="Fechar" Classes="secundario"
                         HorizontalAlignment="Right" Cursor="Hand"

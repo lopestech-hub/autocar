@@ -1,7 +1,9 @@
 using System;
+using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
 using Avalonia.Markup.Xaml;
 using AutoCar.Application.Modules.Registrations.Produtos.DTOs;
 using AutoCar.Desktop.ViewModels.Catalogo;
@@ -19,13 +21,29 @@ public partial class CatalogoView : UserControl
 {
     private CatalogoViewModel? _vm;
     private ListBox? _lista;
+    private Control? _painelDetalhe;
+    private bool _modoSeletor;
 
     /// <summary>
     /// Quando true, a tela funciona como SELETOR de peça (usada na pré-venda via F2): duplo-clique
     /// ou Enter dispara <see cref="PecaSelecionada"/> e a 1ª linha já vem marcada ao abrir.
     /// Quando false, é só consulta (clique marca a linha, sem ação).
+    /// O painel de detalhe (mestre-detalhe estilo Cofap) só aparece na CONSULTA — no seletor a tela
+    /// é lista densa pura, para não atrapalhar o fluxo rápido de venda por teclado.
     /// </summary>
-    public bool ModoSeletor { get; set; }
+    public bool ModoSeletor
+    {
+        get => _modoSeletor;
+        set { _modoSeletor = value; AplicarModo(); }
+    }
+
+    // Esconde o painel de detalhe no modo seletor (a tabela ocupa tudo). Idempotente e seguro de
+    // chamar antes de o painel existir (o setter de ModoSeletor pode rodar antes do load).
+    private void AplicarModo()
+    {
+        if (_painelDetalhe is not null)
+            _painelDetalhe.IsVisible = !_modoSeletor;
+    }
 
     /// <summary>Disparado ao escolher uma peça no modo seletor (duplo-clique ou Enter).</summary>
     public event System.Action<CatalogoItemDto>? PecaSelecionada;
@@ -38,6 +56,11 @@ public partial class CatalogoView : UserControl
         _lista = this.FindControl<ListBox>("ListaResultados");
         if (_lista is not null)
             _lista.DoubleTapped += AoConfirmarLinha;
+
+        // Painel de detalhe (mestre-detalhe). Reaplica o modo: se ModoSeletor já foi setado antes
+        // do load, agora que o painel existe a visibilidade é ajustada.
+        _painelDetalhe = this.FindControl<Control>("PainelDetalhe");
+        AplicarModo();
 
         DataContextChanged += AoTrocarDataContext;
     }
@@ -60,10 +83,11 @@ public partial class CatalogoView : UserControl
             vm.InicializarCommand.Execute(null);
     }
 
-    // No modo seletor, ao chegarem resultados, pré-seleciona a 1ª linha (fluxo de teclado imediato).
+    // Ao chegarem resultados, pré-seleciona a 1ª linha. No seletor é o fluxo de teclado imediato;
+    // na consulta, deixa o painel de detalhe já preenchido com a 1ª peça.
     private void AoMudarResultados(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
     {
-        if (ModoSeletor && _lista is not null && _vm?.Resultados.Count > 0 && _lista.SelectedIndex < 0)
+        if (_lista is not null && _vm?.Resultados.Count > 0 && _lista.SelectedIndex < 0)
             _lista.SelectedIndex = 0;
     }
 
@@ -110,5 +134,42 @@ public partial class CatalogoView : UserControl
     {
         if (ModoSeletor && sender is ListBox { SelectedItem: CatalogoItemDto peca })
             PecaSelecionada?.Invoke(peca);
+    }
+
+    // Clique na miniatura da foto (painel de detalhe) abre a imagem ampliada numa janela modal.
+    private void AoClicarFoto(object? sender, PointerPressedEventArgs e)
+    {
+        if (_vm?.PecaSelecionada?.ArquivoImagem is not { } arquivo)
+            return;
+
+        var janela = new Views.ImagemAmpliadaWindow(arquivo);
+        if (TopLevel.GetTopLevel(this) is Window dono)
+            janela.ShowDialog(dono);
+        else
+            janela.Show();
+    }
+
+    // Texto da última célula sob o clique direito. O ContextMenu anexado via Style NÃO popula
+    // PlacementTarget no Avalonia 11 (vem nulo), então capturamos o alvo no clique direito.
+    private string? _textoCelulaParaCopiar;
+
+    // Clique direito numa linha da tabela: guarda o texto da célula (TextBlock) sob o ponteiro,
+    // para o "Copiar" do menu. e.Source é o controle realmente clicado (a célula).
+    private void AoClicarCelula(object? sender, PointerPressedEventArgs e)
+    {
+        if (e.GetCurrentPoint(this).Properties.IsRightButtonPressed)
+            _textoCelulaParaCopiar = (e.Source as TextBlock)?.Text;
+    }
+
+    // "Copiar" do menu de contexto: copia o texto da célula clicada (capturado em AoClicarCelula).
+    // Padrão do Catálogo Cofap (clique direito → Copiar).
+    private async void AoCopiarCelula(object? sender, RoutedEventArgs e)
+    {
+        if (string.IsNullOrEmpty(_textoCelulaParaCopiar))
+            return;
+
+        var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
+        if (clipboard is not null)
+            await clipboard.SetTextAsync(_textoCelulaParaCopiar);
     }
 }

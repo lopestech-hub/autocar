@@ -9,14 +9,32 @@ using AutoCar.Desktop.Views.Catalogo;
 
 namespace AutoCar.Desktop.Views.Sales;
 
+/// <summary>Como a janela do Catálogo é usada.</summary>
+public enum ModoCatalogo
+{
+    /// <summary>Consulta (aberta pela toolbar): só pesquisa, com o painel de detalhe visível.
+    /// Não adiciona nada — fecha com "Fechar"/Esc.</summary>
+    Consulta,
+
+    /// <summary>Seleção de peça (aberta com F2 na pré-venda): lista densa, sem painel; clicar/Enter
+    /// devolve a peça para o documento e fecha.</summary>
+    AdicionarNaVenda,
+}
+
 /// <summary>
-/// Janela seletora de peça (aberta com F2 na pré-venda). Hospeda o Catálogo completo em modo
-/// seletor — filtros de veículo + busca de peça + lista. Clicar numa peça invoca o callback de
-/// seleção e fecha a janela. Reusa CatalogoView/CatalogoViewModel (não duplica a busca).
+/// Janela que hospeda o Catálogo. Serve a DOIS fluxos pelo <see cref="ModoCatalogo"/>:
+/// <list type="bullet">
+/// <item><b>AdicionarNaVenda</b> (F2 da pré-venda): clicar/Enter numa peça invoca o callback de
+/// seleção e fecha — fluxo de venda, inalterado.</item>
+/// <item><b>Consulta</b> (toolbar): só pesquisa, com o painel de detalhe (mestre-detalhe Cofap)
+/// visível; sem callback de adicionar.</item>
+/// </list>
+/// Reusa CatalogoView/CatalogoViewModel (não duplica a busca). Maximizada e não-modal.
 /// </summary>
 public partial class CatalogoSeletorWindow : Window
 {
     private readonly Action<CatalogoItemDto>? _aoSelecionar;
+    private ModoCatalogo _modo = ModoCatalogo.AdicionarNaVenda;
     private CatalogoView? _catalogo;
 
     public CatalogoSeletorWindow()
@@ -24,20 +42,48 @@ public partial class CatalogoSeletorWindow : Window
         InitializeComponent();
     }
 
+    /// <summary>Modo SELEÇÃO (F2 da pré-venda): escolhe uma peça e devolve pelo callback.</summary>
     public CatalogoSeletorWindow(CatalogoViewModel catalogoVm, Action<CatalogoItemDto> aoSelecionar) : this()
     {
         _aoSelecionar = aoSelecionar;
+        Configurar(catalogoVm, ModoCatalogo.AdicionarNaVenda);
+    }
+
+    /// <summary>Modo CONSULTA (toolbar): só pesquisa, painel de detalhe visível, sem adicionar.</summary>
+    public CatalogoSeletorWindow(CatalogoViewModel catalogoVm) : this()
+    {
+        Configurar(catalogoVm, ModoCatalogo.Consulta);
+    }
+
+    private void Configurar(CatalogoViewModel catalogoVm, ModoCatalogo modo)
+    {
+        _modo = modo;
 
         _catalogo = this.FindControl<CatalogoView>("Catalogo")!;
-        _catalogo.ModoSeletor = true;
+        // No modo seletor a CatalogoView esconde o painel de detalhe (lista densa para a venda);
+        // na consulta o painel aparece.
+        _catalogo.ModoSeletor = modo == ModoCatalogo.AdicionarNaVenda;
         _catalogo.DataContext = catalogoVm;
-        _catalogo.PecaSelecionada += peca =>
-        {
-            _aoSelecionar?.Invoke(peca);
-            Close();
-        };
 
-        // Ao abrir, o foco vai para o campo de busca de peça (vendedor digita o termo, depois ↓).
+        if (modo == ModoCatalogo.AdicionarNaVenda)
+        {
+            _catalogo.PecaSelecionada += peca =>
+            {
+                _aoSelecionar?.Invoke(peca);
+                Close();
+            };
+            Title = "Catálogo: selecionar peça";
+            this.FindControl<TextBlock>("Dica")!.Text =
+                "Clique numa peça para adicionar à pré-venda. Esc para fechar.";
+        }
+        else
+        {
+            Title = "Catálogo: consulta de peças";
+            this.FindControl<TextBlock>("Dica")!.Text =
+                "Pesquise por veículo ou peça. Esc para fechar.";
+        }
+
+        // Ao abrir, o foco vai para o campo de busca de peça.
         Opened += (_, _) => _catalogo.FocarBusca();
     }
 
@@ -45,7 +91,8 @@ public partial class CatalogoSeletorWindow : Window
 
     private void AoFechar(object? sender, RoutedEventArgs e) => Close();
 
-    // Teclado do seletor: ↑/↓ navegam a lista, Enter confirma, Esc fecha sem selecionar.
+    // Teclado: ↑/↓ navegam a lista nos dois modos; Enter confirma só no modo de seleção;
+    // Esc sempre fecha.
     private void AoTeclar(object? sender, KeyEventArgs e)
     {
         switch (e.Key)
@@ -62,7 +109,7 @@ public partial class CatalogoSeletorWindow : Window
                 _catalogo?.NavegarCima();
                 e.Handled = true;
                 break;
-            case Key.Enter:
+            case Key.Enter when _modo == ModoCatalogo.AdicionarNaVenda:
                 // Se há linha destacada, seleciona (a janela fecha pelo callback de PecaSelecionada).
                 _catalogo?.SelecionarAtual();
                 e.Handled = true;

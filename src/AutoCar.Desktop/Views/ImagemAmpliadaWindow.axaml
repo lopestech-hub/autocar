@@ -1,0 +1,15 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="AutoCar.Desktop.Views.ImagemAmpliadaWindow"
+        Width="600" Height="500"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Title="Foto do produto"
+        Background="#1E293B"
+        KeyDown="AoTeclar">
+
+    <!-- Foto ampliada, centralizada. Clicar em qualquer lugar fecha (igual Esc). -->
+    <Border Background="#1E293B" Cursor="Hand" PointerPressed="AoClicar">
+        <Image Name="Foto" Stretch="Uniform" Margin="24" />
+    </Border>
+</Window>

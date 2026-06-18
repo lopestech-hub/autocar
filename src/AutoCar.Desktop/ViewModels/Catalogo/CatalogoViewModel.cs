@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
@@ -33,6 +35,15 @@ public partial class CatalogoViewModel : ViewModelBase
     /// <summary>Resultado da busca (peças que servem no veículo filtrado).</summary>
     public ObservableCollection<CatalogoItemDto> Resultados { get; } = new();
 
+    /// <summary>Peça marcada na tabela (mestre). O painel de detalhe reage a ela.</summary>
+    [ObservableProperty] private CatalogoItemDto? _pecaSelecionada;
+
+    /// <summary>Aplicações da peça selecionada, agrupadas por montadora (painel de detalhe).</summary>
+    public ObservableCollection<GrupoAplicacaoVm> AplicacoesAgrupadas { get; } = new();
+
+    /// <summary>Equivalências (Nº Conversão) da peça selecionada (painel de detalhe).</summary>
+    public ObservableCollection<SimilarDto> SimilaresSelecionados { get; } = new();
+
     /// <summary>Montadoras já cadastradas (autocomplete).</summary>
     public ObservableCollection<string> Montadoras { get; } = new();
 
@@ -64,6 +75,35 @@ public partial class CatalogoViewModel : ViewModelBase
         _ = CarregarModelosAsync();
         AgendarBusca();
     }
+
+    // Trocar a peça marcada reprojeta o painel de detalhe: agrupa as aplicações por montadora
+    // e atualiza a lista de equivalências (Nº Conversão).
+    partial void OnPecaSelecionadaChanged(CatalogoItemDto? value)
+    {
+        AplicacoesAgrupadas.Clear();
+        SimilaresSelecionados.Clear();
+        if (value is null) return;
+
+        // Agrupa por montadora preservando a ordem de aparição (1ª montadora vista = 1º grupo).
+        foreach (var grupo in value.ListaAplicacoes.GroupBy(a => a.Montadora))
+        {
+            var linhas = grupo
+                .Select(a => new LinhaAplicacaoVm(a.Modelo, FormatarAno(a.AnoInicio, a.AnoFim), a.Motorizacao))
+                .ToList();
+            AplicacoesAgrupadas.Add(new GrupoAplicacaoVm(grupo.Key, linhas));
+        }
+
+        foreach (var s in value.ListaSimilares) SimilaresSelecionados.Add(s);
+    }
+
+    // Faixa de anos legível (mesma regra do resumo em texto do ProdutoService).
+    private static string FormatarAno(int? inicio, int? fim) => (inicio, fim) switch
+    {
+        (null, null) => "",
+        (var ini, null) => $"{ini}+",
+        (null, var f) => $"até {f}",
+        var (ini, f) => $"{ini}-{f}",
+    };
 
     private void AgendarBusca()
     {
@@ -115,6 +155,9 @@ public partial class CatalogoViewModel : ViewModelBase
             var filtro = new BuscaCatalogoDto(Termo, Montadora, Modelo, ano);
             var lista = await _produtos.BuscarCatalogoAsync(filtro);
 
+            // Limpa a marca antes de trocar a lista (o item velho não existe mais na nova busca);
+            // o code-behind reseleciona a 1ª linha e o painel de detalhe se repreenche.
+            PecaSelecionada = null;
             Resultados.Clear();
             foreach (var item in lista) Resultados.Add(item);
             OnPropertyChanged(nameof(TextoContador));

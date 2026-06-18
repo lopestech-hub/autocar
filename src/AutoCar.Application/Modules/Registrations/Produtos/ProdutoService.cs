@@ -154,7 +154,13 @@ public sealed class ProdutoService : IProdutoService
         return produtos.Select(p => new CatalogoItemDto(
             p.Id, p.CodProduto, p.Descricao, p.Categoria?.Descricao, p.Marca?.Descricao,
             p.Unidade, p.Posicao?.Descricao, p.Lado?.Descricao, p.CodFabricante, p.VlrVenda,
-            ResumirAplicacoes(p), ResumirSimilares(p), p.ArquivoImagem)).ToList();
+            ResumirAplicacoes(p), ResumirSimilares(p),
+            // Mesmas listas estruturadas que o formulário usa (Mapear) — alimentam o painel de detalhe.
+            p.Aplicacoes.Select(a => new AplicacaoDto(
+                a.Montadora, a.Modelo, a.AnoInicio, a.AnoFim, a.Motorizacao, a.Combustivel, a.Observacao)).ToList(),
+            p.Similares.Select(s => new SimilarDto(
+                s.Marca, s.CodReferencia, s.IdProdutoEquivalente, s.Observacao)).ToList(),
+            p.ArquivoImagem)).ToList();
     }
 
     public Task<IReadOnlyList<string>> ListarMontadorasAsync(CancellationToken ct = default) =>

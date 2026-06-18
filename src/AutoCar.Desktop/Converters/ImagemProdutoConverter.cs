@@ -22,13 +22,19 @@ public sealed class ImagemProdutoConverter : IValueConverter
         throw new NotSupportedException();
 }
 
-/// <summary>True quando o produto tem imagem existente na pasta — controla se o ToolTip aparece.</summary>
+/// <summary>True quando o produto tem imagem existente na pasta. Controla a visibilidade da foto.
+/// Passe ConverterParameter="inverso" para negar (ex: mostrar o placeholder "imagem indisponível"
+/// quando NÃO há foto).</summary>
 public sealed class TemImagemProdutoConverter : IValueConverter
 {
     public static readonly TemImagemProdutoConverter Instancia = new();
 
-    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
-        ImagemProduto.Existe(value as string);
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        var existe = ImagemProduto.Existe(value as string);
+        var inverter = string.Equals(parameter as string, "inverso", StringComparison.OrdinalIgnoreCase);
+        return inverter ? !existe : existe;
+    }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
         throw new NotSupportedException();

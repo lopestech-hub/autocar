@@ -33,7 +33,10 @@
             <Color x:Key="ColorBordaErro">#EF4444</Color>
 
             <!-- ===== TEXTO ===== -->
-            <Color x:Key="ColorTexto">#1E293B</Color>
+            <!-- Texto principal PRETO para contraste máximo em toda a UI (escolha do Julio — o
+                 #1E293B/slate ficava "apagado" nas listagens densas). A borda forte dos campos
+                 (ColorBorda) tem chave própria e NÃO muda com isto. -->
+            <Color x:Key="ColorTexto">#000000</Color>
             <Color x:Key="ColorTextoSecundario">#64748B</Color>
             <Color x:Key="ColorTextoMudo">#94A3B8</Color>
             <Color x:Key="ColorTextoInverso">#FFFFFF</Color>
@@ -594,10 +597,11 @@
     <Style Selector="TextBlock.td.mono">
         <Setter Property="FontFamily" Value="{DynamicResource FonteMono}" />
     </Style>
-    <!-- Texto de célula com leve hierarquia (slate-700) — colunas secundárias mas legíveis,
-         ex: APLICAÇÃO/EQUIVALE A do Catálogo (o operador lê, mas não competem com a descrição). -->
+    <!-- Texto de célula secundário. Antes era #334155 (slate-700), mas ficava "apagado" nas colunas
+         largas (Aplicação/Equivale a do Catálogo) que o operador lê o tempo todo. Igualado ao texto
+         principal (#1E293B) para contraste/legibilidade — a hierarquia fica por conta da posição/coluna. -->
     <Style Selector="TextBlock.td.suave">
-        <Setter Property="Foreground" Value="#334155" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushTexto}" />
     </Style>
     <Style Selector="TextBlock.th">
         <Setter Property="FontSize" Value="11" />

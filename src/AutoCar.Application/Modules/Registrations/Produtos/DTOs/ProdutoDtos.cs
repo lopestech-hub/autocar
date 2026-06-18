@@ -86,7 +86,10 @@ public sealed record BuscaCatalogoDto(
     string? Modelo,
     int? Ano);
 
-/// <summary>Linha do resultado do Catálogo: a peça + em quais veículos ela aplica.</summary>
+/// <summary>Linha do resultado do Catálogo: a peça + em quais veículos ela aplica.
+/// <see cref="Aplicacoes"/>/<see cref="Similares"/> são o resumo em texto exibido nas colunas da
+/// tabela; <see cref="ListaAplicacoes"/>/<see cref="ListaSimilares"/> trazem o mesmo conteúdo
+/// estruturado, consumido pelo painel de detalhe (mestre-detalhe estilo Cofap).</summary>
 public sealed record CatalogoItemDto(
     Guid Id,
     int CodProduto,
@@ -100,4 +103,6 @@ public sealed record CatalogoItemDto(
     decimal VlrVenda,
     string Aplicacoes,
     string Similares,
+    IReadOnlyList<AplicacaoDto> ListaAplicacoes,
+    IReadOnlyList<SimilarDto> ListaSimilares,
     string? ArquivoImagem = null);

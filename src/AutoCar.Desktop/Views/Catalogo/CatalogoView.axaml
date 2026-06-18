@@ -7,6 +7,176 @@
              x:Class="AutoCar.Desktop.Views.Catalogo.CatalogoView"
              x:DataType="vm:CatalogoViewModel">
 
+    <!-- ===================================================================
+         PALETA COFAP — LOCAL AO CATÁLOGO
+         Identidade visual inspirada no Catálogo Expresso Cofap (referência do Julio):
+         azul forte dominante + laranja como acento. Definida AQUI (não no Tema global)
+         de propósito: só o Catálogo veste essa cara; as demais telas seguem o tema
+         azul-ardósia do AutoCar. Não referenciar estes recursos fora desta View.
+         =================================================================== -->
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="CofapAzul" Color="#1E5CA5" />
+        <SolidColorBrush x:Key="CofapLaranja" Color="#F86518" />
+        <SolidColorBrush x:Key="CofapCinza" Color="#CFCFCF" />
+        <SolidColorBrush x:Key="CofapCinzaClaro" Color="#F4F4F4" />
+        <SolidColorBrush x:Key="CofapSelecionado" Color="#FCD9C2" />
+        <SolidColorBrush x:Key="CofapBranco" Color="#FFFFFF" />
+
+        <!-- Menu "Copiar" das células (tabela e painel de detalhe). x:Shared="False" cria UMA
+             instância por célula (um ContextMenu não pode ter vários pais). O texto a copiar é
+             capturado no PointerPressed da célula (AoClicarCelula); o Click chama AoCopiarCelula. -->
+        <ContextMenu x:Key="MenuCopiarCelula" x:Shared="False">
+            <MenuItem Header="Copiar" Click="AoCopiarCelula" />
+        </ContextMenu>
+
+        <!-- Realce do item "Copiar" no hover/seleção: laranja-claro da seleção da lista (#FCD9C2),
+             via resource-keys do FluentTheme (não /template/ — evita flicker). Texto sempre escuro.
+             Locais à View: só o menu do Catálogo muda. -->
+        <SolidColorBrush x:Key="MenuFlyoutItemBackgroundPointerOver" Color="#FCD9C2" />
+        <SolidColorBrush x:Key="MenuFlyoutItemBackgroundSelected" Color="#FCD9C2" />
+        <SolidColorBrush x:Key="MenuFlyoutItemBackgroundPressed" Color="#FCD9C2" />
+        <SolidColorBrush x:Key="MenuFlyoutItemForeground" Color="#000000" />
+        <SolidColorBrush x:Key="MenuFlyoutItemForegroundPointerOver" Color="#000000" />
+        <SolidColorBrush x:Key="MenuFlyoutItemForegroundSelected" Color="#000000" />
+        <SolidColorBrush x:Key="MenuFlyoutItemForegroundPressed" Color="#000000" />
+    </UserControl.Resources>
+
+    <UserControl.Styles>
+        <!-- Cabeçalho da tabela (th-cofap): faixa azul forte, texto branco. -->
+        <Style Selector="TextBlock.th-cofap">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{StaticResource CofapBranco}" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="8,0" />
+        </Style>
+
+        <!-- ListBox da tabela no esquema Cofap. Reaproveita a virtualização do padrão
+             ListBox.tabela; só troca as cores dos estados. Os estilos abaixo redefinem
+             hover/seleção (gotcha do FluentTheme: sem isso, a linha marcada apaga o texto). -->
+        <Style Selector="ListBox.cofap">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="CornerRadius" Value="0" />
+        </Style>
+        <Style Selector="ListBox.cofap /template/ Border#border">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+        <Style Selector="ListBox.cofap ListBoxItem">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="MinHeight" Value="22" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="BorderBrush" Value="{StaticResource CofapCinza}" />
+            <Setter Property="BorderThickness" Value="0,0,0,1" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        </Style>
+        <Style Selector="ListBox.cofap ListBoxItem /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Padding" Value="0" />
+        </Style>
+        <!-- Hover: cinza muito claro (passageiro). -->
+        <Style Selector="ListBox.cofap ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{StaticResource CofapCinzaClaro}" />
+        </Style>
+        <!-- Seleção: laranja-claro (marca) — combina com a barra lateral laranja. -->
+        <Style Selector="ListBox.cofap ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{StaticResource CofapSelecionado}" />
+        </Style>
+        <Style Selector="ListBox.cofap ListBoxItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{StaticResource CofapSelecionado}" />
+        </Style>
+        <!-- Barra lateral 3px LARANJA (acento Cofap) na linha selecionada. -->
+        <Style Selector="ListBox.cofap ListBoxItem:selected Border#BarraSel">
+            <Setter Property="IsVisible" Value="True" />
+        </Style>
+
+        <!-- ===== PAINEL DE DETALHE (mestre-detalhe estilo Cofap) ===== -->
+        <!-- Cabeçalho de cada bloco do detalhe (faixa azul, texto branco) — mesma família do
+             header da tabela. Usar dentro de um Border azul. -->
+        <Style Selector="TextBlock.det-titulo">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{StaticResource CofapBranco}" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="8,0" />
+        </Style>
+        <!-- Cabeçalho de grupo (montadora): acento laranja Cofap, mesma cor do nome da marca no
+             bloco Nº Conversão (det-acento) — consistência entre os dois blocos do detalhe. -->
+        <Style Selector="TextBlock.det-montadora">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{StaticResource CofapLaranja}" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <!-- Rótulo de acento laranja (ex: "ORIGINAL" na coluna Nº Conversão). -->
+        <Style Selector="TextBlock.det-acento">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{StaticResource CofapLaranja}" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <!-- Célula de texto do detalhe (modelo, ano, referência). -->
+        <Style Selector="TextBlock.det-celula">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Foreground" Value="{DynamicResource BrushTexto}" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style Selector="TextBlock.det-celula.mono">
+            <Setter Property="FontFamily" Value="{DynamicResource FonteMono}" />
+        </Style>
+
+        <!-- Clique direito em qualquer célula copiável (tabela = TextBlock.td; painel de detalhe =
+             det-celula/det-acento) abre "Copiar", que copia o texto daquela célula (padrão Cofap).
+             O botão esquerdo segue selecionando a linha. O alvo é capturado no PointerPressed do
+             contêiner (o ContextMenu via Style não popula PlacementTarget no Avalonia 11).
+             x:Shared="False" garante UMA instância de ContextMenu por célula. -->
+        <Style Selector="TextBlock.td, TextBlock.det-celula, TextBlock.det-acento, TextBlock.det-montadora">
+            <Setter Property="ContextMenu" Value="{StaticResource MenuCopiarCelula}" />
+        </Style>
+
+        <!-- Menu "Copiar" compacto: o FluentTheme deixa o MenuItem alto/largo por padrão. Reduz
+             padding/altura/fonte. O realce de hover (laranja-claro da seleção) vem dos resource-keys
+             do tema, definidos em UserControl.Resources — não /template/ (evita o flicker do Fluent). -->
+        <Style Selector="ContextMenu">
+            <Setter Property="MinWidth" Value="0" />
+            <Setter Property="Padding" Value="0" />
+        </Style>
+        <!-- A "caixa" do menu é desenhada pelo MenuFlyoutPresenter (o popup), não pelo ContextMenu.
+             O padding/borda folgados dele é o que deixava a sobra branca em volta do item — zerar
+             aqui (e no Border interno LayoutRoot) cola a moldura no realce do item. -->
+        <Style Selector="MenuFlyoutPresenter">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="MinWidth" Value="0" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="0" />
+        </Style>
+        <Style Selector="MenuFlyoutPresenter /template/ Border#LayoutRoot">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="CornerRadius" Value="0" />
+        </Style>
+        <Style Selector="MenuFlyoutPresenter /template/ ScrollViewer">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0" />
+        </Style>
+        <Style Selector="ContextMenu MenuItem">
+            <Setter Property="MinHeight" Value="0" />
+            <Setter Property="Padding" Value="10,3" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="CornerRadius" Value="0" />
+        </Style>
+        <!-- Realce retangular que preenche o item inteiro (estilo menu nativo do Windows): zera a
+             margem e os cantos do bloco de fundo interno do MenuItem, para o laranja cobrir tudo.
+             O Border de fundo do MenuItem no FluentTheme 11 é o PART_BackgroundLayer. -->
+        <Style Selector="ContextMenu MenuItem /template/ Border#PART_BackgroundLayer">
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="CornerRadius" Value="0" />
+        </Style>
+    </UserControl.Styles>
+
     <Grid RowDefinitions="Auto,Auto,Auto,*" Margin="16">
 
         <!-- Título + contador -->
@@ -16,13 +186,13 @@
                        FontSize="14" FontWeight="SemiBold"
                        Foreground="{DynamicResource BrushTexto}"
                        VerticalAlignment="Center" />
-            <!-- Contador: etiqueta azul-clara (informação), cantos retos no padrão do sistema. -->
-            <Border Background="#DBEAFE"
-                    BorderBrush="#3B82F6" BorderThickness="1"
-                    CornerRadius="2" Padding="8,1" VerticalAlignment="Center">
+            <!-- Contador: etiqueta no azul Cofap (faixa sólida, texto branco) — pontua a
+                 identidade da tela sem competir com o header da tabela. -->
+            <Border Background="{StaticResource CofapAzul}"
+                    CornerRadius="2" Padding="8,2" VerticalAlignment="Center">
                 <TextBlock Text="{Binding TextoContador}"
                            FontSize="11" FontWeight="Medium"
-                           Foreground="#1E40AF" />
+                           Foreground="{StaticResource CofapBranco}" />
             </Border>
             <TextBlock Text="Quais peças servem no veículo?"
                        FontSize="11" Foreground="{DynamicResource BrushTextoMudo}"
@@ -55,9 +225,14 @@
         <ProgressBar Grid.Row="2" IsIndeterminate="True" Height="2"
                      IsVisible="{Binding Carregando}" />
 
-        <Border Grid.Row="3"
-                Background="{DynamicResource BrushFundoCard}"
-                BorderBrush="{DynamicResource BrushBorda}"
+        <!-- Split mestre-detalhe (estilo Cofap): tabela de peças em cima (3*), painel de detalhe
+             embaixo (2*). O painel só aparece na CONSULTA — no modo seletor (F2) o code-behind
+             esconde #PainelDetalhe e a tabela ocupa o espaço todo. -->
+        <Grid Grid.Row="3" RowDefinitions="3*,2*">
+
+        <Border Grid.Row="0"
+                Background="{StaticResource CofapBranco}"
+                BorderBrush="{StaticResource CofapCinza}"
                 BorderThickness="1"
                 CornerRadius="6"
                 ClipToBounds="True">
@@ -66,21 +241,21 @@
                      o Catálogo pode listar muitas peças). Colunas iguais no header e no template
                      (80,*,2*,90,90,120,160,50,90). Padding do ListBoxItem zerado no Tema (alinha o '*'). -->
                 <DockPanel>
-                    <!-- ===== HEADER FIXO ===== -->
-                    <Grid DockPanel.Dock="Top" Height="28"
-                          Background="{DynamicResource BrushFundoHeader}"
+                    <!-- ===== HEADER FIXO (faixa azul Cofap, texto branco) ===== -->
+                    <!-- Header um pouco mais alto que as linhas (26 vs 22) para destacar a faixa
+                         azul; as colunas seguem alinhadas (só a altura muda, não as larguras). -->
+                    <Grid DockPanel.Dock="Top" Height="26"
+                          Background="{StaticResource CofapAzul}"
                           ColumnDefinitions="80,*,2*,90,90,120,160,50,90">
-                        <Border Grid.ColumnSpan="9" Height="1" Background="#CBD5E1"
-                                VerticalAlignment="Bottom" />
-                        <TextBlock Grid.Column="0" Text="CÓDIGO"     Classes="th" />
-                        <TextBlock Grid.Column="1" Text="DESCRIÇÃO"  Classes="th" />
-                        <TextBlock Grid.Column="2" Text="APLICAÇÃO"  Classes="th" />
-                        <TextBlock Grid.Column="3" Text="POSIÇÃO"    Classes="th" />
-                        <TextBlock Grid.Column="4" Text="LADO"       Classes="th" />
-                        <TextBlock Grid.Column="5" Text="COD.FABRIC" Classes="th" />
-                        <TextBlock Grid.Column="6" Text="EQUIVALE A" Classes="th" />
-                        <TextBlock Grid.Column="7" Text="UN"         Classes="th" />
-                        <TextBlock Grid.Column="8" Text="VENDA"      Classes="th" />
+                        <TextBlock Grid.Column="0" Text="CÓDIGO"     Classes="th-cofap" />
+                        <TextBlock Grid.Column="1" Text="DESCRIÇÃO"  Classes="th-cofap" />
+                        <TextBlock Grid.Column="2" Text="APLICAÇÃO"  Classes="th-cofap" />
+                        <TextBlock Grid.Column="3" Text="POSIÇÃO"    Classes="th-cofap" />
+                        <TextBlock Grid.Column="4" Text="LADO"       Classes="th-cofap" />
+                        <TextBlock Grid.Column="5" Text="COD.FABRIC" Classes="th-cofap" />
+                        <TextBlock Grid.Column="6" Text="EQUIVALE A" Classes="th-cofap" />
+                        <TextBlock Grid.Column="7" Text="UN"         Classes="th-cofap" />
+                        <TextBlock Grid.Column="8" Text="VENDA"      Classes="th-cofap" />
                     </Grid>
 
                     <!-- Vazio: mensagem central (some quando há resultados). -->
@@ -92,40 +267,20 @@
                                Margin="0,40,0,0" />
 
                     <ListBox Name="ListaResultados"
-                             Classes="tabela"
+                             Classes="tabela cofap"
                              IsVisible="{Binding !!Resultados.Count}"
                              ItemsSource="{Binding Resultados}"
+                             SelectedItem="{Binding PecaSelecionada}"
                              SelectionMode="Single">
                         <ListBox.ItemTemplate>
                             <DataTemplate x:DataType="dtos:CatalogoItemDto">
-                                <Grid Height="28" Cursor="Hand" Background="Transparent"
+                                <!-- A foto agora é fixa no painel de detalhe (não mais tooltip no hover).
+                                     PointerPressed captura a célula sob o clique direito (para o "Copiar"). -->
+                                <Grid Height="22" Cursor="Hand" Background="Transparent"
+                                      PointerPressed="AoClicarCelula"
                                       ColumnDefinitions="80,*,2*,90,90,120,160,50,90">
-                                    <!-- Imagem da peça no hover: tooltip só aparece quando há foto na
-                                         pasta-base; o Bitmap carrega sob demanda (Avalonia só materializa
-                                         o tooltip ao abrir). Borda branca + título com a descrição embaixo. -->
-                                    <ToolTip.Tip>
-                                        <ToolTip Classes="imagem"
-                                                 IsVisible="{Binding ArquivoImagem, Converter={x:Static conv:TemImagemProdutoConverter.Instancia}}">
-                                            <Border Background="White" CornerRadius="3" Padding="6"
-                                                    BorderBrush="#CBD5E1" BorderThickness="1">
-                                                <StackPanel Spacing="4">
-                                                    <Image Width="320" Height="320" Stretch="Uniform"
-                                                           Source="{Binding ArquivoImagem, Converter={x:Static conv:ImagemProdutoConverter.Instancia}}" />
-                                                    <TextBlock Text="{Binding Descricao}"
-                                                               FontSize="11" FontWeight="SemiBold"
-                                                               Foreground="#1E293B"
-                                                               HorizontalAlignment="Center" />
-                                                    <TextBlock Text="{Binding CodFabricante}"
-                                                               FontSize="10" Foreground="#64748B"
-                                                               FontFamily="{DynamicResource FonteMono}"
-                                                               HorizontalAlignment="Center" />
-                                                </StackPanel>
-                                            </Border>
-                                        </ToolTip>
-                                    </ToolTip.Tip>
-
                                     <Border Name="BarraSel" Grid.ColumnSpan="9" Width="3"
-                                            Background="{DynamicResource BrushPrimario}"
+                                            Background="{StaticResource CofapLaranja}"
                                             HorizontalAlignment="Left" IsVisible="False" />
 
                                     <TextBlock Grid.Column="0" Text="{Binding CodProduto}"
@@ -135,10 +290,10 @@
                                     <TextBlock Grid.Column="2" Text="{Binding Aplicacoes}"
                                                Classes="td suave" TextTrimming="CharacterEllipsis" />
                                     <TextBlock Grid.Column="3"
-                                               Text="{Binding Posicao, TargetNullValue=—}"
+                                               Text="{Binding Posicao}"
                                                Classes="td" />
                                     <TextBlock Grid.Column="4"
-                                               Text="{Binding Lado, TargetNullValue=—}"
+                                               Text="{Binding Lado}"
                                                Classes="td" />
                                     <TextBlock Grid.Column="5" Text="{Binding CodFabricante}"
                                                Classes="td mono" TextTrimming="CharacterEllipsis" />
@@ -163,5 +318,144 @@
                            Margin="0,40,0,0" />
             </Panel>
         </Border>
+
+        <!-- ===================================================================
+             PAINEL DE DETALHE (#PainelDetalhe) — reage à peça selecionada na tabela.
+             3 blocos lado a lado: Nº Conversão (equivalências) | Aplicação (veículos
+             agrupados por montadora) | Foto fixa. Visível só na consulta (code-behind).
+             =================================================================== -->
+        <Border Grid.Row="1" Name="PainelDetalhe"
+                Margin="0,8,0,0"
+                Background="{StaticResource CofapBranco}"
+                BorderBrush="{StaticResource CofapCinza}"
+                BorderThickness="1"
+                CornerRadius="6"
+                ClipToBounds="True">
+
+            <!-- Estado vazio: nenhuma peça marcada. Usar ObjectConverters.IsNull/IsNotNull (null-check
+                 idiomático do Avalonia) — o operador '!' no binding espera bool e não trata objeto
+                 nullable de forma confiável, o que fazia o placeholder aparecer junto com o detalhe. -->
+            <Panel>
+                <TextBlock IsVisible="{Binding PecaSelecionada, Converter={x:Static ObjectConverters.IsNull}}"
+                           Text="Selecione uma peça para ver as aplicações e equivalências."
+                           FontSize="12"
+                           Foreground="{DynamicResource BrushTextoMudo}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+                <Grid IsVisible="{Binding PecaSelecionada, Converter={x:Static ObjectConverters.IsNotNull}}"
+                      ColumnDefinitions="1.2*,2*,Auto">
+
+                    <!-- ===== BLOCO 1: Nº CONVERSÃO (equivalências) ===== -->
+                    <DockPanel Grid.Column="0">
+                        <Border DockPanel.Dock="Top" Height="26"
+                                Background="{StaticResource CofapAzul}">
+                            <TextBlock Text="Nº CONVERSÃO" Classes="det-titulo" />
+                        </Border>
+                        <ScrollViewer>
+                            <ItemsControl ItemsSource="{Binding SimilaresSelecionados}" Margin="8,6"
+                                          PointerPressed="AoClicarCelula">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="dtos:SimilarDto">
+                                        <StackPanel Margin="0,0,0,6">
+                                            <TextBlock Text="{Binding Marca}" Classes="det-acento" />
+                                            <TextBlock Text="{Binding CodReferencia}"
+                                                       Classes="det-celula mono" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </DockPanel>
+
+                    <!-- Divisória vertical entre Nº Conversão e Aplicação (acento laranja, como a Cofap). -->
+                    <Border Grid.Column="0" Width="1" Background="{StaticResource CofapLaranja}"
+                            HorizontalAlignment="Right" />
+
+                    <!-- ===== BLOCO 2: APLICAÇÃO (veículos agrupados por montadora) ===== -->
+                    <DockPanel Grid.Column="1">
+                        <Grid DockPanel.Dock="Top" Height="26"
+                              Background="{StaticResource CofapAzul}"
+                              ColumnDefinitions="*,110">
+                            <TextBlock Grid.Column="0" Text="APLICAÇÃO" Classes="det-titulo" />
+                            <TextBlock Grid.Column="1" Text="ANO" Classes="det-titulo" />
+                        </Grid>
+                        <ScrollViewer>
+                            <ItemsControl ItemsSource="{Binding AplicacoesAgrupadas}" Margin="8,6"
+                                          PointerPressed="AoClicarCelula">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:GrupoAplicacaoVm">
+                                        <StackPanel Margin="0,0,0,6">
+                                            <!-- Cabeçalho do grupo: a montadora. -->
+                                            <TextBlock Text="{Binding Montadora}" Classes="det-montadora"
+                                                       Margin="0,0,0,2" />
+                                            <!-- Linhas: Modelo | Ano. -->
+                                            <ItemsControl ItemsSource="{Binding Linhas}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate x:DataType="vm:LinhaAplicacaoVm">
+                                                        <Grid ColumnDefinitions="*,110" Height="20">
+                                                            <TextBlock Grid.Column="0" Text="{Binding Modelo}"
+                                                                       Classes="det-celula" />
+                                                            <TextBlock Grid.Column="1" Text="{Binding Ano}"
+                                                                       Classes="det-celula mono" />
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </DockPanel>
+
+                    <!-- Divisória vertical entre Aplicação e Foto. -->
+                    <Border Grid.Column="1" Width="1" Background="{StaticResource CofapCinza}"
+                            HorizontalAlignment="Right" />
+
+                    <!-- ===== BLOCO 3: FOTO DO PRODUTO (fixa) ===== -->
+                    <DockPanel Grid.Column="2" Width="240">
+                        <Border DockPanel.Dock="Top" Height="26"
+                                Background="{StaticResource CofapAzul}">
+                            <TextBlock Text="FOTO DO PRODUTO" Classes="det-titulo" />
+                        </Border>
+                        <!-- Área da foto: estica na largura do bloco (acompanha a faixa do título),
+                             altura fixa 180, ancorada no topo com folga sob a faixa azul. O Border
+                             PRENDE a imagem (ClipToBounds) — não vaza nem encosta no título.
+                             Clique amplia (code-behind). -->
+                        <Panel Margin="0,10,0,12">
+                            <Border Name="FotoProduto"
+                                    Height="190"
+                                    HorizontalAlignment="Stretch" VerticalAlignment="Top"
+                                    Background="{StaticResource CofapBranco}"
+                                    BorderThickness="0"
+                                    ClipToBounds="True"
+                                    Cursor="Hand"
+                                    PointerPressed="AoClicarFoto"
+                                    ToolTip.Tip="Clique para ampliar"
+                                    IsVisible="{Binding PecaSelecionada.ArquivoImagem, Converter={x:Static conv:TemImagemProdutoConverter.Instancia}}">
+                                <!-- UniformToFill: a foto preenche a caixinha inteira sem distorcer;
+                                     o ClipToBounds do Border corta o excesso das beiradas. Stretch nos
+                                     dois eixos para a imagem usar todo o espaço do Border. -->
+                                <Image Stretch="UniformToFill"
+                                       HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                       Source="{Binding PecaSelecionada.ArquivoImagem, Converter={x:Static conv:ImagemProdutoConverter.Instancia}}" />
+                            </Border>
+                            <!-- Placeholder quando não há foto. -->
+                            <Border Height="190"
+                                    HorizontalAlignment="Stretch" VerticalAlignment="Top"
+                                    Background="{StaticResource CofapCinzaClaro}"
+                                    BorderBrush="{StaticResource CofapCinza}" BorderThickness="1"
+                                    IsVisible="{Binding PecaSelecionada.ArquivoImagem, Converter={x:Static conv:TemImagemProdutoConverter.Instancia}, ConverterParameter=inverso}">
+                                <TextBlock Text="imagem indisponível"
+                                           FontSize="11"
+                                           Foreground="{DynamicResource BrushTextoMudo}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                        </Panel>
+                    </DockPanel>
+                </Grid>
+            </Panel>
+        </Border>
+        </Grid>
     </Grid>
 </UserControl>
