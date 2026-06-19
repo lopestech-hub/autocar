@@ -1,14 +1,20 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:AutoCar.Desktop.Views.Shared"
         x:Class="AutoCar.Desktop.Views.ConfirmacaoWindow"
         Width="400" SizeToContent="Height"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
         Title="Confirmação"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="-1"
         Background="{DynamicResource BrushFundoCard}">
 
-    <!-- Enter confirma, ESC cancela (KeyBindings tratados no code-behind via botões IsDefault/IsCancel). -->
-    <StackPanel Margin="20" Spacing="16">
+    <Grid RowDefinitions="Auto,Auto" Margin="{Binding $parent[Window].OffScreenMargin}">
+        <controls:BarraTituloJanela Grid.Row="0" MostrarMinimizar="False" />
+        <!-- Enter confirma, ESC cancela (KeyBindings tratados no code-behind via botões IsDefault/IsCancel). -->
+        <StackPanel Grid.Row="1" Margin="20" Spacing="16">
         <TextBlock Name="Titulo" FontSize="14" FontWeight="SemiBold"
                    Foreground="{DynamicResource BrushTexto}" />
         <TextBlock Name="Mensagem" FontSize="12" TextWrapping="Wrap"
@@ -20,4 +26,5 @@
                     IsDefault="True" Cursor="Hand" />
         </StackPanel>
     </StackPanel>
+    </Grid>
 </Window>

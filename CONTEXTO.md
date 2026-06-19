@@ -169,6 +169,9 @@ Um perfil por usuário. Admin vê tudo.
 
 ## Próximos Passos
 
+> **Em andamento:** auditoria de consistência de UI tela por tela (Shell + Listagens ✅; faltam
+> Formulários, Janelas-documento, Seletores, Diálogos). Checklist: `.design-engineer/checklist-auditoria-ui.md`.
+
 1. **Cancelar** na UI da Pré-venda (o domínio já tem `Cancelar()`; falta botão — cancelar NÃO mexe em estoque).
 2. Implementar a busca global de verdade (atalho "Buscar" hoje é placeholder)
 3. Tela de troca de senha no primeiro acesso
@@ -189,6 +192,7 @@ Um perfil por usuário. Admin vê tudo.
 
 | Data | Mudança |
 | --- | --- |
+| 2026-06-19 | **Auditoria de consistência de UI** (`d2d786c`): contador das listagens vira **laranja-claro** (acento Cofap `#FDE3D1/#F86518/#C24E0F`) e exibe **só o número** (15 ViewModels: `switch`→`Count.ToString()`); Catálogo alinhado ao `Border.contador`; **login** migrado à paleta Cofap (Auto azul/Car laranja + ERP/USUÁRIO/SENHA preto Medium); ProdutosView sem traço em Grupo/Posição/Lado (célula vazia). Checklist em `.design-engineer/checklist-auditoria-ui.md` |
 | 2026-06-18 | **Paleta Cofap global** (`94817a5`): promove a identidade do Catálogo para todo o sistema — `ColorPrimario` #3B82F6→**#1E5CA5** + novo `ColorAcento` **#F86518** (laranja). Cores hardcoded centralizadas em tokens (classe `Border.contador`, `BrushSelecaoLinha`, trio do contador). Header de tabela e barra de status: **faixa azul + texto branco**. Seleção de linha unificada no **laranja-claro #FCD9C2** + barra lateral laranja. Logo: Auto(azul) Car(laranja). Legendas/menu/labels em **preto Medium**. Converters migrados (semânticos verde/vermelho/âmbar preservados). Grep confirma zero azul antigo fora do Tema |
 | 2026-06-17 | Catálogo estilo Cofap (`13347ba`): layout **mestre-detalhe** (tabela + painel Nº Conversão/Aplicação agrupada por montadora/Foto fixa); `CatalogoItemDto` ganha listas estruturadas (sem N+1, reusa projeção do `Mapear`); abre em **janela própria** maximizada (`ItemMenu.FlgAbreEmJanela` + evento no shell; `CatalogoSeletorWindow` com modo Consulta/AdicionarNaVenda, F2 da pré-venda intacto); foto contida + `ImagemAmpliadaWindow` (600×500); **copiar por clique direito** nas células; texto global **preto** (`ColorTexto #000000`). Paleta Cofap ainda **local** à View (migração global é o próximo passo) |
 | 2026-06-17 | Busca tolerante a acentos/pontuação: função SQL `normalizar_busca` (migration `FuncaoNormalizarBusca`) + `ProdutoRepository` troca `ILike` por `Like(NormalizarBusca())` em produto e catálogo (descrição, cod_barras, cod_fabricante, similar, montadora, modelo) |

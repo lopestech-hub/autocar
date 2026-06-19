@@ -15,11 +15,11 @@
     </UserControl.KeyBindings>
 
     <UserControl.Resources>
-        <!-- Combo de opção (Categoria/Marca/Fornecedor/Posição/Lado): mostra a descrição; item nulo vira "—". -->
+        <!-- Combo de opção (Categoria/Marca/Fornecedor/Posição/Lado): mostra a descrição; item nulo fica em branco. -->
         <DataTemplate x:Key="OpcaoTemplate" x:DataType="dto:OpcaoDto">
-            <TextBlock Text="{Binding Descricao, FallbackValue=—, TargetNullValue=—}" />
+            <TextBlock Text="{Binding Descricao}" />
         </DataTemplate>
-        <!-- Combo de combustível: rótulo amigável (NaoAplica vira "—"). -->
+        <!-- Combo de combustível: rótulo amigável (NaoAplica fica em branco). -->
         <DataTemplate x:Key="CombustivelTemplate" x:DataType="enums:Combustivel">
             <TextBlock Text="{Binding Converter={x:Static conv:CombustivelConverter.Instancia}}" />
         </DataTemplate>
@@ -111,11 +111,9 @@
                     <StackPanel Spacing="2" HorizontalAlignment="Left"
                                 IsVisible="{Binding AbaDadosAtiva}">
 
-                    <!-- ===== IDENTIFICAÇÃO ===== -->
-                    <Grid ColumnDefinitions="Auto,*" Width="780" HorizontalAlignment="Left" Margin="0,0,0,4">
-                        <TextBlock Grid.Column="0" Classes="formsecao" Text="IDENTIFICAÇÃO" />
-                        <Border Grid.Column="1" Classes="formsecaoLinha" />
-                    </Grid>
+                    <!-- ===== IDENTIFICAÇÃO (group box) ===== -->
+                    <HeaderedContentControl Classes="grupo" Header="IDENTIFICAÇÃO"
+                                            Width="800" HorizontalAlignment="Left" Margin="0,0,0,8">
                     <Grid RowSpacing="6" ColumnDefinitions="90,380,100,200">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" /><!-- 0: Descrição -->
@@ -145,12 +143,11 @@
                                  Text="{Binding CodFabricante}" IsEnabled="{Binding !ModoVisualizacao}"
                                  Watermark="Referência (opcional)" />
                     </Grid>
+                    </HeaderedContentControl>
 
-                    <!-- ===== CLASSIFICAÇÃO ===== -->
-                    <Grid ColumnDefinitions="Auto,*" Width="780" HorizontalAlignment="Left" Margin="0,12,0,4">
-                        <TextBlock Grid.Column="0" Classes="formsecao" Text="CLASSIFICAÇÃO" />
-                        <Border Grid.Column="1" Classes="formsecaoLinha" />
-                    </Grid>
+                    <!-- ===== CLASSIFICAÇÃO (group box) ===== -->
+                    <HeaderedContentControl Classes="grupo" Header="CLASSIFICAÇÃO"
+                                            Width="800" HorizontalAlignment="Left" Margin="0,0,0,8">
                     <Grid RowSpacing="6" ColumnDefinitions="90,380,100,200">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" /><!-- 0: Categoria | Marca -->
@@ -208,12 +205,11 @@
                                   IsEnabled="{Binding !ModoVisualizacao}"
                                   HorizontalAlignment="Left" Width="200" />
                     </Grid>
+                    </HeaderedContentControl>
 
-                    <!-- ===== VALORES ===== -->
-                    <Grid ColumnDefinitions="Auto,*" Width="780" HorizontalAlignment="Left" Margin="0,12,0,4">
-                        <TextBlock Grid.Column="0" Classes="formsecao" Text="VALORES" />
-                        <Border Grid.Column="1" Classes="formsecaoLinha" />
-                    </Grid>
+                    <!-- ===== VALORES (group box) ===== -->
+                    <HeaderedContentControl Classes="grupo" Header="VALORES"
+                                            Width="800" HorizontalAlignment="Left" Margin="0,0,0,8">
                     <Grid RowSpacing="6" ColumnDefinitions="90,120,100,120,90,Auto">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" /><!-- 0: Custo | Venda | Margem -->
@@ -236,6 +232,7 @@
                                    Foreground="{DynamicResource BrushTextoSecundario}"
                                    VerticalAlignment="Center" />
                     </Grid>
+                    </HeaderedContentControl>
 
                     </StackPanel>
                     <!-- ===================== FIM ABA: DADOS ===================== -->

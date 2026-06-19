@@ -18,19 +18,24 @@ namespace AutoCar.Desktop.ViewModels.Registrations;
 public partial class ProdutosViewModel : ViewModelBase
 {
     private readonly IProdutoService _produtos;
-    private readonly ProdutoFormViewModel _form;
+    private readonly Func<ProdutoFormViewModel> _formFactory;
     private readonly ILogger<ProdutosViewModel> _logger;
 
     private CancellationTokenSource? _debounce;
 
-    public ProdutosViewModel(IProdutoService produtos, ProdutoFormViewModel form, ILogger<ProdutosViewModel> logger)
+    public ProdutosViewModel(IProdutoService produtos, Func<ProdutoFormViewModel> formFactory, ILogger<ProdutosViewModel> logger)
     {
         _produtos = produtos;
-        _form = form;
+        _formFactory = formFactory;
         _logger = logger;
-        _form.Salvo += async () => { FecharFormulario(); await CarregarAsync(); };
-        _form.Cancelado += FecharFormulario;
     }
+
+    /// <summary>Disparado quando a janela de produto deve abrir. A View (code-behind) escuta, abre a
+    /// janela não-modal e recarrega a lista ao salvar (mesmo padrão do estoque/pré-venda).</summary>
+    public event Action<ProdutoFormViewModel>? AbrirFormularioSolicitado;
+
+    /// <summary>Recarrega a listagem (chamado pela View após a janela salvar).</summary>
+    public Task RecarregarAsync() => CarregarAsync();
 
     public ObservableCollection<ProdutoListaDto> Produtos { get; } = new();
 
@@ -59,13 +64,6 @@ public partial class ProdutosViewModel : ViewModelBase
             catch (TaskCanceledException) { /* nova tecla cancelou: ignora */ }
         });
     }
-
-    [ObservableProperty] private ProdutoFormViewModel? _formularioAtivo;
-
-    public bool MostrarFormulario => FormularioAtivo is not null;
-
-    partial void OnFormularioAtivoChanged(ProdutoFormViewModel? value) =>
-        OnPropertyChanged(nameof(MostrarFormulario));
 
     [RelayCommand]
     private async Task CarregarAsync()
@@ -97,8 +95,9 @@ public partial class ProdutosViewModel : ViewModelBase
     [RelayCommand]
     private async Task NovoAsync()
     {
-        await _form.PrepararNovoAsync();
-        FormularioAtivo = _form;
+        var form = _formFactory();
+        await form.PrepararNovoAsync();
+        AbrirFormularioSolicitado?.Invoke(form);
     }
 
     [RelayCommand]
@@ -107,9 +106,8 @@ public partial class ProdutosViewModel : ViewModelBase
         if (produto is null)
             return;
 
-        await _form.CarregarAsync(produto.Id);
-        FormularioAtivo = _form;
+        var form = _formFactory();
+        await form.CarregarAsync(produto.Id);
+        AbrirFormularioSolicitado?.Invoke(form);
     }
-
-    private void FecharFormulario() => FormularioAtivo = null;
 }

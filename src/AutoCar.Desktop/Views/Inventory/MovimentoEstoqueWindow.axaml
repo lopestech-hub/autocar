@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:AutoCar.Desktop.ViewModels.Inventory"
         xmlns:views="using:AutoCar.Desktop.Views.Inventory"
+        xmlns:controls="using:AutoCar.Desktop.Views.Shared"
         x:Class="AutoCar.Desktop.Views.Inventory.MovimentoEstoqueWindow"
         x:DataType="vm:MovimentoEstoqueFormViewModel"
         Width="880" Height="600"
@@ -9,6 +10,9 @@
         CanResize="True"
         WindowStartupLocation="CenterOwner"
         Title="Movimentação de Estoque"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="-1"
         Background="{DynamicResource BrushFundo}">
 
     <!-- ESC fecha a janela sem registrar movimento. -->
@@ -16,5 +20,9 @@
         <KeyBinding Gesture="Escape" Command="{Binding CancelarCommand}" />
     </Window.KeyBindings>
 
-    <views:MovimentoEstoqueFormView />
+    <!-- OffScreenMargin evita corte do conteúdo quando a janela é maximizada. -->
+    <Grid RowDefinitions="Auto,*" Margin="{Binding $parent[Window].OffScreenMargin}">
+        <controls:BarraTituloJanela Grid.Row="0" />
+        <views:MovimentoEstoqueFormView Grid.Row="1" />
+    </Grid>
 </Window>

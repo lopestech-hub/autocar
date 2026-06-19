@@ -2,11 +2,15 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:AutoCar.Desktop.ViewModels.Purchases"
         xmlns:views="using:AutoCar.Desktop.Views.Purchases"
+        xmlns:controls="using:AutoCar.Desktop.Views.Shared"
         x:Class="AutoCar.Desktop.Views.Purchases.CompraWindow"
         x:DataType="vm:CompraFormViewModel"
         WindowState="Maximized"
         WindowStartupLocation="CenterScreen"
         Title="Compra"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="-1"
         Background="{DynamicResource BrushFundo}">
 
     <!-- F2 abre o catálogo de peças; F3 abre o seletor de fornecedor; ESC fecha a compra. -->
@@ -16,5 +20,8 @@
         <KeyBinding Gesture="Escape" Command="{Binding CancelarCommand}" />
     </Window.KeyBindings>
 
-    <views:CompraFormView />
+    <Grid RowDefinitions="Auto,*" Margin="{Binding $parent[Window].OffScreenMargin}">
+        <controls:BarraTituloJanela Grid.Row="0" />
+        <views:CompraFormView Grid.Row="1" />
+    </Grid>
 </Window>

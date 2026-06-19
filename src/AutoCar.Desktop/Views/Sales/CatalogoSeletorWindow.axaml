@@ -1,15 +1,21 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:cat="using:AutoCar.Desktop.Views.Catalogo"
+        xmlns:controls="using:AutoCar.Desktop.Views.Shared"
         x:Class="AutoCar.Desktop.Views.Sales.CatalogoSeletorWindow"
         Width="980" Height="640"
         WindowState="Maximized"
         WindowStartupLocation="CenterOwner"
-        Title="Catálogo — selecionar peça"
+        Title="Catálogo: selecionar peça"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="-1"
         Background="{DynamicResource BrushFundo}"
         KeyDown="AoTeclar">
 
-    <Grid RowDefinitions="*,Auto">
+    <Grid RowDefinitions="Auto,*" Margin="{Binding $parent[Window].OffScreenMargin}">
+        <controls:BarraTituloJanela Grid.Row="0" MostrarMinimizar="False" />
+        <Grid Grid.Row="1" RowDefinitions="*,Auto">
         <!-- O Catálogo em modo seletor: clicar numa linha escolhe a peça (ligado no code-behind). -->
         <cat:CatalogoView Grid.Row="0" Name="Catalogo" />
 
@@ -22,5 +28,6 @@
                         Click="AoFechar" />
             </DockPanel>
         </Border>
+        </Grid>
     </Grid>
 </Window>

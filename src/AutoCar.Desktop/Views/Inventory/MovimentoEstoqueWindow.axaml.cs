@@ -7,7 +7,7 @@ namespace AutoCar.Desktop.Views.Inventory;
 /// <summary>
 /// Janela separada (não-modal, tamanho fixo) que hospeda o formulário de movimentação de estoque de
 /// um produto. O shell principal continua aberto e acessível. A janela fecha sozinha quando o
-/// movimento é concluído ou cancelado.
+/// movimento é concluído ou cancelado. A barra de título azul é o controle <c>BarraTituloJanela</c>.
 /// </summary>
 public partial class MovimentoEstoqueWindow : Window
 {

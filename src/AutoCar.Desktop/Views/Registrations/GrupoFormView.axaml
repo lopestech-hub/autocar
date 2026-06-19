@@ -14,7 +14,7 @@
     <UserControl.Resources>
         <!-- Combo de categoria: mostra a descrição. -->
         <DataTemplate x:Key="OpcaoTemplate" x:DataType="dto:OpcaoDto">
-            <TextBlock Text="{Binding Descricao, FallbackValue=—, TargetNullValue=—}" />
+            <TextBlock Text="{Binding Descricao}" />
         </DataTemplate>
     </UserControl.Resources>
 

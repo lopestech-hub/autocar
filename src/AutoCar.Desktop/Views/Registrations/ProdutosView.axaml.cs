@@ -40,9 +40,27 @@ public partial class ProdutosView : UserControl
             return;
 
         _vm = vm;
+        vm.AbrirFormularioSolicitado -= AbrirJanelaProduto;
+        vm.AbrirFormularioSolicitado += AbrirJanelaProduto;
 
         if (vm.CarregarCommand.CanExecute(null))
             vm.CarregarCommand.Execute(null);
+    }
+
+    /// <summary>
+    /// Abre o formulário de produto numa janela separada (não-modal): a listagem continua atrás.
+    /// Ao salvar (Salvo), recarrega a listagem para refletir a alteração. Mesmo padrão do estoque.
+    /// </summary>
+    private void AbrirJanelaProduto(ProdutoFormViewModel form)
+    {
+        form.Salvo += () => _vm?.RecarregarAsync();
+
+        var janela = new ProdutoWindow(form);
+        var dono = TopLevel.GetTopLevel(this) as Window;
+        if (dono is not null)
+            janela.Show(dono);
+        else
+            janela.Show();
     }
 
     // Enter abre o form da linha marcada (↑/↓ e a marca visual já são nativos do ListBox).

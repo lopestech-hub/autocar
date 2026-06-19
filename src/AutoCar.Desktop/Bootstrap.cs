@@ -76,6 +76,9 @@ public static class Bootstrap
         services.AddTransient<MecanicoFormViewModel>();
         services.AddTransient<ProdutosViewModel>();
         services.AddTransient<ProdutoFormViewModel>();
+        // Factory do form de produto: cada janela recebe um ViewModel novo (limpo), permitindo o
+        // mesmo padrão não-modal do estoque/pré-venda sem compartilhar estado entre janelas.
+        services.AddTransient<Func<ProdutoFormViewModel>>(sp => () => sp.GetRequiredService<ProdutoFormViewModel>());
         services.AddTransient<CatalogoViewModel>();
         // PreVendasViewModel não entra no DI: depende do UsuarioLogado (runtime). É montado
         // pelo Navegador. O form, sim, vem do DI (não depende do usuário diretamente).

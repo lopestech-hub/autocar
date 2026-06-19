@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:AutoCar.Desktop.ViewModels"
         xmlns:i="using:Projektanker.Icons.Avalonia"
+        xmlns:controls="using:AutoCar.Desktop.Views.Shared"
         x:Class="AutoCar.Desktop.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Width="1200" Height="680"
@@ -9,9 +10,20 @@
         WindowState="Maximized"
         WindowStartupLocation="CenterScreen"
         Title="AutoCar ERP"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="-1"
         Background="{DynamicResource BrushFundo}">
 
-    <Grid RowDefinitions="Auto,Auto,*,Auto">
+    <!-- O shell (app de fundo) usa barra de título AZUL; janelas e modais usam o laranja padrão,
+         para o modal "descolar" do shell ao abrir por cima. Override local só do token da barra. -->
+    <Window.Resources>
+        <SolidColorBrush x:Key="BrushBarraTitulo" Color="{DynamicResource ColorFundoHeader}" />
+    </Window.Resources>
+
+    <Grid RowDefinitions="Auto,*" Margin="{Binding $parent[Window].OffScreenMargin}">
+        <controls:BarraTituloJanela Grid.Row="0" />
+        <Grid Grid.Row="1" RowDefinitions="Auto,Auto,*,Auto">
 
         <!-- ===== 1. MENU SUPERIOR DE TEXTO ===== -->
         <Border Grid.Row="0"
@@ -190,5 +202,6 @@
                            VerticalAlignment="Center" />
             </Grid>
         </Border>
+        </Grid>
     </Grid>
 </Window>

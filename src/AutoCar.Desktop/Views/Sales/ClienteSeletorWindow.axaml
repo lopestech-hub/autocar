@@ -7,11 +7,17 @@
         x:DataType="sel:ClienteSeletorWindow"
         Width="720" Height="560"
         WindowStartupLocation="CenterOwner"
+        xmlns:controls="using:AutoCar.Desktop.Views.Shared"
         Title="Selecionar cliente"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="-1"
         Background="{DynamicResource BrushFundo}"
         KeyDown="AoTeclar">
 
-    <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="16">
+    <Grid RowDefinitions="Auto,*" Margin="{Binding $parent[Window].OffScreenMargin}">
+        <controls:BarraTituloJanela Grid.Row="0" MostrarMinimizar="False" />
+        <Grid Grid.Row="1" RowDefinitions="Auto,Auto,*,Auto" Margin="16">
 
         <!-- Título -->
         <TextBlock Grid.Row="0" Text="Selecionar cliente"
@@ -89,5 +95,6 @@
                 </StackPanel>
             </DockPanel>
         </Border>
+        </Grid>
     </Grid>
 </Window>

@@ -38,6 +38,10 @@
   reaproveitar no estoque.
 - **ViewModels que dependem de dados de runtime** (ex: `MainWindowViewModel(UsuarioLogado)`)
   não vão no DI nem em `Design.DataContext` — instanciar em code-behind.
+- **Fechar o app antes de `dotnet build`.** Com o AutoCar em execução, a DLL fica travada e o build
+  falha com `MSB3021/MSB3027: file in use ... AvaloniaUI.DiagnosticsSupport.Avalonia.dll`. NÃO é erro
+  de código (os fontes compilam) — encerrar o processo
+  (`Get-Process -Name AutoCar.Desktop | Stop-Process -Force`) e recompilar.
 
 ## Bootstrap / Execução
 - Composition root: `AutoCar.Desktop/Bootstrap.cs` (DI + Serilog + config).

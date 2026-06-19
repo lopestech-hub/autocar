@@ -2,11 +2,15 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:AutoCar.Desktop.ViewModels.Sales"
         xmlns:views="using:AutoCar.Desktop.Views.Sales"
+        xmlns:controls="using:AutoCar.Desktop.Views.Shared"
         x:Class="AutoCar.Desktop.Views.Sales.PreVendaWindow"
         x:DataType="vm:PreVendaFormViewModel"
         WindowState="Maximized"
         WindowStartupLocation="CenterScreen"
         Title="Pré-venda"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="-1"
         Background="{DynamicResource BrushFundo}">
 
     <!-- F2 abre o catálogo de peças; F3 abre o seletor de cliente; ESC fecha a pré-venda. -->
@@ -17,5 +21,8 @@
     </Window.KeyBindings>
 
     <!-- A janela hospeda o mesmo formulário usado antes embutido no shell. -->
-    <views:PreVendaFormView />
+    <Grid RowDefinitions="Auto,*" Margin="{Binding $parent[Window].OffScreenMargin}">
+        <controls:BarraTituloJanela Grid.Row="0" />
+        <views:PreVendaFormView Grid.Row="1" />
+    </Grid>
 </Window>

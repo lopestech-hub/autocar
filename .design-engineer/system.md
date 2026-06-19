@@ -8,7 +8,8 @@
 
 ERP de autopeças + oficina. Operador usa 8h/dia → densidade alta, monocromático,
 bordas no lugar de sombras, tipografia compacta. Cor só comunica significado.
-Única licença de personalidade: a marca "Auto**Car**" com "Car" em azul primário.
+Única licença de personalidade: a marca "Auto**Car**", com "Auto" em azul primário e "Car" em
+laranja acento (paleta Cofap).
 
 ## Paleta (em Styles/Tema.axaml — consumir via DynamicResource)
 
@@ -28,7 +29,7 @@ bordas no lugar de sombras, tipografia compacta. Cor só comunica significado.
 | `BrushTextoSecundario` | #64748B | subtítulos, textos auxiliares |
 | `BrushTextoInverso` | #FFFFFF | texto/ícone sobre fundo colorido |
 | `BrushErro` | #EF4444 | mensagens de erro, botão Sair |
-| `BrushContadorFundo/Borda/Texto` | #D6E4F2 / #1E5CA5 / #143F70 | badge contador (classe `Border.contador`) |
+| `BrushContadorFundo/Borda/Texto` | #FDE3D1 / #F86518 / #C24E0F | badge contador laranja (classe `Border.contador`) |
 | `BrushSelecaoLinha` | **#FCD9C2** | fundo da linha selecionada nas listagens (laranja-claro Cofap) |
 
 > Os tokens `BrushFundoSidebar*` ainda existem no Tema.axaml mas **não são mais usados** (o layout
@@ -253,13 +254,18 @@ CornerRadius: controles 2px · cards 6px · ícone-marcador 3px.
 
 ### Contador de itens (cabeçalho de listagem) — PADRÃO
 
-> A "etiqueta" ao lado do título da listagem que mostra "X produtos", "9 peças", etc.
+> A "etiqueta" ao lado do título da listagem que mostra **só o número** de itens (ex: `3340`). O
+> título da tela ("Produtos") já dá o substantivo, então o contador não repete a palavra.
 
 - Usar a classe **`Border.contador`** (+ `TextBlock Classes="contador"`) — centraliza o trio de cores
-  via tokens `BrushContadorFundo`/`Borda`/`Texto` (azul-claro Cofap #D6E4F2 / #1E5CA5 / #143F70),
-  11px Medium, **CornerRadius 2** (cantos retos, nunca pílula), `Padding="8,1"`. NÃO hardcodar as cores.
-- Mesma família visual do badge "Aberta" da Pré-venda — cor comunica "informação", coeso e leve.
-- Aplicado em todas as listagens (Catálogo, Produtos, Clientes, Fornecedor, Marcas, Categorias, Pré-vendas).
+  via tokens `BrushContadorFundo`/`Borda`/`Texto` (**laranja-claro Cofap #FDE3D1 / #F86518 / #C24E0F**,
+  cor de acento), 11px Medium, **CornerRadius 2** (cantos retos, nunca pílula), `Padding="8,1"`.
+  NÃO hardcodar as cores.
+- **Laranja (acento), não azul:** o contador fica colado ao header azul da tabela; laranja evita azul
+  sobre azul e veste a dupla azul+laranja da marca. O fundo `#FDE3D1` é um tom distinto do `#FCD9C2`
+  da seleção de linha (para o contador não parecer "selecionado").
+- **Texto = só o número** (`TextoContador => Coleção.Count.ToString()` no ViewModel; lista vazia mostra `0`).
+- Aplicado em todas as 15 listagens (incl. Catálogo, alinhado ao mesmo `Border.contador`).
 - ⚠️ Não usar `CornerRadius` alto (pílula) — destoa do enterprise compacto; o padrão é canto reto.
 
 ### Shell principal (MainWindow) — layout ERP clássico

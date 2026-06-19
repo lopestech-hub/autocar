@@ -1,27 +1,22 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:AutoCar.Desktop.ViewModels.Sales"
-        xmlns:views="using:AutoCar.Desktop.Views.Sales"
+        xmlns:vm="using:AutoCar.Desktop.ViewModels.Registrations"
+        xmlns:views="using:AutoCar.Desktop.Views.Registrations"
         xmlns:controls="using:AutoCar.Desktop.Views.Shared"
-        x:Class="AutoCar.Desktop.Views.Sales.DevolucaoWindow"
-        x:DataType="vm:DevolucaoFormViewModel"
-        Width="880" Height="600"
-        MinWidth="720" MinHeight="480"
+        x:Class="AutoCar.Desktop.Views.Registrations.ProdutoWindow"
+        x:DataType="vm:ProdutoFormViewModel"
+        Width="920" Height="700"
+        MinWidth="840" MinHeight="560"
         CanResize="True"
         WindowStartupLocation="CenterOwner"
-        Title="Devolução de Venda"
+        Title="{Binding Titulo}"
         ExtendClientAreaToDecorationsHint="True"
         ExtendClientAreaChromeHints="NoChrome"
         ExtendClientAreaTitleBarHeightHint="-1"
         Background="{DynamicResource BrushFundo}">
 
-    <!-- ESC fecha a janela sem registrar devolução. -->
-    <Window.KeyBindings>
-        <KeyBinding Gesture="Escape" Command="{Binding CancelarCommand}" />
-    </Window.KeyBindings>
-
     <Grid RowDefinitions="Auto,*" Margin="{Binding $parent[Window].OffScreenMargin}">
         <controls:BarraTituloJanela Grid.Row="0" />
-        <views:DevolucaoFormView Grid.Row="1" />
+        <views:ProdutoFormView Grid.Row="1" />
     </Grid>
 </Window>

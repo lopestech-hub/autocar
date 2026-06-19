@@ -8,11 +8,11 @@ namespace AutoCar.Desktop.Converters;
 /// <summary>
 /// Converte o booleano <c>Vinculado</c> de uma equivalência (a marca equivalente já é produto da
 /// loja?) em texto e cor para a coluna "Estoque" do mini-grid de equivalências. Vinculado = "Sim"
-/// (verde); só referência externa = "—" (mudo). Só conversão de saída.
+/// (verde); só referência externa = em branco. Só conversão de saída.
 /// </summary>
 public sealed class VinculoSimilarConverter : IValueConverter
 {
-    /// <summary>"Sim" quando vinculado a um produto; "—" quando é só referência externa.</summary>
+    /// <summary>"Sim" quando vinculado a um produto; em branco quando é só referência externa.</summary>
     public static readonly VinculoSimilarConverter Texto = new(modoTexto: true);
 
     /// <summary>Verde quando vinculado; cinza-mudo quando só referência.</summary>
@@ -29,7 +29,7 @@ public sealed class VinculoSimilarConverter : IValueConverter
     {
         var vinculado = value is true;
         if (_modoTexto)
-            return vinculado ? "Sim" : "—";
+            return vinculado ? "Sim" : "";
         return vinculado ? Verde : Mudo;
     }
 

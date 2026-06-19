@@ -2,11 +2,15 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:AutoCar.Desktop.ViewModels.Service"
         xmlns:views="using:AutoCar.Desktop.Views.Service"
+        xmlns:controls="using:AutoCar.Desktop.Views.Shared"
         x:Class="AutoCar.Desktop.Views.Service.OrdemServicoWindow"
         x:DataType="vm:OrdemServicoFormViewModel"
         WindowState="Maximized"
         WindowStartupLocation="CenterScreen"
         Title="Ordem de Serviço"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="-1"
         Background="{DynamicResource BrushFundo}">
 
     <!-- F2 = peça (Catálogo); F3 = cliente; F4 = serviço; ESC fecha. -->
@@ -18,5 +22,8 @@
         <KeyBinding Gesture="Escape" Command="{Binding CancelarCommand}" />
     </Window.KeyBindings>
 
-    <views:OrdemServicoFormView />
+    <Grid RowDefinitions="Auto,*" Margin="{Binding $parent[Window].OffScreenMargin}">
+        <controls:BarraTituloJanela Grid.Row="0" />
+        <views:OrdemServicoFormView Grid.Row="1" />
+    </Grid>
 </Window>

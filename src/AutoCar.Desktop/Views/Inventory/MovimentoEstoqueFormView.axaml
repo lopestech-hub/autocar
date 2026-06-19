@@ -6,7 +6,7 @@
              x:Class="AutoCar.Desktop.Views.Inventory.MovimentoEstoqueFormView"
              x:DataType="vm:MovimentoEstoqueFormViewModel">
 
-    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*" Margin="16">
+    <Grid RowDefinitions="Auto,Auto,Auto,*" Margin="16">
 
         <!-- ===== CABEÇALHO: produto + saldo atual em destaque ===== -->
         <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,12">
@@ -42,44 +42,40 @@
             </Border>
         </Grid>
 
-        <!-- ===== SEÇÃO: MOVIMENTO ===== -->
-        <DockPanel Grid.Row="1" LastChildFill="True" Margin="0,0,0,8">
-            <TextBlock DockPanel.Dock="Left" Classes="formsecao" Text="MOVIMENTO"
-                       VerticalAlignment="Center" Margin="0,0,8,0" />
-            <Border Classes="formsecaoLinha" VerticalAlignment="Center" />
-        </DockPanel>
+        <!-- ===== SEÇÃO: MOVIMENTO (group box com título embutido) ===== -->
+        <HeaderedContentControl Grid.Row="1" Classes="grupo" Header="MOVIMENTO" Margin="0,0,0,12">
+            <Grid ColumnDefinitions="Auto,Auto,Auto,Auto" RowDefinitions="Auto,Auto" RowSpacing="6"
+                  HorizontalAlignment="Left">
 
-        <Grid Grid.Row="2" ColumnDefinitions="Auto,Auto,Auto,Auto" RowDefinitions="Auto,Auto" RowSpacing="6"
-              Margin="0,0,0,12" HorizontalAlignment="Left">
+                <TextBlock Grid.Row="0" Grid.Column="0" Classes="formlabel" Text="Tipo"
+                           Width="90" Margin="0,0,8,0" />
+                <ComboBox Grid.Row="0" Grid.Column="1" Width="180"
+                          ItemsSource="{Binding TiposMovimento}"
+                          SelectedItem="{Binding TipoSelecionado}"
+                          Margin="0,0,16,0">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:OpcaoTipoMovimento">
+                            <TextBlock Text="{Binding Rotulo}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
 
-            <TextBlock Grid.Row="0" Grid.Column="0" Classes="formlabel" Text="Tipo"
-                       Width="90" Margin="0,0,8,0" />
-            <ComboBox Grid.Row="0" Grid.Column="1" Width="180"
-                      ItemsSource="{Binding TiposMovimento}"
-                      SelectedItem="{Binding TipoSelecionado}"
-                      Margin="0,0,16,0">
-                <ComboBox.ItemTemplate>
-                    <DataTemplate x:DataType="vm:OpcaoTipoMovimento">
-                        <TextBlock Text="{Binding Rotulo}" />
-                    </DataTemplate>
-                </ComboBox.ItemTemplate>
-            </ComboBox>
+                <TextBlock Grid.Row="0" Grid.Column="2" Classes="formlabel" Text="Quantidade"
+                           Width="90" Margin="0,0,8,0" />
+                <TextBox Grid.Row="0" Grid.Column="3" Width="120"
+                         Text="{Binding QuantidadeTexto}" />
 
-            <TextBlock Grid.Row="0" Grid.Column="2" Classes="formlabel" Text="Quantidade"
-                       Width="90" Margin="0,0,8,0" />
-            <TextBox Grid.Row="0" Grid.Column="3" Width="120"
-                     Text="{Binding QuantidadeTexto}" />
-
-            <TextBlock Grid.Row="1" Grid.Column="0" Classes="formlabel" Text="Observação"
-                       Width="90" Margin="0,0,8,0" VerticalAlignment="Top" />
-            <TextBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3"
-                     Watermark="Motivo do ajuste, nº da nota (opcional)"
-                     Text="{Binding Observacao}"
-                     MaxLength="255" />
-        </Grid>
+                <TextBlock Grid.Row="1" Grid.Column="0" Classes="formlabel" Text="Observação"
+                           Width="90" Margin="0,0,8,0" VerticalAlignment="Top" />
+                <TextBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3"
+                         Watermark="Motivo do ajuste, nº da nota (opcional)"
+                         Text="{Binding Observacao}"
+                         MaxLength="255" />
+            </Grid>
+        </HeaderedContentControl>
 
         <!-- ===== AÇÕES + feedback ===== -->
-        <StackPanel Grid.Row="3" Spacing="6" Margin="0,0,0,12">
+        <StackPanel Grid.Row="2" Spacing="6" Margin="0,0,0,12">
             <ProgressBar IsIndeterminate="True" Height="2"
                          IsVisible="{Binding Processando}" />
             <TextBlock Text="{Binding MensagemErro}"
@@ -97,50 +93,34 @@
             </StackPanel>
         </StackPanel>
 
-        <!-- ===== SEÇÃO: HISTÓRICO ===== -->
-        <Grid Grid.Row="4" RowDefinitions="Auto,Auto,*">
-            <DockPanel Grid.Row="0" LastChildFill="True" Margin="0,0,0,8">
-                <TextBlock DockPanel.Dock="Left" Classes="formsecao" Text="HISTÓRICO"
-                           VerticalAlignment="Center" Margin="0,0,8,0" />
-                <Border Classes="formsecaoLinha" VerticalAlignment="Center" />
-            </DockPanel>
+        <!-- ===== SEÇÃO: HISTÓRICO (group box; tabela rente à moldura) ===== -->
+        <HeaderedContentControl Grid.Row="3" Classes="grupo" Header="HISTÓRICO" Padding="0,12,0,0">
+        <Grid RowDefinitions="Auto,*">
 
             <!-- Header do histórico. Colunas fixas + OBS. na coluna * (única que estica). -->
-            <Border Grid.Row="1" Background="{DynamicResource BrushFundoHeader}"
-                    BorderBrush="#CBD5E1" BorderThickness="0,0,0,1" Height="28">
+            <Border Grid.Row="0" Background="{DynamicResource BrushFundoHeader}"
+                    BorderBrush="{DynamicResource BrushBorda}" BorderThickness="0,0,0,1" Height="28">
                 <Grid ColumnDefinitions="55,120,90,50,65,90,90,*">
-                    <TextBlock Grid.Column="0" Text="Nº" FontSize="11" FontWeight="SemiBold"
-                               Foreground="#475569" VerticalAlignment="Center" Margin="8,0" />
-                    <TextBlock Grid.Column="1" Text="DATA/HORA" FontSize="11" FontWeight="SemiBold"
-                               Foreground="#475569" VerticalAlignment="Center" Margin="8,0" />
-                    <TextBlock Grid.Column="2" Text="TIPO" FontSize="11" FontWeight="SemiBold"
-                               Foreground="#475569" VerticalAlignment="Center" Margin="8,0" />
-                    <TextBlock Grid.Column="3" Text="QTD" FontSize="11" FontWeight="SemiBold"
-                               Foreground="#475569" VerticalAlignment="Center"
-                               HorizontalAlignment="Right" Margin="8,0" />
-                    <TextBlock Grid.Column="4" Text="SALDO" FontSize="11" FontWeight="SemiBold"
-                               Foreground="#475569" VerticalAlignment="Center"
-                               HorizontalAlignment="Right" Margin="8,0" />
-                    <TextBlock Grid.Column="5" Text="ORIGEM" FontSize="11" FontWeight="SemiBold"
-                               Foreground="#475569" VerticalAlignment="Center" Margin="8,0" />
-                    <TextBlock Grid.Column="6" Text="DOCUMENTO" FontSize="11" FontWeight="SemiBold"
-                               Foreground="#475569" VerticalAlignment="Center" Margin="8,0" />
-                    <TextBlock Grid.Column="7" Text="OBS." FontSize="11" FontWeight="SemiBold"
-                               Foreground="#475569" VerticalAlignment="Center" Margin="8,0" />
+                    <TextBlock Grid.Column="0" Text="Nº" Classes="th" />
+                    <TextBlock Grid.Column="1" Text="DATA/HORA" Classes="th" />
+                    <TextBlock Grid.Column="2" Text="TIPO" Classes="th" />
+                    <TextBlock Grid.Column="3" Text="QTD" Classes="th" HorizontalAlignment="Right" />
+                    <TextBlock Grid.Column="4" Text="SALDO" Classes="th" HorizontalAlignment="Right" />
+                    <TextBlock Grid.Column="5" Text="ORIGEM" Classes="th" />
+                    <TextBlock Grid.Column="6" Text="DOCUMENTO" Classes="th" />
+                    <TextBlock Grid.Column="7" Text="OBS." Classes="th" />
                 </Grid>
             </Border>
 
-            <Border Grid.Row="2"
+            <Border Grid.Row="1"
                     Background="{DynamicResource BrushFundoCard}"
-                    BorderBrush="{DynamicResource BrushBorda}"
-                    BorderThickness="1,0,1,1"
                     ClipToBounds="True">
                 <ScrollViewer VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled">
                     <ItemsControl ItemsSource="{Binding Movimentos}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="dtos:MovimentoEstoqueDto">
-                                <Border BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Height="26">
+                                <Border BorderBrush="{DynamicResource BrushBordaSuave}" BorderThickness="0,0,0,1" Height="26">
                                     <Grid ColumnDefinitions="55,120,90,50,65,90,90,*">
                                         <TextBlock Grid.Column="0" Text="{Binding CodMovimento}"
                                                    FontSize="12" FontFamily="{DynamicResource FonteMono}"
@@ -193,5 +173,6 @@
                 </ScrollViewer>
             </Border>
         </Grid>
+        </HeaderedContentControl>
     </Grid>
 </UserControl>

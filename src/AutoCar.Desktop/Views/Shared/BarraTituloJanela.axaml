@@ -1,0 +1,35 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:i="using:Projektanker.Icons.Avalonia"
+             xmlns:conv="using:AutoCar.Desktop.Converters"
+             xmlns:local="using:AutoCar.Desktop.Views.Shared"
+             x:Class="AutoCar.Desktop.Views.Shared.BarraTituloJanela">
+
+    <!-- Barra de título (laranja suave Cofap). Arrastável; duplo-clique maximiza/restaura.
+         O botão maximizar só aparece quando a janela é redimensionável; o minimizar
+         pode ser ocultado via MostrarMinimizar (diálogos modais). -->
+    <Border Background="{DynamicResource BrushBarraTitulo}" Height="32"
+            PointerPressed="OnBarraPointerPressed"
+            DoubleTapped="OnBarraDoubleTapped">
+        <Grid ColumnDefinitions="*,Auto">
+            <TextBlock Grid.Column="0" Text="{Binding $parent[Window].Title}"
+                       Foreground="{DynamicResource BrushTextoInverso}"
+                       FontSize="12" FontWeight="SemiBold"
+                       VerticalAlignment="Center" Margin="12,0" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <Button Classes="janelaBtn" Click="OnMinimizarClick" ToolTip.Tip="Minimizar"
+                        IsVisible="{Binding MostrarMinimizar, RelativeSource={RelativeSource AncestorType=local:BarraTituloJanela}}">
+                    <i:Icon Value="fa-solid fa-minus" FontSize="12" />
+                </Button>
+                <Button Classes="janelaBtn" Click="OnMaximizarClick" ToolTip.Tip="Maximizar"
+                        IsVisible="{Binding $parent[Window].CanResize}">
+                    <i:Icon Value="{Binding $parent[Window].WindowState, Converter={x:Static conv:WindowStateIconConverter.Instancia}}"
+                            FontSize="11" />
+                </Button>
+                <Button Classes="janelaBtn fechar" Click="OnFecharClick" ToolTip.Tip="Fechar">
+                    <i:Icon Value="fa-solid fa-xmark" FontSize="13" />
+                </Button>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

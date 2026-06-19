@@ -1,16 +1,22 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:AutoCar.Desktop.ViewModels"
+        xmlns:controls="using:AutoCar.Desktop.Views.Shared"
         x:Class="AutoCar.Desktop.Views.LoginWindow"
         x:DataType="vm:LoginViewModel"
         Width="380" Height="440"
         CanResize="False"
         WindowStartupLocation="CenterScreen"
         Title="AutoCar ERP"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="-1"
         Background="{DynamicResource BrushFundo}">
 
-    <!-- Card central de login -->
-    <Border Background="{DynamicResource BrushFundoCard}"
+    <Grid RowDefinitions="Auto,*" Margin="{Binding $parent[Window].OffScreenMargin}">
+        <controls:BarraTituloJanela Grid.Row="0" />
+        <!-- Card central de login -->
+        <Border Grid.Row="1" Background="{DynamicResource BrushFundoCard}"
             BorderBrush="{DynamicResource BrushBorda}"
             BorderThickness="1"
             CornerRadius="6"
@@ -75,4 +81,5 @@
 
         </StackPanel>
     </Border>
+    </Grid>
 </Window>

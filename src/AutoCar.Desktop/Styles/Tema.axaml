@@ -18,6 +18,12 @@
             <Color x:Key="ColorFundoSidebar">#1E293B</Color>
             <Color x:Key="ColorFundoSidebarHover">#334155</Color>
             <Color x:Key="ColorFundoSidebarAtivo">#1E5CA5</Color>
+            <!-- Barra de título customizada: laranja Cofap "murcho" (menos vivo que o acento
+                 #F86518) para não pesar, mantendo contraste com o texto branco. -->
+            <Color x:Key="ColorBarraTitulo">#D9773B</Color>
+            <!-- Hover dos botões da barra de título: branco translúcido (realce sutil que funciona
+                 tanto sobre a barra laranja das janelas quanto a azul do shell). -->
+            <Color x:Key="ColorJanelaBtnHover">#33FFFFFF</Color>
             <Color x:Key="ColorFundoInput">#FFFFFF</Color>
             <Color x:Key="ColorFundoDesabilitado">#F1F5F9</Color>
             <Color x:Key="ColorFundoHover">#F8FAFC</Color>
@@ -76,6 +82,8 @@
             <SolidColorBrush x:Key="BrushFundoCard" Color="{StaticResource ColorFundoCard}" />
             <SolidColorBrush x:Key="BrushFundoSidebar" Color="{StaticResource ColorFundoSidebar}" />
             <SolidColorBrush x:Key="BrushFundoSidebarHover" Color="{StaticResource ColorFundoSidebarHover}" />
+            <SolidColorBrush x:Key="BrushBarraTitulo" Color="{StaticResource ColorBarraTitulo}" />
+            <SolidColorBrush x:Key="BrushJanelaBtnHover" Color="{StaticResource ColorJanelaBtnHover}" />
             <SolidColorBrush x:Key="BrushFundoSidebarAtivo" Color="{StaticResource ColorFundoSidebarAtivo}" />
             <SolidColorBrush x:Key="BrushFundoInput" Color="{StaticResource ColorFundoInput}" />
             <SolidColorBrush x:Key="BrushFundoDesabilitado" Color="{StaticResource ColorFundoDesabilitado}" />
@@ -231,6 +239,73 @@
         <Setter Property="Background" Value="{DynamicResource BrushBordaSuave}" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="Margin" Value="8,0,0,0" />
+    </Style>
+
+    <!-- ===================================================================
+         GROUP BOX (moldura com título embutido na borda)
+         Agrupa campos relacionados num quadro flat. O título fica sobre a
+         linha superior da borda, recortado pelo fundo do card (BrushFundoCard).
+         Borda Cofap, sem sulco 3D. Uso:
+           <HeaderedContentControl Classes="grupo" Header="DADOS FISCAIS">
+               <Grid> ... campos ... </Grid>
+           </HeaderedContentControl>
+         Obs.: o título usa o fundo do card; funciona quando o grupo está sobre
+         uma superfície BrushFundoCard (o padrão dos formulários). -->
+    <Style Selector="HeaderedContentControl.grupo">
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <!-- Padding padrão dos campos. Pode ser sobrescrito na instância (ex.: tabela rente
+             à moldura usa Padding="0,12,0,0"). -->
+        <Setter Property="Padding" Value="12,14,12,12" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid>
+                    <!-- Moldura: começa 8px abaixo para o título cair em cima da linha. -->
+                    <Border BorderBrush="{DynamicResource BrushBorda}"
+                            BorderThickness="1" CornerRadius="3"
+                            Margin="0,8,0,0" Padding="{TemplateBinding Padding}"
+                            ClipToBounds="True">
+                        <ContentPresenter Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}" />
+                    </Border>
+                    <!-- Título: fundo do card recorta o trecho da borda atrás dele.
+                         Laranja (BrushAcento): marca o group box e o distingue do
+                         formsecao (azul) das seções de topo. -->
+                    <Border Background="{DynamicResource BrushFundoCard}"
+                            Margin="10,0,0,0" Padding="4,0"
+                            HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <TextBlock Text="{TemplateBinding Header}"
+                                   FontSize="11" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource BrushAcento}" />
+                    </Border>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <!-- ===================================================================
+         BARRA DE TÍTULO CUSTOMIZADA (janelas com ExtendClientAreaToDecorationsHint)
+         Botões minimizar/maximizar/fechar desenhados por nós sobre a barra azul
+         Cofap. Ícones brancos; hover azul-claro; hover do "fechar" em vermelho.
+         =================================================================== -->
+    <Style Selector="Button.janelaBtn">
+        <Setter Property="Width" Value="46" />
+        <Setter Property="Height" Value="32" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="0" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushTextoInverso}" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <Style Selector="Button.janelaBtn:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource BrushJanelaBtnHover}" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushTextoInverso}" />
+    </Style>
+    <Style Selector="Button.janelaBtn.fechar:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource BrushErro}" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushTextoInverso}" />
     </Style>
 
     <!-- TextBox padrão (24px). MinHeight=24 é obrigatório: o FluentTheme usa MinHeight 32
