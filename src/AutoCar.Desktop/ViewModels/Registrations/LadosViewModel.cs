@@ -43,12 +43,7 @@ public partial class LadosViewModel : ViewModelBase
     [ObservableProperty]
     private string? _mensagemErro;
 
-    public string TextoContador => Lados.Count switch
-    {
-        0 => "Nenhum lado",
-        1 => "1 lado",
-        var n => $"{n} lados",
-    };
+    public string TextoContador => Lados.Count.ToString();
 
     partial void OnFiltroChanged(string value) => AgendarBusca();
 

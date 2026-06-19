@@ -43,12 +43,7 @@ public partial class GruposViewModel : ViewModelBase
     [ObservableProperty]
     private string? _mensagemErro;
 
-    public string TextoContador => Grupos.Count switch
-    {
-        0 => "Nenhum grupo",
-        1 => "1 grupo",
-        var n => $"{n} grupos",
-    };
+    public string TextoContador => Grupos.Count.ToString();
 
     partial void OnFiltroChanged(string value) => AgendarBusca();
 

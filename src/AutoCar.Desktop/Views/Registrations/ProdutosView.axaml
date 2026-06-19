@@ -100,17 +100,17 @@
                                                    Classes="td" TextTrimming="CharacterEllipsis" />
                                         <TextBlock Grid.Column="2" Text="{Binding Categoria}"
                                                    Classes="td" TextTrimming="CharacterEllipsis" />
-                                        <TextBlock Grid.Column="3" Text="{Binding Grupo, TargetNullValue=—}"
+                                        <TextBlock Grid.Column="3" Text="{Binding Grupo}"
                                                    Classes="td suave" TextTrimming="CharacterEllipsis" />
                                         <TextBlock Grid.Column="4" Text="{Binding Marca}"
                                                    Classes="td" TextTrimming="CharacterEllipsis" />
                                         <TextBlock Grid.Column="5" Text="{Binding Unidade}"
                                                    Classes="td" />
                                         <TextBlock Grid.Column="6"
-                                                   Text="{Binding Posicao, TargetNullValue=—}"
+                                                   Text="{Binding Posicao}"
                                                    Classes="td" />
                                         <TextBlock Grid.Column="7"
-                                                   Text="{Binding Lado, TargetNullValue=—}"
+                                                   Text="{Binding Lado}"
                                                    Classes="td" />
                                         <TextBlock Grid.Column="8"
                                                    Text="{Binding VlrVenda, StringFormat='{}{0:N2}'}"

@@ -43,12 +43,7 @@ public partial class MecanicosViewModel : ViewModelBase
     [ObservableProperty]
     private string? _mensagemErro;
 
-    public string TextoContador => Mecanicos.Count switch
-    {
-        0 => "Nenhum mecânico",
-        1 => "1 mecânico",
-        var n => $"{n} mecânicos",
-    };
+    public string TextoContador => Mecanicos.Count.ToString();
 
     partial void OnFiltroChanged(string value) => AgendarBusca();
 

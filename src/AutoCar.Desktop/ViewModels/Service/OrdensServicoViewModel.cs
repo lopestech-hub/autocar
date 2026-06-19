@@ -54,12 +54,7 @@ public partial class OrdensServicoViewModel : ViewModelBase
     [ObservableProperty] private bool _carregando;
     [ObservableProperty] private string? _mensagemErro;
 
-    public string TextoContador => Ordens.Count switch
-    {
-        0 => "Nenhuma OS",
-        1 => "1 OS",
-        var n => $"{n} OS",
-    };
+    public string TextoContador => Ordens.Count.ToString();
 
     partial void OnFiltroChanged(string value) => AgendarBusca();
 

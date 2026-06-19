@@ -53,10 +53,13 @@
             <!-- Acento laranja Cofap (destaques pontuais: barra de seleção de linha, rótulos). -->
             <Color x:Key="ColorAcento">#F86518</Color>
 
-            <!-- Badge contador (etiqueta "X itens" das listagens): família azul-claro Cofap. -->
-            <Color x:Key="ColorContadorFundo">#D6E4F2</Color>
-            <Color x:Key="ColorContadorBorda">#1E5CA5</Color>
-            <Color x:Key="ColorContadorTexto">#143F70</Color>
+            <!-- Badge contador (etiqueta "X itens" das listagens): família laranja-claro Cofap
+                 (cor de ACENTO). Escolhido para não competir com o header azul da tabela (azul
+                 colado em azul) e vestir a dupla azul+laranja da marca. O fundo (#FDE3D1) é um tom
+                 distinto do #FCD9C2 da seleção de linha, para o contador não parecer "selecionado". -->
+            <Color x:Key="ColorContadorFundo">#FDE3D1</Color>
+            <Color x:Key="ColorContadorBorda">#F86518</Color>
+            <Color x:Key="ColorContadorTexto">#C24E0F</Color>
 
             <!-- Fundo da linha SELECIONADA nas listagens (token próprio, distinto do hover):
                  laranja-claro (acento Cofap), unificado com o Catálogo. Trocar aqui muda a marca de

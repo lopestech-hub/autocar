@@ -44,13 +44,8 @@ public partial class ClientesViewModel : ViewModelBase
     [ObservableProperty]
     private string? _mensagemErro;
 
-    /// <summary>Texto do contador de registros ("12 clientes" / "1 cliente" / "Nenhum cliente").</summary>
-    public string TextoContador => Clientes.Count switch
-    {
-        0 => "Nenhum cliente",
-        1 => "1 cliente",
-        var n => $"{n} clientes",
-    };
+    /// <summary>Contador de registros (só o número de itens).</summary>
+    public string TextoContador => Clientes.Count.ToString();
 
     // Busca automática: ao digitar no filtro, agenda a busca após 350ms de pausa.
     partial void OnFiltroChanged(string value) => AgendarBusca();

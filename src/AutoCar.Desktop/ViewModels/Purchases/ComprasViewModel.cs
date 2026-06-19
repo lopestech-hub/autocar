@@ -49,12 +49,7 @@ public partial class ComprasViewModel : ViewModelBase
     [ObservableProperty] private bool _carregando;
     [ObservableProperty] private string? _mensagemErro;
 
-    public string TextoContador => Compras.Count switch
-    {
-        0 => "Nenhuma compra",
-        1 => "1 compra",
-        var n => $"{n} compras",
-    };
+    public string TextoContador => Compras.Count.ToString();
 
     [RelayCommand]
     private async Task CarregarAsync()

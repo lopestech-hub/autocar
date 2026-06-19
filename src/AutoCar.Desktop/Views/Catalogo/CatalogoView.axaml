@@ -185,13 +185,10 @@
                        FontSize="14" FontWeight="SemiBold"
                        Foreground="{DynamicResource BrushTexto}"
                        VerticalAlignment="Center" />
-            <!-- Contador: etiqueta no azul Cofap (faixa sólida, texto branco) — pontua a
-                 identidade da tela sem competir com o header da tabela. -->
-            <Border Background="{StaticResource CofapAzul}"
-                    CornerRadius="2" Padding="8,2" VerticalAlignment="Center">
-                <TextBlock Text="{Binding TextoContador}"
-                           FontSize="11" FontWeight="Medium"
-                           Foreground="{StaticResource CofapBranco}" />
+            <!-- Contador: etiqueta laranja-clara (acento Cofap), padrão Border.contador —
+                 igual às demais listagens, para não competir com o header azul da tabela. -->
+            <Border Classes="contador" VerticalAlignment="Center">
+                <TextBlock Classes="contador" Text="{Binding TextoContador}" />
             </Border>
             <TextBlock Text="Quais peças servem no veículo?"
                        FontSize="11" Foreground="{DynamicResource BrushTextoMudo}"

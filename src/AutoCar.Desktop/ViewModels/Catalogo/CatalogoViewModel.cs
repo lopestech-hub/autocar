@@ -57,12 +57,7 @@ public partial class CatalogoViewModel : ViewModelBase
     [ObservableProperty] private bool _carregando;
     [ObservableProperty] private string? _mensagemErro;
 
-    public string TextoContador => Resultados.Count switch
-    {
-        0 => "Nenhuma peça",
-        1 => "1 peça",
-        var n => $"{n} peças",
-    };
+    public string TextoContador => Resultados.Count.ToString();
 
     // Cada filtro dispara uma nova busca (com debounce, para não bater a cada tecla).
     partial void OnTermoChanged(string? value) => AgendarBusca();

@@ -43,12 +43,7 @@ public partial class CategoriasViewModel : ViewModelBase
     [ObservableProperty]
     private string? _mensagemErro;
 
-    public string TextoContador => Categorias.Count switch
-    {
-        0 => "Nenhuma categoria",
-        1 => "1 categoria",
-        var n => $"{n} categorias",
-    };
+    public string TextoContador => Categorias.Count.ToString();
 
     partial void OnFiltroChanged(string value) => AgendarBusca();
 

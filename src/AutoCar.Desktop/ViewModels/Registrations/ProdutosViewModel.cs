@@ -38,12 +38,7 @@ public partial class ProdutosViewModel : ViewModelBase
     [ObservableProperty] private bool _carregando;
     [ObservableProperty] private string? _mensagemErro;
 
-    public string TextoContador => Produtos.Count switch
-    {
-        0 => "Nenhum produto",
-        1 => "1 produto",
-        var n => $"{n} produtos",
-    };
+    public string TextoContador => Produtos.Count.ToString();
 
     partial void OnFiltroChanged(string value) => AgendarBusca();
 

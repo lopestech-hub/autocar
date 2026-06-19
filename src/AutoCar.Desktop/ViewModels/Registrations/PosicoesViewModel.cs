@@ -43,12 +43,7 @@ public partial class PosicoesViewModel : ViewModelBase
     [ObservableProperty]
     private string? _mensagemErro;
 
-    public string TextoContador => Posicoes.Count switch
-    {
-        0 => "Nenhuma posição",
-        1 => "1 posição",
-        var n => $"{n} posições",
-    };
+    public string TextoContador => Posicoes.Count.ToString();
 
     partial void OnFiltroChanged(string value) => AgendarBusca();
 

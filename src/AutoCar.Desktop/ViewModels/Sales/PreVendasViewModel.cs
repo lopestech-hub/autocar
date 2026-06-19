@@ -55,12 +55,7 @@ public partial class PreVendasViewModel : ViewModelBase
     [ObservableProperty] private bool _carregando;
     [ObservableProperty] private string? _mensagemErro;
 
-    public string TextoContador => PreVendas.Count switch
-    {
-        0 => "Nenhuma pré-venda",
-        1 => "1 pré-venda",
-        var n => $"{n} pré-vendas",
-    };
+    public string TextoContador => PreVendas.Count.ToString();
 
     partial void OnFiltroChanged(string value) => AgendarBusca();
 

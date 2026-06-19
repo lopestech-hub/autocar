@@ -23,19 +23,19 @@
             <StackPanel Spacing="2" HorizontalAlignment="Center" Margin="0,4,0,8">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <TextBlock Text="Auto" FontSize="24" FontWeight="SemiBold"
-                               Foreground="{DynamicResource BrushTexto}" />
-                    <TextBlock Text="Car" FontSize="24" FontWeight="SemiBold"
                                Foreground="{DynamicResource BrushPrimario}" />
+                    <TextBlock Text="Car" FontSize="24" FontWeight="SemiBold"
+                               Foreground="{DynamicResource BrushAcento}" />
                 </StackPanel>
                 <TextBlock Text="ERP" FontSize="11" FontWeight="Medium"
-                           Foreground="{DynamicResource BrushTextoSecundario}"
+                           Foreground="{DynamicResource BrushTexto}"
                            HorizontalAlignment="Center" />
             </StackPanel>
 
             <!-- Usuário -->
             <StackPanel Spacing="4">
                 <TextBlock Text="USUÁRIO" FontSize="10" FontWeight="Medium"
-                           Foreground="{DynamicResource BrushTextoSecundario}" />
+                           Foreground="{DynamicResource BrushTexto}" />
                 <TextBox Classes="login"
                          Text="{Binding Login}"
                          Watermark="seu usuário" />
@@ -44,7 +44,7 @@
             <!-- Senha -->
             <StackPanel Spacing="4">
                 <TextBlock Text="SENHA" FontSize="10" FontWeight="Medium"
-                           Foreground="{DynamicResource BrushTextoSecundario}" />
+                           Foreground="{DynamicResource BrushTexto}" />
                 <TextBox x:Name="CampoSenha"
                          Classes="login"
                          Text="{Binding Senha}"

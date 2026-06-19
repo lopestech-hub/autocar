@@ -43,12 +43,7 @@ public partial class MarcasViewModel : ViewModelBase
     [ObservableProperty]
     private string? _mensagemErro;
 
-    public string TextoContador => Marcas.Count switch
-    {
-        0 => "Nenhuma marca",
-        1 => "1 marca",
-        var n => $"{n} marcas",
-    };
+    public string TextoContador => Marcas.Count.ToString();
 
     partial void OnFiltroChanged(string value) => AgendarBusca();
 

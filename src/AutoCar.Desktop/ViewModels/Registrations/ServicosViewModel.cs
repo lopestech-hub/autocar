@@ -43,12 +43,7 @@ public partial class ServicosViewModel : ViewModelBase
     [ObservableProperty]
     private string? _mensagemErro;
 
-    public string TextoContador => Servicos.Count switch
-    {
-        0 => "Nenhum serviço",
-        1 => "1 serviço",
-        var n => $"{n} serviços",
-    };
+    public string TextoContador => Servicos.Count.ToString();
 
     partial void OnFiltroChanged(string value) => AgendarBusca();
 

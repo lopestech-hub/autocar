@@ -44,13 +44,8 @@ public partial class FornecedoresViewModel : ViewModelBase
     [ObservableProperty]
     private string? _mensagemErro;
 
-    /// <summary>Texto do contador de registros ("12 fornecedores" / "1 fornecedor" / "Nenhum fornecedor").</summary>
-    public string TextoContador => Fornecedores.Count switch
-    {
-        0 => "Nenhum fornecedor",
-        1 => "1 fornecedor",
-        var n => $"{n} fornecedores",
-    };
+    /// <summary>Contador de registros (só o número de itens).</summary>
+    public string TextoContador => Fornecedores.Count.ToString();
 
     // Busca automática: ao digitar no filtro, agenda a busca após 350ms de pausa.
     partial void OnFiltroChanged(string value) => AgendarBusca();
