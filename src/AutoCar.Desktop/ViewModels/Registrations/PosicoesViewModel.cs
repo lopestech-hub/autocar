@@ -18,19 +18,24 @@ namespace AutoCar.Desktop.ViewModels.Registrations;
 public partial class PosicoesViewModel : ViewModelBase
 {
     private readonly IPosicaoPecaService _posicoes;
-    private readonly PosicaoFormViewModel _form;
+    private readonly Func<PosicaoFormViewModel> _formFactory;
     private readonly ILogger<PosicoesViewModel> _logger;
 
     private CancellationTokenSource? _debounce;
 
-    public PosicoesViewModel(IPosicaoPecaService posicoes, PosicaoFormViewModel form, ILogger<PosicoesViewModel> logger)
+    public PosicoesViewModel(IPosicaoPecaService posicoes, Func<PosicaoFormViewModel> formFactory, ILogger<PosicoesViewModel> logger)
     {
         _posicoes = posicoes;
-        _form = form;
+        _formFactory = formFactory;
         _logger = logger;
-        _form.Salvo += async () => { FecharFormulario(); await CarregarAsync(); };
-        _form.Cancelado += FecharFormulario;
     }
+
+    /// <summary>Disparado quando a janela de posição deve abrir. A View (code-behind) escuta, abre a
+    /// janela não-modal e recarrega a lista ao salvar (mesmo padrão do Produto).</summary>
+    public event Action<PosicaoFormViewModel>? AbrirFormularioSolicitado;
+
+    /// <summary>Recarrega a listagem (chamado pela View após a janela salvar).</summary>
+    public Task RecarregarAsync() => CarregarAsync();
 
     public ObservableCollection<PosicaoPecaDto> Posicoes { get; } = new();
 
@@ -65,14 +70,6 @@ public partial class PosicoesViewModel : ViewModelBase
         });
     }
 
-    [ObservableProperty]
-    private PosicaoFormViewModel? _formularioAtivo;
-
-    public bool MostrarFormulario => FormularioAtivo is not null;
-
-    partial void OnFormularioAtivoChanged(PosicaoFormViewModel? value) =>
-        OnPropertyChanged(nameof(MostrarFormulario));
-
     [RelayCommand]
     private async Task CarregarAsync()
     {
@@ -103,8 +100,9 @@ public partial class PosicoesViewModel : ViewModelBase
     [RelayCommand]
     private void Novo()
     {
-        _form.PrepararNovo();
-        FormularioAtivo = _form;
+        var form = _formFactory();
+        form.PrepararNovo();
+        AbrirFormularioSolicitado?.Invoke(form);
     }
 
     [RelayCommand]
@@ -113,9 +111,8 @@ public partial class PosicoesViewModel : ViewModelBase
         if (posicao is null)
             return;
 
-        await _form.CarregarAsync(posicao.Id);
-        FormularioAtivo = _form;
+        var form = _formFactory();
+        await form.CarregarAsync(posicao.Id);
+        AbrirFormularioSolicitado?.Invoke(form);
     }
-
-    private void FecharFormulario() => FormularioAtivo = null;
 }

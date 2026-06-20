@@ -39,8 +39,23 @@ public partial class MarcasView : UserControl
 
         _vm = vm;
 
+        vm.AbrirFormularioSolicitado -= AbrirJanelaMarca;
+        vm.AbrirFormularioSolicitado += AbrirJanelaMarca;
+
         if (vm.CarregarCommand.CanExecute(null))
             vm.CarregarCommand.Execute(null);
+    }
+
+    private void AbrirJanelaMarca(MarcaFormViewModel form)
+    {
+        form.Salvo += () => _vm?.RecarregarAsync();
+
+        var janela = new MarcaWindow(form);
+        var dono = TopLevel.GetTopLevel(this) as Window;
+        if (dono is not null)
+            janela.Show(dono);
+        else
+            janela.Show();
     }
 
     private void AoTeclarNaLista(object? sender, KeyEventArgs e)

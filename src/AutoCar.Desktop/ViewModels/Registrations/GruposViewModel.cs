@@ -18,19 +18,24 @@ namespace AutoCar.Desktop.ViewModels.Registrations;
 public partial class GruposViewModel : ViewModelBase
 {
     private readonly IGrupoProdutoService _grupos;
-    private readonly GrupoFormViewModel _form;
+    private readonly Func<GrupoFormViewModel> _formFactory;
     private readonly ILogger<GruposViewModel> _logger;
 
     private CancellationTokenSource? _debounce;
 
-    public GruposViewModel(IGrupoProdutoService grupos, GrupoFormViewModel form, ILogger<GruposViewModel> logger)
+    public GruposViewModel(IGrupoProdutoService grupos, Func<GrupoFormViewModel> formFactory, ILogger<GruposViewModel> logger)
     {
         _grupos = grupos;
-        _form = form;
+        _formFactory = formFactory;
         _logger = logger;
-        _form.Salvo += async () => { FecharFormulario(); await CarregarAsync(); };
-        _form.Cancelado += FecharFormulario;
     }
+
+    /// <summary>Disparado quando a janela de grupo deve abrir. A View (code-behind) escuta, abre a
+    /// janela não-modal e recarrega a lista ao salvar (mesmo padrão do Produto).</summary>
+    public event Action<GrupoFormViewModel>? AbrirFormularioSolicitado;
+
+    /// <summary>Recarrega a listagem (chamado pela View após a janela salvar).</summary>
+    public Task RecarregarAsync() => CarregarAsync();
 
     public ObservableCollection<GrupoProdutoDto> Grupos { get; } = new();
 
@@ -65,14 +70,6 @@ public partial class GruposViewModel : ViewModelBase
         });
     }
 
-    [ObservableProperty]
-    private GrupoFormViewModel? _formularioAtivo;
-
-    public bool MostrarFormulario => FormularioAtivo is not null;
-
-    partial void OnFormularioAtivoChanged(GrupoFormViewModel? value) =>
-        OnPropertyChanged(nameof(MostrarFormulario));
-
     [RelayCommand]
     private async Task CarregarAsync()
     {
@@ -103,8 +100,9 @@ public partial class GruposViewModel : ViewModelBase
     [RelayCommand]
     private async Task NovoAsync()
     {
-        await _form.PrepararNovoAsync();
-        FormularioAtivo = _form;
+        var form = _formFactory();
+        await form.PrepararNovoAsync();
+        AbrirFormularioSolicitado?.Invoke(form);
     }
 
     [RelayCommand]
@@ -113,9 +111,8 @@ public partial class GruposViewModel : ViewModelBase
         if (grupo is null)
             return;
 
-        await _form.CarregarAsync(grupo.Id);
-        FormularioAtivo = _form;
+        var form = _formFactory();
+        await form.CarregarAsync(grupo.Id);
+        AbrirFormularioSolicitado?.Invoke(form);
     }
-
-    private void FecharFormulario() => FormularioAtivo = null;
 }

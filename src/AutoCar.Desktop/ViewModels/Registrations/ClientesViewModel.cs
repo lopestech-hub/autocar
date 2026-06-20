@@ -18,20 +18,25 @@ namespace AutoCar.Desktop.ViewModels.Registrations;
 public partial class ClientesViewModel : ViewModelBase
 {
     private readonly IClienteService _clientes;
-    private readonly ClienteFormViewModel _form;
+    private readonly Func<ClienteFormViewModel> _formFactory;
     private readonly ILogger<ClientesViewModel> _logger;
 
     // Debounce da busca automática enquanto o usuário digita.
     private CancellationTokenSource? _debounce;
 
-    public ClientesViewModel(IClienteService clientes, ClienteFormViewModel form, ILogger<ClientesViewModel> logger)
+    public ClientesViewModel(IClienteService clientes, Func<ClienteFormViewModel> formFactory, ILogger<ClientesViewModel> logger)
     {
         _clientes = clientes;
-        _form = form;
+        _formFactory = formFactory;
         _logger = logger;
-        _form.Salvo += async () => { FecharFormulario(); await CarregarAsync(); };
-        _form.Cancelado += FecharFormulario;
     }
+
+    /// <summary>Disparado quando a janela de cliente deve abrir. A View (code-behind) escuta, abre a
+    /// janela não-modal e recarrega a lista ao salvar (mesmo padrão do Produto).</summary>
+    public event Action<ClienteFormViewModel>? AbrirFormularioSolicitado;
+
+    /// <summary>Recarrega a listagem (chamado pela View após a janela salvar).</summary>
+    public Task RecarregarAsync() => CarregarAsync();
 
     public ObservableCollection<ClienteListaDto> Clientes { get; } = new();
 
@@ -68,15 +73,6 @@ public partial class ClientesViewModel : ViewModelBase
         });
     }
 
-    /// <summary>Formulário sobreposto à listagem. Null = listagem visível.</summary>
-    [ObservableProperty]
-    private ClienteFormViewModel? _formularioAtivo;
-
-    public bool MostrarFormulario => FormularioAtivo is not null;
-
-    partial void OnFormularioAtivoChanged(ClienteFormViewModel? value) =>
-        OnPropertyChanged(nameof(MostrarFormulario));
-
     [RelayCommand]
     private async Task CarregarAsync()
     {
@@ -107,8 +103,9 @@ public partial class ClientesViewModel : ViewModelBase
     [RelayCommand]
     private void Novo()
     {
-        _form.PrepararNovo();
-        FormularioAtivo = _form;
+        var form = _formFactory();
+        form.PrepararNovo();
+        AbrirFormularioSolicitado?.Invoke(form);
     }
 
     [RelayCommand]
@@ -117,9 +114,8 @@ public partial class ClientesViewModel : ViewModelBase
         if (cliente is null)
             return;
 
-        await _form.CarregarAsync(cliente.Id);
-        FormularioAtivo = _form;
+        var form = _formFactory();
+        await form.CarregarAsync(cliente.Id);
+        AbrirFormularioSolicitado?.Invoke(form);
     }
-
-    private void FecharFormulario() => FormularioAtivo = null;
 }

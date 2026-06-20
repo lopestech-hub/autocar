@@ -6,10 +6,8 @@
              x:Class="AutoCar.Desktop.Views.Registrations.GruposView"
              x:DataType="vm:GruposViewModel">
 
-    <Panel>
-        <!-- ===== LISTAGEM ===== -->
-        <Grid RowDefinitions="Auto,Auto,*" Margin="16"
-              IsVisible="{Binding !MostrarFormulario}">
+    <!-- ===== LISTAGEM (o formulário abre em janela própria: GrupoWindow) ===== -->
+    <Grid RowDefinitions="Auto,Auto,*" Margin="16">
 
             <Grid Grid.Row="0" ColumnDefinitions="Auto,Auto,*,Auto,Auto" Margin="0,0,0,12">
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8"
@@ -109,9 +107,4 @@
                 </Panel>
             </Border>
         </Grid>
-
-        <!-- ===== FORMULÁRIO (sobreposto) ===== -->
-        <ContentControl Content="{Binding FormularioAtivo}"
-                        IsVisible="{Binding MostrarFormulario}" />
-    </Panel>
 </UserControl>

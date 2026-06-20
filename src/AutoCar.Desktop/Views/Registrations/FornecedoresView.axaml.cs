@@ -39,8 +39,23 @@ public partial class FornecedoresView : UserControl
 
         _vm = vm;
 
+        vm.AbrirFormularioSolicitado -= AbrirJanelaFornecedor;
+        vm.AbrirFormularioSolicitado += AbrirJanelaFornecedor;
+
         if (vm.CarregarCommand.CanExecute(null))
             vm.CarregarCommand.Execute(null);
+    }
+
+    private void AbrirJanelaFornecedor(FornecedorFormViewModel form)
+    {
+        form.Salvo += () => _vm?.RecarregarAsync();
+
+        var janela = new FornecedorWindow(form);
+        var dono = TopLevel.GetTopLevel(this) as Window;
+        if (dono is not null)
+            janela.Show(dono);
+        else
+            janela.Show();
     }
 
     private void AoTeclarNaLista(object? sender, KeyEventArgs e)

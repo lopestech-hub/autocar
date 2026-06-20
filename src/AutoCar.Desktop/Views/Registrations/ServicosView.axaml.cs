@@ -38,8 +38,23 @@ public partial class ServicosView : UserControl
 
         _vm = vm;
 
+        vm.AbrirFormularioSolicitado -= AbrirJanelaServico;
+        vm.AbrirFormularioSolicitado += AbrirJanelaServico;
+
         if (vm.CarregarCommand.CanExecute(null))
             vm.CarregarCommand.Execute(null);
+    }
+
+    private void AbrirJanelaServico(ServicoFormViewModel form)
+    {
+        form.Salvo += () => _vm?.RecarregarAsync();
+
+        var janela = new ServicoWindow(form);
+        var dono = TopLevel.GetTopLevel(this) as Window;
+        if (dono is not null)
+            janela.Show(dono);
+        else
+            janela.Show();
     }
 
     private void AoTeclarNaLista(object? sender, KeyEventArgs e)

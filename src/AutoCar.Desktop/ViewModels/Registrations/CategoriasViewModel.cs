@@ -18,19 +18,24 @@ namespace AutoCar.Desktop.ViewModels.Registrations;
 public partial class CategoriasViewModel : ViewModelBase
 {
     private readonly ICategoriaProdutoService _categorias;
-    private readonly CategoriaFormViewModel _form;
+    private readonly Func<CategoriaFormViewModel> _formFactory;
     private readonly ILogger<CategoriasViewModel> _logger;
 
     private CancellationTokenSource? _debounce;
 
-    public CategoriasViewModel(ICategoriaProdutoService categorias, CategoriaFormViewModel form, ILogger<CategoriasViewModel> logger)
+    public CategoriasViewModel(ICategoriaProdutoService categorias, Func<CategoriaFormViewModel> formFactory, ILogger<CategoriasViewModel> logger)
     {
         _categorias = categorias;
-        _form = form;
+        _formFactory = formFactory;
         _logger = logger;
-        _form.Salvo += async () => { FecharFormulario(); await CarregarAsync(); };
-        _form.Cancelado += FecharFormulario;
     }
+
+    /// <summary>Disparado quando a janela de categoria deve abrir. A View (code-behind) escuta, abre a
+    /// janela não-modal e recarrega a lista ao salvar (mesmo padrão do Produto).</summary>
+    public event Action<CategoriaFormViewModel>? AbrirFormularioSolicitado;
+
+    /// <summary>Recarrega a listagem (chamado pela View após a janela salvar).</summary>
+    public Task RecarregarAsync() => CarregarAsync();
 
     public ObservableCollection<CategoriaProdutoDto> Categorias { get; } = new();
 
@@ -65,14 +70,6 @@ public partial class CategoriasViewModel : ViewModelBase
         });
     }
 
-    [ObservableProperty]
-    private CategoriaFormViewModel? _formularioAtivo;
-
-    public bool MostrarFormulario => FormularioAtivo is not null;
-
-    partial void OnFormularioAtivoChanged(CategoriaFormViewModel? value) =>
-        OnPropertyChanged(nameof(MostrarFormulario));
-
     [RelayCommand]
     private async Task CarregarAsync()
     {
@@ -103,8 +100,9 @@ public partial class CategoriasViewModel : ViewModelBase
     [RelayCommand]
     private void Novo()
     {
-        _form.PrepararNovo();
-        FormularioAtivo = _form;
+        var form = _formFactory();
+        form.PrepararNovo();
+        AbrirFormularioSolicitado?.Invoke(form);
     }
 
     [RelayCommand]
@@ -113,9 +111,8 @@ public partial class CategoriasViewModel : ViewModelBase
         if (categoria is null)
             return;
 
-        await _form.CarregarAsync(categoria.Id);
-        FormularioAtivo = _form;
+        var form = _formFactory();
+        await form.CarregarAsync(categoria.Id);
+        AbrirFormularioSolicitado?.Invoke(form);
     }
-
-    private void FecharFormulario() => FormularioAtivo = null;
 }

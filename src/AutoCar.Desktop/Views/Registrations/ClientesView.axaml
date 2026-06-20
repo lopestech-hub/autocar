@@ -6,10 +6,8 @@
              x:Class="AutoCar.Desktop.Views.Registrations.ClientesView"
              x:DataType="vm:ClientesViewModel">
 
-    <Panel>
-        <!-- ===== LISTAGEM ===== -->
-        <Grid RowDefinitions="Auto,Auto,*" Margin="16"
-              IsVisible="{Binding !MostrarFormulario}">
+    <!-- ===== LISTAGEM (o formulário abre em janela própria: ClienteWindow) ===== -->
+    <Grid RowDefinitions="Auto,Auto,*" Margin="16">
 
             <!-- Toolbar: título + Novo (esquerda) | busca (direita) -->
             <Grid Grid.Row="0" ColumnDefinitions="Auto,Auto,*,Auto,Auto" Margin="0,0,0,12">
@@ -133,9 +131,4 @@
                 </Panel>
             </Border>
         </Grid>
-
-        <!-- ===== FORMULÁRIO (sobreposto) ===== -->
-        <ContentControl Content="{Binding FormularioAtivo}"
-                        IsVisible="{Binding MostrarFormulario}" />
-    </Panel>
 </UserControl>

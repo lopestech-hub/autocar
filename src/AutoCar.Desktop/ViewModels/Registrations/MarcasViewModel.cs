@@ -18,19 +18,24 @@ namespace AutoCar.Desktop.ViewModels.Registrations;
 public partial class MarcasViewModel : ViewModelBase
 {
     private readonly IMarcaService _marcas;
-    private readonly MarcaFormViewModel _form;
+    private readonly Func<MarcaFormViewModel> _formFactory;
     private readonly ILogger<MarcasViewModel> _logger;
 
     private CancellationTokenSource? _debounce;
 
-    public MarcasViewModel(IMarcaService marcas, MarcaFormViewModel form, ILogger<MarcasViewModel> logger)
+    public MarcasViewModel(IMarcaService marcas, Func<MarcaFormViewModel> formFactory, ILogger<MarcasViewModel> logger)
     {
         _marcas = marcas;
-        _form = form;
+        _formFactory = formFactory;
         _logger = logger;
-        _form.Salvo += async () => { FecharFormulario(); await CarregarAsync(); };
-        _form.Cancelado += FecharFormulario;
     }
+
+    /// <summary>Disparado quando a janela de marca deve abrir. A View (code-behind) escuta, abre a
+    /// janela não-modal e recarrega a lista ao salvar (mesmo padrão do Produto).</summary>
+    public event Action<MarcaFormViewModel>? AbrirFormularioSolicitado;
+
+    /// <summary>Recarrega a listagem (chamado pela View após a janela salvar).</summary>
+    public Task RecarregarAsync() => CarregarAsync();
 
     public ObservableCollection<MarcaDto> Marcas { get; } = new();
 
@@ -65,14 +70,6 @@ public partial class MarcasViewModel : ViewModelBase
         });
     }
 
-    [ObservableProperty]
-    private MarcaFormViewModel? _formularioAtivo;
-
-    public bool MostrarFormulario => FormularioAtivo is not null;
-
-    partial void OnFormularioAtivoChanged(MarcaFormViewModel? value) =>
-        OnPropertyChanged(nameof(MostrarFormulario));
-
     [RelayCommand]
     private async Task CarregarAsync()
     {
@@ -103,8 +100,9 @@ public partial class MarcasViewModel : ViewModelBase
     [RelayCommand]
     private void Novo()
     {
-        _form.PrepararNovo();
-        FormularioAtivo = _form;
+        var form = _formFactory();
+        form.PrepararNovo();
+        AbrirFormularioSolicitado?.Invoke(form);
     }
 
     [RelayCommand]
@@ -113,9 +111,8 @@ public partial class MarcasViewModel : ViewModelBase
         if (marca is null)
             return;
 
-        await _form.CarregarAsync(marca.Id);
-        FormularioAtivo = _form;
+        var form = _formFactory();
+        await form.CarregarAsync(marca.Id);
+        AbrirFormularioSolicitado?.Invoke(form);
     }
-
-    private void FecharFormulario() => FormularioAtivo = null;
 }

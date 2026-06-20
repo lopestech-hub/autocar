@@ -40,24 +40,26 @@
 
             <!-- CORPO -->
             <ScrollViewer Grid.Row="1" Padding="16,12" VerticalScrollBarVisibility="Auto">
-                <Grid RowSpacing="6" ColumnDefinitions="100,*">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" /><!-- 0: Descrição -->
-                        <RowDefinition Height="Auto" /><!-- 1: mensagem de erro -->
-                    </Grid.RowDefinitions>
+                <HeaderedContentControl Classes="grupo" Header="DADOS">
+                    <Grid RowSpacing="6" ColumnDefinitions="100,*">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" /><!-- 0: Descrição -->
+                            <RowDefinition Height="Auto" /><!-- 1: mensagem de erro -->
+                        </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" Grid.Column="0" Classes="formlabel" Text="Descrição" />
-                    <TextBox Grid.Row="0" Grid.Column="1"
-                             Text="{Binding Descricao}" IsEnabled="{Binding !ModoVisualizacao}"
-                             b:MaiusculoBehavior.Ativo="True"
-                             Watermark="Ex: Bosch, Cofap, NGK" />
+                        <TextBlock Grid.Row="0" Grid.Column="0" Classes="formlabel" Text="Descrição" />
+                        <TextBox Grid.Row="0" Grid.Column="1"
+                                 Text="{Binding Descricao}" IsEnabled="{Binding !ModoVisualizacao}"
+                                 b:MaiusculoBehavior.Ativo="True"
+                                 Watermark="Ex: Bosch, Cofap, NGK" />
 
-                    <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
-                               Text="{Binding MensagemErro}"
-                               IsVisible="{Binding MensagemErro, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                               Foreground="{DynamicResource BrushErro}" FontSize="11"
-                               TextWrapping="Wrap" Margin="0,8,0,0" />
-                </Grid>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                   Text="{Binding MensagemErro}"
+                                   IsVisible="{Binding MensagemErro, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                   Foreground="{DynamicResource BrushErro}" FontSize="11"
+                                   TextWrapping="Wrap" Margin="0,8,0,0" />
+                    </Grid>
+                </HeaderedContentControl>
             </ScrollViewer>
 
             <ProgressBar Grid.Row="2" IsIndeterminate="True" Height="2"

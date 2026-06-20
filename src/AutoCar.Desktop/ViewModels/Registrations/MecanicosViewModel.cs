@@ -18,19 +18,24 @@ namespace AutoCar.Desktop.ViewModels.Registrations;
 public partial class MecanicosViewModel : ViewModelBase
 {
     private readonly IMecanicoService _mecanicos;
-    private readonly MecanicoFormViewModel _form;
+    private readonly Func<MecanicoFormViewModel> _formFactory;
     private readonly ILogger<MecanicosViewModel> _logger;
 
     private CancellationTokenSource? _debounce;
 
-    public MecanicosViewModel(IMecanicoService mecanicos, MecanicoFormViewModel form, ILogger<MecanicosViewModel> logger)
+    public MecanicosViewModel(IMecanicoService mecanicos, Func<MecanicoFormViewModel> formFactory, ILogger<MecanicosViewModel> logger)
     {
         _mecanicos = mecanicos;
-        _form = form;
+        _formFactory = formFactory;
         _logger = logger;
-        _form.Salvo += async () => { FecharFormulario(); await CarregarAsync(); };
-        _form.Cancelado += FecharFormulario;
     }
+
+    /// <summary>Disparado quando a janela de mecânico deve abrir. A View (code-behind) escuta, abre a
+    /// janela não-modal e recarrega a lista ao salvar (mesmo padrão do Produto).</summary>
+    public event Action<MecanicoFormViewModel>? AbrirFormularioSolicitado;
+
+    /// <summary>Recarrega a listagem (chamado pela View após a janela salvar).</summary>
+    public Task RecarregarAsync() => CarregarAsync();
 
     public ObservableCollection<MecanicoDto> Mecanicos { get; } = new();
 
@@ -65,14 +70,6 @@ public partial class MecanicosViewModel : ViewModelBase
         });
     }
 
-    [ObservableProperty]
-    private MecanicoFormViewModel? _formularioAtivo;
-
-    public bool MostrarFormulario => FormularioAtivo is not null;
-
-    partial void OnFormularioAtivoChanged(MecanicoFormViewModel? value) =>
-        OnPropertyChanged(nameof(MostrarFormulario));
-
     [RelayCommand]
     private async Task CarregarAsync()
     {
@@ -103,8 +100,9 @@ public partial class MecanicosViewModel : ViewModelBase
     [RelayCommand]
     private void Novo()
     {
-        _form.PrepararNovo();
-        FormularioAtivo = _form;
+        var form = _formFactory();
+        form.PrepararNovo();
+        AbrirFormularioSolicitado?.Invoke(form);
     }
 
     [RelayCommand]
@@ -113,9 +111,8 @@ public partial class MecanicosViewModel : ViewModelBase
         if (mecanico is null)
             return;
 
-        await _form.CarregarAsync(mecanico.Id);
-        FormularioAtivo = _form;
+        var form = _formFactory();
+        await form.CarregarAsync(mecanico.Id);
+        AbrirFormularioSolicitado?.Invoke(form);
     }
-
-    private void FecharFormulario() => FormularioAtivo = null;
 }

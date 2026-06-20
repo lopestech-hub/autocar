@@ -39,8 +39,23 @@ public partial class ClientesView : UserControl
 
         _vm = vm;
 
+        vm.AbrirFormularioSolicitado -= AbrirJanelaCliente;
+        vm.AbrirFormularioSolicitado += AbrirJanelaCliente;
+
         if (vm.CarregarCommand.CanExecute(null))
             vm.CarregarCommand.Execute(null);
+    }
+
+    private void AbrirJanelaCliente(ClienteFormViewModel form)
+    {
+        form.Salvo += () => _vm?.RecarregarAsync();
+
+        var janela = new ClienteWindow(form);
+        var dono = TopLevel.GetTopLevel(this) as Window;
+        if (dono is not null)
+            janela.Show(dono);
+        else
+            janela.Show();
     }
 
     private void AoTeclarNaLista(object? sender, KeyEventArgs e)

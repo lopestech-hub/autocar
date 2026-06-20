@@ -18,20 +18,25 @@ namespace AutoCar.Desktop.ViewModels.Registrations;
 public partial class FornecedoresViewModel : ViewModelBase
 {
     private readonly IFornecedorService _fornecedores;
-    private readonly FornecedorFormViewModel _form;
+    private readonly Func<FornecedorFormViewModel> _formFactory;
     private readonly ILogger<FornecedoresViewModel> _logger;
 
     // Debounce da busca automática enquanto o usuário digita.
     private CancellationTokenSource? _debounce;
 
-    public FornecedoresViewModel(IFornecedorService fornecedores, FornecedorFormViewModel form, ILogger<FornecedoresViewModel> logger)
+    public FornecedoresViewModel(IFornecedorService fornecedores, Func<FornecedorFormViewModel> formFactory, ILogger<FornecedoresViewModel> logger)
     {
         _fornecedores = fornecedores;
-        _form = form;
+        _formFactory = formFactory;
         _logger = logger;
-        _form.Salvo += async () => { FecharFormulario(); await CarregarAsync(); };
-        _form.Cancelado += FecharFormulario;
     }
+
+    /// <summary>Disparado quando a janela de fornecedor deve abrir. A View (code-behind) escuta, abre a
+    /// janela não-modal e recarrega a lista ao salvar (mesmo padrão do Produto).</summary>
+    public event Action<FornecedorFormViewModel>? AbrirFormularioSolicitado;
+
+    /// <summary>Recarrega a listagem (chamado pela View após a janela salvar).</summary>
+    public Task RecarregarAsync() => CarregarAsync();
 
     public ObservableCollection<FornecedorListaDto> Fornecedores { get; } = new();
 
@@ -68,15 +73,6 @@ public partial class FornecedoresViewModel : ViewModelBase
         });
     }
 
-    /// <summary>Formulário sobreposto à listagem. Null = listagem visível.</summary>
-    [ObservableProperty]
-    private FornecedorFormViewModel? _formularioAtivo;
-
-    public bool MostrarFormulario => FormularioAtivo is not null;
-
-    partial void OnFormularioAtivoChanged(FornecedorFormViewModel? value) =>
-        OnPropertyChanged(nameof(MostrarFormulario));
-
     [RelayCommand]
     private async Task CarregarAsync()
     {
@@ -107,8 +103,9 @@ public partial class FornecedoresViewModel : ViewModelBase
     [RelayCommand]
     private void Novo()
     {
-        _form.PrepararNovo();
-        FormularioAtivo = _form;
+        var form = _formFactory();
+        form.PrepararNovo();
+        AbrirFormularioSolicitado?.Invoke(form);
     }
 
     [RelayCommand]
@@ -117,9 +114,8 @@ public partial class FornecedoresViewModel : ViewModelBase
         if (fornecedor is null)
             return;
 
-        await _form.CarregarAsync(fornecedor.Id);
-        FormularioAtivo = _form;
+        var form = _formFactory();
+        await form.CarregarAsync(fornecedor.Id);
+        AbrirFormularioSolicitado?.Invoke(form);
     }
-
-    private void FecharFormulario() => FormularioAtivo = null;
 }

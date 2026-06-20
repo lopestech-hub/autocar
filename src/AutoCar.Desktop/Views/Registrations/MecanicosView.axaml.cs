@@ -38,8 +38,23 @@ public partial class MecanicosView : UserControl
 
         _vm = vm;
 
+        vm.AbrirFormularioSolicitado -= AbrirJanelaMecanico;
+        vm.AbrirFormularioSolicitado += AbrirJanelaMecanico;
+
         if (vm.CarregarCommand.CanExecute(null))
             vm.CarregarCommand.Execute(null);
+    }
+
+    private void AbrirJanelaMecanico(MecanicoFormViewModel form)
+    {
+        form.Salvo += () => _vm?.RecarregarAsync();
+
+        var janela = new MecanicoWindow(form);
+        var dono = TopLevel.GetTopLevel(this) as Window;
+        if (dono is not null)
+            janela.Show(dono);
+        else
+            janela.Show();
     }
 
     private void AoTeclarNaLista(object? sender, KeyEventArgs e)

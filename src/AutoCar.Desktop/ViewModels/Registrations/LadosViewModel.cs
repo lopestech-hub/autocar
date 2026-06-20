@@ -18,19 +18,24 @@ namespace AutoCar.Desktop.ViewModels.Registrations;
 public partial class LadosViewModel : ViewModelBase
 {
     private readonly ILadoPecaService _lados;
-    private readonly LadoFormViewModel _form;
+    private readonly Func<LadoFormViewModel> _formFactory;
     private readonly ILogger<LadosViewModel> _logger;
 
     private CancellationTokenSource? _debounce;
 
-    public LadosViewModel(ILadoPecaService lados, LadoFormViewModel form, ILogger<LadosViewModel> logger)
+    public LadosViewModel(ILadoPecaService lados, Func<LadoFormViewModel> formFactory, ILogger<LadosViewModel> logger)
     {
         _lados = lados;
-        _form = form;
+        _formFactory = formFactory;
         _logger = logger;
-        _form.Salvo += async () => { FecharFormulario(); await CarregarAsync(); };
-        _form.Cancelado += FecharFormulario;
     }
+
+    /// <summary>Disparado quando a janela de lado deve abrir. A View (code-behind) escuta, abre a
+    /// janela não-modal e recarrega a lista ao salvar (mesmo padrão do Produto).</summary>
+    public event Action<LadoFormViewModel>? AbrirFormularioSolicitado;
+
+    /// <summary>Recarrega a listagem (chamado pela View após a janela salvar).</summary>
+    public Task RecarregarAsync() => CarregarAsync();
 
     public ObservableCollection<LadoPecaDto> Lados { get; } = new();
 
@@ -65,14 +70,6 @@ public partial class LadosViewModel : ViewModelBase
         });
     }
 
-    [ObservableProperty]
-    private LadoFormViewModel? _formularioAtivo;
-
-    public bool MostrarFormulario => FormularioAtivo is not null;
-
-    partial void OnFormularioAtivoChanged(LadoFormViewModel? value) =>
-        OnPropertyChanged(nameof(MostrarFormulario));
-
     [RelayCommand]
     private async Task CarregarAsync()
     {
@@ -103,8 +100,9 @@ public partial class LadosViewModel : ViewModelBase
     [RelayCommand]
     private void Novo()
     {
-        _form.PrepararNovo();
-        FormularioAtivo = _form;
+        var form = _formFactory();
+        form.PrepararNovo();
+        AbrirFormularioSolicitado?.Invoke(form);
     }
 
     [RelayCommand]
@@ -113,9 +111,8 @@ public partial class LadosViewModel : ViewModelBase
         if (lado is null)
             return;
 
-        await _form.CarregarAsync(lado.Id);
-        FormularioAtivo = _form;
+        var form = _formFactory();
+        await form.CarregarAsync(lado.Id);
+        AbrirFormularioSolicitado?.Invoke(form);
     }
-
-    private void FecharFormulario() => FormularioAtivo = null;
 }

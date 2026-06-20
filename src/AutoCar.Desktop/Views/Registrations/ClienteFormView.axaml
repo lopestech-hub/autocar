@@ -39,136 +39,134 @@
                 </StackPanel>
             </Border>
 
-            <!-- CORPO denso: label à esquerda + campo, várias colunas por linha -->
+            <!-- CORPO denso agrupado em group boxes (DADOS GERAIS / ENDEREÇO / OBSERVAÇÃO) -->
             <ScrollViewer Grid.Row="1" Padding="16,12" VerticalScrollBarVisibility="Auto">
-                <Grid RowSpacing="6"
-                      ColumnDefinitions="100,160,90,160,110,*"
-                      HorizontalAlignment="Stretch">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" /><!-- 0: Tipo | Documento | Limite -->
-                        <RowDefinition Height="Auto" /><!-- 1: Nome/Razão Social -->
-                        <RowDefinition Height="Auto" /><!-- 2: Nome Fantasia (PJ) -->
-                        <RowDefinition Height="Auto" /><!-- 3: Telefone | E-mail -->
-                        <RowDefinition Height="Auto" /><!-- 4: seção Endereço -->
-                        <RowDefinition Height="Auto" /><!-- 5: CEP | Logradouro | Número -->
-                        <RowDefinition Height="Auto" /><!-- 6: Complemento | Bairro -->
-                        <RowDefinition Height="Auto" /><!-- 7: Cidade | UF -->
-                        <RowDefinition Height="Auto" /><!-- 8: seção Outros -->
-                        <RowDefinition Height="Auto" /><!-- 9: Observação -->
-                        <RowDefinition Height="Auto" /><!-- 10: mensagem de erro -->
-                    </Grid.RowDefinitions>
+                <StackPanel Spacing="2" HorizontalAlignment="Left">
 
-                    <!-- Linha 0: Tipo | Documento | Limite de Crédito -->
-                    <TextBlock Grid.Row="0" Grid.Column="0" Classes="formlabel" Text="Tipo Pessoa" />
-                    <ComboBox Grid.Row="0" Grid.Column="1"
-                              ItemsSource="{Binding TiposPessoa}"
-                              SelectedItem="{Binding TipoPessoa}"
-                              IsEnabled="{Binding !ModoVisualizacao}"
-                              HorizontalAlignment="Left" Width="120" />
-                    <TextBlock Grid.Row="0" Grid.Column="2" Classes="formlabel" Text="{Binding TituloDocumento}" />
-                    <DockPanel Grid.Row="0" Grid.Column="3" LastChildFill="True">
-                        <Button DockPanel.Dock="Right"
-                                Classes="primario"
-                                Width="28" Padding="0"
-                                Margin="4,0,0,0"
-                                Command="{Binding ConsultarCnpjCommand}"
-                                IsVisible="{Binding PodeConsultarCnpj}"
-                                ToolTip.Tip="Consultar CNPJ na Receita"
-                                Cursor="Hand">
-                            <i:Icon Value="fa-solid fa-magnifying-glass" FontSize="12"
-                                    Foreground="{DynamicResource BrushTextoInverso}" />
-                        </Button>
-                        <TextBox Text="{Binding Documento}" IsEnabled="{Binding !ModoVisualizacao}"
-                                 Watermark="Somente números" />
-                    </DockPanel>
-                    <TextBlock Grid.Row="0" Grid.Column="4" Classes="formlabel" Text="Limite Crédito" />
-                    <TextBox Grid.Row="0" Grid.Column="5"
-                             Text="{Binding LimiteCreditoTexto}" IsEnabled="{Binding !ModoVisualizacao}"
-                             b:SelecionarTudoBehavior.Ativo="True"
-                             Watermark="0,00"
-                             HorizontalAlignment="Left" Width="120" />
+                    <!-- ===== DADOS GERAIS (group box) ===== -->
+                    <HeaderedContentControl Classes="grupo" Header="DADOS GERAIS"
+                                            Width="780" HorizontalAlignment="Left" Margin="0,0,0,8">
+                    <Grid RowSpacing="6" ColumnDefinitions="100,160,90,160,110,*">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" /><!-- 0: Tipo | Documento | Limite -->
+                            <RowDefinition Height="Auto" /><!-- 1: Nome/Razão Social -->
+                            <RowDefinition Height="Auto" /><!-- 2: Nome Fantasia (PJ) -->
+                            <RowDefinition Height="Auto" /><!-- 3: Telefone | E-mail -->
+                        </Grid.RowDefinitions>
 
-                    <!-- Linha 1: Nome/Razão Social (campo longo) -->
-                    <TextBlock Grid.Row="1" Grid.Column="0" Classes="formlabel" Text="{Binding TituloRazaoSocial}" />
-                    <TextBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5"
-                             Text="{Binding RazaoSocial}" IsEnabled="{Binding !ModoVisualizacao}"
-                             b:MaiusculoBehavior.Ativo="True" />
+                        <!-- Linha 0: Tipo | Documento | Limite de Crédito -->
+                        <TextBlock Grid.Row="0" Grid.Column="0" Classes="formlabel" Text="Tipo Pessoa" />
+                        <ComboBox Grid.Row="0" Grid.Column="1"
+                                  ItemsSource="{Binding TiposPessoa}"
+                                  SelectedItem="{Binding TipoPessoa}"
+                                  IsEnabled="{Binding !ModoVisualizacao}"
+                                  HorizontalAlignment="Left" Width="120" />
+                        <TextBlock Grid.Row="0" Grid.Column="2" Classes="formlabel" Text="{Binding TituloDocumento}" />
+                        <DockPanel Grid.Row="0" Grid.Column="3" LastChildFill="True">
+                            <Button DockPanel.Dock="Right"
+                                    Classes="primario"
+                                    Width="28" Padding="0"
+                                    Margin="4,0,0,0"
+                                    Command="{Binding ConsultarCnpjCommand}"
+                                    IsVisible="{Binding PodeConsultarCnpj}"
+                                    ToolTip.Tip="Consultar CNPJ na Receita"
+                                    Cursor="Hand">
+                                <i:Icon Value="fa-solid fa-magnifying-glass" FontSize="12"
+                                        Foreground="{DynamicResource BrushTextoInverso}" />
+                            </Button>
+                            <TextBox Text="{Binding Documento}" IsEnabled="{Binding !ModoVisualizacao}"
+                                     Watermark="Somente números" />
+                        </DockPanel>
+                        <TextBlock Grid.Row="0" Grid.Column="4" Classes="formlabel" Text="Limite Crédito" />
+                        <TextBox Grid.Row="0" Grid.Column="5"
+                                 Text="{Binding LimiteCreditoTexto}" IsEnabled="{Binding !ModoVisualizacao}"
+                                 b:SelecionarTudoBehavior.Ativo="True"
+                                 Watermark="0,00"
+                                 HorizontalAlignment="Left" Width="120" />
 
-                    <!-- Linha 2: Nome Fantasia (só PJ) -->
-                    <TextBlock Grid.Row="2" Grid.Column="0" Classes="formlabel" Text="Nome Fantasia"
-                               IsVisible="{Binding EhJuridica}" />
-                    <TextBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5"
-                             Text="{Binding NomeFantasia}" IsEnabled="{Binding !ModoVisualizacao}"
-                             b:MaiusculoBehavior.Ativo="True"
-                             IsVisible="{Binding EhJuridica}" />
+                        <!-- Linha 1: Nome/Razão Social (campo longo) -->
+                        <TextBlock Grid.Row="1" Grid.Column="0" Classes="formlabel" Text="{Binding TituloRazaoSocial}" />
+                        <TextBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5"
+                                 Text="{Binding RazaoSocial}" IsEnabled="{Binding !ModoVisualizacao}"
+                                 b:MaiusculoBehavior.Ativo="True" />
 
-                    <!-- Linha 3: Telefone | E-mail -->
-                    <TextBlock Grid.Row="3" Grid.Column="0" Classes="formlabel" Text="Telefone" />
-                    <TextBox Grid.Row="3" Grid.Column="1"
-                             Text="{Binding Telefone}" IsEnabled="{Binding !ModoVisualizacao}" />
-                    <TextBlock Grid.Row="3" Grid.Column="2" Classes="formlabel" Text="E-mail" />
-                    <TextBox Grid.Row="3" Grid.Column="3" Grid.ColumnSpan="3"
-                             Text="{Binding Email}" IsEnabled="{Binding !ModoVisualizacao}" />
+                        <!-- Linha 2: Nome Fantasia (só PJ) -->
+                        <TextBlock Grid.Row="2" Grid.Column="0" Classes="formlabel" Text="Nome Fantasia"
+                                   IsVisible="{Binding EhJuridica}" />
+                        <TextBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5"
+                                 Text="{Binding NomeFantasia}" IsEnabled="{Binding !ModoVisualizacao}"
+                                 b:MaiusculoBehavior.Ativo="True"
+                                 IsVisible="{Binding EhJuridica}" />
 
-                    <!-- Linha 4: seção Endereço -->
-                    <DockPanel Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="6" Margin="0,8,0,2" LastChildFill="True">
-                        <TextBlock DockPanel.Dock="Left" Classes="formsecao" Text="ENDEREÇO" />
-                        <Border Classes="formsecaoLinha" />
-                    </DockPanel>
+                        <!-- Linha 3: Telefone | E-mail -->
+                        <TextBlock Grid.Row="3" Grid.Column="0" Classes="formlabel" Text="Telefone" />
+                        <TextBox Grid.Row="3" Grid.Column="1"
+                                 Text="{Binding Telefone}" IsEnabled="{Binding !ModoVisualizacao}" />
+                        <TextBlock Grid.Row="3" Grid.Column="2" Classes="formlabel" Text="E-mail" />
+                        <TextBox Grid.Row="3" Grid.Column="3" Grid.ColumnSpan="3"
+                                 Text="{Binding Email}" IsEnabled="{Binding !ModoVisualizacao}" />
+                    </Grid>
+                    </HeaderedContentControl>
 
-                    <!-- Linha 5: CEP | Logradouro | Número (rótulo "Número" na coluna de label 4,
-                         alinhado à direita como os demais; campo na coluna 5) -->
-                    <TextBlock Grid.Row="5" Grid.Column="0" Classes="formlabel" Text="CEP" />
-                    <TextBox Grid.Row="5" Grid.Column="1"
-                             Text="{Binding Cep}" IsEnabled="{Binding !ModoVisualizacao}" />
-                    <TextBlock Grid.Row="5" Grid.Column="2" Classes="formlabel" Text="Logradouro" />
-                    <TextBox Grid.Row="5" Grid.Column="3"
-                             Text="{Binding Logradouro}" IsEnabled="{Binding !ModoVisualizacao}"
-                             b:MaiusculoBehavior.Ativo="True" />
-                    <TextBlock Grid.Row="5" Grid.Column="4" Classes="formlabel" Text="Número" />
-                    <TextBox Grid.Row="5" Grid.Column="5"
-                             Text="{Binding Numero}" IsEnabled="{Binding !ModoVisualizacao}"
-                             HorizontalAlignment="Left" Width="90" />
+                    <!-- ===== ENDEREÇO (group box) ===== -->
+                    <HeaderedContentControl Classes="grupo" Header="ENDEREÇO"
+                                            Width="780" HorizontalAlignment="Left" Margin="0,0,0,8">
+                    <Grid RowSpacing="6" ColumnDefinitions="100,160,90,160,110,*">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" /><!-- 0: CEP | Logradouro | Número -->
+                            <RowDefinition Height="Auto" /><!-- 1: Complemento | Bairro -->
+                            <RowDefinition Height="Auto" /><!-- 2: Cidade | UF -->
+                        </Grid.RowDefinitions>
 
-                    <!-- Linha 6: Complemento | Bairro -->
-                    <TextBlock Grid.Row="6" Grid.Column="0" Classes="formlabel" Text="Complemento" />
-                    <TextBox Grid.Row="6" Grid.Column="1"
-                             Text="{Binding Complemento}" IsEnabled="{Binding !ModoVisualizacao}"
-                             b:MaiusculoBehavior.Ativo="True" />
-                    <TextBlock Grid.Row="6" Grid.Column="2" Classes="formlabel" Text="Bairro" />
-                    <TextBox Grid.Row="6" Grid.Column="3" Grid.ColumnSpan="3"
-                             Text="{Binding Bairro}" IsEnabled="{Binding !ModoVisualizacao}"
-                             b:MaiusculoBehavior.Ativo="True" />
+                        <!-- Linha 0: CEP | Logradouro | Número -->
+                        <TextBlock Grid.Row="0" Grid.Column="0" Classes="formlabel" Text="CEP" />
+                        <TextBox Grid.Row="0" Grid.Column="1"
+                                 Text="{Binding Cep}" IsEnabled="{Binding !ModoVisualizacao}" />
+                        <TextBlock Grid.Row="0" Grid.Column="2" Classes="formlabel" Text="Logradouro" />
+                        <TextBox Grid.Row="0" Grid.Column="3"
+                                 Text="{Binding Logradouro}" IsEnabled="{Binding !ModoVisualizacao}"
+                                 b:MaiusculoBehavior.Ativo="True" />
+                        <TextBlock Grid.Row="0" Grid.Column="4" Classes="formlabel" Text="Número" />
+                        <TextBox Grid.Row="0" Grid.Column="5"
+                                 Text="{Binding Numero}" IsEnabled="{Binding !ModoVisualizacao}"
+                                 HorizontalAlignment="Left" Width="90" />
 
-                    <!-- Linha 7: Cidade | UF -->
-                    <TextBlock Grid.Row="7" Grid.Column="0" Classes="formlabel" Text="Cidade" />
-                    <TextBox Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="3"
-                             Text="{Binding Cidade}" IsEnabled="{Binding !ModoVisualizacao}"
-                             b:MaiusculoBehavior.Ativo="True" />
-                    <TextBlock Grid.Row="7" Grid.Column="4" Classes="formlabel" Text="UF" />
-                    <TextBox Grid.Row="7" Grid.Column="5"
-                             Text="{Binding Uf}" MaxLength="2" IsEnabled="{Binding !ModoVisualizacao}"
-                             HorizontalAlignment="Left" Width="60" />
+                        <!-- Linha 1: Complemento | Bairro -->
+                        <TextBlock Grid.Row="1" Grid.Column="0" Classes="formlabel" Text="Complemento" />
+                        <TextBox Grid.Row="1" Grid.Column="1"
+                                 Text="{Binding Complemento}" IsEnabled="{Binding !ModoVisualizacao}"
+                                 b:MaiusculoBehavior.Ativo="True" />
+                        <TextBlock Grid.Row="1" Grid.Column="2" Classes="formlabel" Text="Bairro" />
+                        <TextBox Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="3"
+                                 Text="{Binding Bairro}" IsEnabled="{Binding !ModoVisualizacao}"
+                                 b:MaiusculoBehavior.Ativo="True" />
 
-                    <!-- Linha 8: seção Observação -->
-                    <DockPanel Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="6" Margin="0,8,0,2" LastChildFill="True">
-                        <TextBlock DockPanel.Dock="Left" Classes="formsecao" Text="OBSERVAÇÃO" />
-                        <Border Classes="formsecaoLinha" />
-                    </DockPanel>
+                        <!-- Linha 2: Cidade | UF -->
+                        <TextBlock Grid.Row="2" Grid.Column="0" Classes="formlabel" Text="Cidade" />
+                        <TextBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3"
+                                 Text="{Binding Cidade}" IsEnabled="{Binding !ModoVisualizacao}"
+                                 b:MaiusculoBehavior.Ativo="True" />
+                        <TextBlock Grid.Row="2" Grid.Column="4" Classes="formlabel" Text="UF" />
+                        <TextBox Grid.Row="2" Grid.Column="5"
+                                 Text="{Binding Uf}" MaxLength="2" IsEnabled="{Binding !ModoVisualizacao}"
+                                 HorizontalAlignment="Left" Width="60" />
+                    </Grid>
+                    </HeaderedContentControl>
 
-                    <!-- Linha 9: Observação -->
-                    <TextBox Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="6"
-                             Text="{Binding Observacao}" IsEnabled="{Binding !ModoVisualizacao}"
+                    <!-- ===== OBSERVAÇÃO (group box) ===== -->
+                    <HeaderedContentControl Classes="grupo" Header="OBSERVAÇÃO"
+                                            Width="780" HorizontalAlignment="Left" Margin="0,0,0,8">
+                    <TextBox Text="{Binding Observacao}" IsEnabled="{Binding !ModoVisualizacao}"
                              AcceptsReturn="True" TextWrapping="Wrap" Height="56"
                              VerticalContentAlignment="Top" />
+                    </HeaderedContentControl>
 
-                    <!-- Linha 10: mensagem de erro -->
-                    <TextBlock Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="6"
-                               Text="{Binding MensagemErro}"
+                    <!-- mensagem de erro -->
+                    <TextBlock Text="{Binding MensagemErro}"
                                IsVisible="{Binding MensagemErro, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                                Foreground="{DynamicResource BrushErro}" FontSize="11"
-                               TextWrapping="Wrap" Margin="0,8,0,0" />
-                </Grid>
+                               TextWrapping="Wrap" Margin="0,4,0,0" />
+                </StackPanel>
             </ScrollViewer>
 
             <ProgressBar Grid.Row="2" IsIndeterminate="True" Height="2"
