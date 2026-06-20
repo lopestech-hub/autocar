@@ -19,6 +19,8 @@
          para o modal "descolar" do shell ao abrir por cima. Override local só do token da barra. -->
     <Window.Resources>
         <SolidColorBrush x:Key="BrushBarraTitulo" Color="{DynamicResource ColorFundoHeader}" />
+        <!-- Shell mantém o fundo claro original (o #D3D5D9 global é só das janelas). -->
+        <SolidColorBrush x:Key="BrushFundo" Color="{DynamicResource ColorFundoShell}" />
     </Window.Resources>
 
     <Grid RowDefinitions="Auto,*" Margin="{Binding $parent[Window].OffScreenMargin}">

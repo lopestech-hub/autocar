@@ -250,6 +250,12 @@ estoque NÃO mora aqui** — fica no módulo de Estoque (Fase 3).
 - **Desktop:** `ProdutosViewModel` (listagem) + `ProdutoFormViewModel` (form em blocos de seção,
   combos de FK selecionados por Id, margem % calculada). `ProdutosView` (`ListBox.tabela`:
   CÓDIGO · DESCRIÇÃO · CATEGORIA · **GRUPO** · MARCA · UN · POSIÇÃO · LADO · VENDA · STATUS) + `ProdutoFormView`. Rota `produtos`.
+  **O form abre em janela separada** (`ProdutoWindow`, não-modal) — padrão do Estoque/Pré-venda:
+  `ProdutosViewModel` recebe `Func<ProdutoFormViewModel>` (form **novo por janela**, sem estado
+  compartilhado) e dispara `AbrirFormularioSolicitado`; a `ProdutosView` (code-behind) abre a janela e
+  recarrega a listagem ao **Salvo**. Não é mais embutido na listagem (`FormularioAtivo` removido).
+  A aba **Dados** usa **group box** (molduras `HeaderedContentControl.grupo`, título laranja embutido)
+  nas seções IDENTIFICAÇÃO/CLASSIFICAÇÃO/VALORES. Padrão a replicar nos demais cadastros.
   Na seção CLASSIFICAÇÃO: **Categoria | Grupo** lado a lado (grupo é **combo dependente** — trocar a
   categoria recarrega os grupos e zera a seleção); Posição e Lado são combos com item nulo "—".
   Todos via `OpcaoDto` (Id+descrição); os converters de enum `PosicaoPecaConverter`/`LadoPecaConverter`

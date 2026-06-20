@@ -13,6 +13,11 @@
         ExtendClientAreaTitleBarHeightHint="-1"
         Background="{DynamicResource BrushFundo}">
 
+    <!-- Tela de entrada (marca Cofap) mantém o fundo claro original. -->
+    <Window.Resources>
+        <SolidColorBrush x:Key="BrushFundo" Color="{DynamicResource ColorFundoShell}" />
+    </Window.Resources>
+
     <Grid RowDefinitions="Auto,*" Margin="{Binding $parent[Window].OffScreenMargin}">
         <controls:BarraTituloJanela Grid.Row="0" />
         <!-- Card central de login -->

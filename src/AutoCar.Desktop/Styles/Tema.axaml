@@ -13,16 +13,19 @@
             <FontFamily x:Key="FonteMono">Consolas</FontFamily>
 
             <!-- ===== FUNDOS ===== -->
-            <Color x:Key="ColorFundo">#F0F2F5</Color>
+            <Color x:Key="ColorFundo">#D3D5D9</Color>
+            <!-- Fundo claro original: usado pelo shell (MainWindow) e pela tela de login, que
+                 mantêm o tom mais claro enquanto as janelas operacionais usam ColorFundo. -->
+            <Color x:Key="ColorFundoShell">#F0F2F5</Color>
             <Color x:Key="ColorFundoCard">#FFFFFF</Color>
             <Color x:Key="ColorFundoSidebar">#1E293B</Color>
             <Color x:Key="ColorFundoSidebarHover">#334155</Color>
             <Color x:Key="ColorFundoSidebarAtivo">#1E5CA5</Color>
-            <!-- Barra de título customizada: laranja Cofap "murcho" (menos vivo que o acento
-                 #F86518) para não pesar, mantendo contraste com o texto branco. -->
-            <Color x:Key="ColorBarraTitulo">#D9773B</Color>
-            <!-- Hover dos botões da barra de título: branco translúcido (realce sutil que funciona
-                 tanto sobre a barra laranja das janelas quanto a azul do shell). -->
+            <!-- Barra de título customizada: laranja Cofap aplicado a TODAS as janelas (shell e
+                 modais usam a mesma cor — sem variante por tipo). Texto/ícones brancos por cima. -->
+            <Color x:Key="ColorBarraTitulo">#E35A12</Color>
+            <!-- Hover dos botões da barra de título: branco translúcido (realce sutil sobre o
+                 laranja da barra). -->
             <Color x:Key="ColorJanelaBtnHover">#33FFFFFF</Color>
             <Color x:Key="ColorFundoInput">#FFFFFF</Color>
             <Color x:Key="ColorFundoDesabilitado">#F1F5F9</Color>
@@ -71,6 +74,9 @@
                  laranja-claro (acento Cofap), unificado com o Catálogo. Trocar aqui muda a marca de
                  seleção em todas as listas de uma vez. A barra lateral da linha usa ColorAcento. -->
             <Color x:Key="ColorSelecaoLinha">#FCD9C2</Color>
+            <!-- Hover (passar o mouse) nos itens de dropdown: laranja BEM mais claro que a seleção,
+                 para o item "sob o mouse" não se confundir com o item realmente selecionado. -->
+            <Color x:Key="ColorSelecaoHover">#FDEFE6</Color>
 
             <!-- ===== SEMÂNTICO ===== -->
             <Color x:Key="ColorSucesso">#22C55E</Color>
@@ -79,6 +85,7 @@
 
             <!-- ===== BRUSHES ===== -->
             <SolidColorBrush x:Key="BrushFundo" Color="{StaticResource ColorFundo}" />
+            <SolidColorBrush x:Key="BrushFundoShell" Color="{StaticResource ColorFundoShell}" />
             <SolidColorBrush x:Key="BrushFundoCard" Color="{StaticResource ColorFundoCard}" />
             <SolidColorBrush x:Key="BrushFundoSidebar" Color="{StaticResource ColorFundoSidebar}" />
             <SolidColorBrush x:Key="BrushFundoSidebarHover" Color="{StaticResource ColorFundoSidebarHover}" />
@@ -109,6 +116,7 @@
             <SolidColorBrush x:Key="BrushContadorBorda" Color="{StaticResource ColorContadorBorda}" />
             <SolidColorBrush x:Key="BrushContadorTexto" Color="{StaticResource ColorContadorTexto}" />
             <SolidColorBrush x:Key="BrushSelecaoLinha" Color="{StaticResource ColorSelecaoLinha}" />
+            <SolidColorBrush x:Key="BrushSelecaoHover" Color="{StaticResource ColorSelecaoHover}" />
 
             <!-- ===== OVERRIDE DO MENU (FluentTheme) =====
                  Por padrão o FluentTheme renderiza o popup do submenu com fundo escuro e
@@ -147,12 +155,15 @@
             <SolidColorBrush x:Key="ComboBoxItemForegroundSelectedPressed" Color="{StaticResource ColorTexto}" />
             <SolidColorBrush x:Key="ComboBoxItemForegroundDisabled" Color="{StaticResource ColorTextoMudo}" />
 
+            <!-- Itens do dropdown: hover = laranja BEM claro (ColorSelecaoHover), seleção = laranja
+                 padrão (ColorSelecaoLinha). Dois tons de laranja distintos — sem azul e sem o item
+                 sob o mouse se confundir com a seleção real. -->
             <SolidColorBrush x:Key="ComboBoxItemBackground" Color="Transparent" />
-            <SolidColorBrush x:Key="ComboBoxItemBackgroundPointerOver" Color="{StaticResource ColorFundoSelecionado}" />
-            <SolidColorBrush x:Key="ComboBoxItemBackgroundPressed" Color="{StaticResource ColorFundoSelecionado}" />
-            <SolidColorBrush x:Key="ComboBoxItemBackgroundSelected" Color="{StaticResource ColorFundoSelecionado}" />
-            <SolidColorBrush x:Key="ComboBoxItemBackgroundSelectedPointerOver" Color="{StaticResource ColorFundoSelecionado}" />
-            <SolidColorBrush x:Key="ComboBoxItemBackgroundSelectedPressed" Color="{StaticResource ColorFundoSelecionado}" />
+            <SolidColorBrush x:Key="ComboBoxItemBackgroundPointerOver" Color="{StaticResource ColorSelecaoHover}" />
+            <SolidColorBrush x:Key="ComboBoxItemBackgroundPressed" Color="{StaticResource ColorSelecaoLinha}" />
+            <SolidColorBrush x:Key="ComboBoxItemBackgroundSelected" Color="{StaticResource ColorSelecaoLinha}" />
+            <SolidColorBrush x:Key="ComboBoxItemBackgroundSelectedPointerOver" Color="{StaticResource ColorSelecaoLinha}" />
+            <SolidColorBrush x:Key="ComboBoxItemBackgroundSelectedPressed" Color="{StaticResource ColorSelecaoLinha}" />
 
             <!-- Fundo do popup do dropdown -->
             <SolidColorBrush x:Key="ComboBoxDropDownBackground" Color="{StaticResource ColorFundoCard}" />
@@ -229,7 +240,17 @@
     <Style Selector="TextBlock.formsecao">
         <Setter Property="FontSize" Value="11" />
         <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="Foreground" Value="{DynamicResource BrushPrimario}" />
+        <!-- Título de seção em laranja (acento), unificado com o cabeçalho do group box. -->
+        <Setter Property="Foreground" Value="{DynamicResource BrushAcento}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <!-- Cabeçalho de coluna dos mini-grids (Aplicações/Equivalências): rótulo das caixas de
+         texto abaixo. Preto bem visível (mesmo padrão do formlabel), alinhado à esquerda. -->
+    <Style Selector="TextBlock.colheader">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushTexto}" />
         <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
 
@@ -268,8 +289,7 @@
                                           ContentTemplate="{TemplateBinding ContentTemplate}" />
                     </Border>
                     <!-- Título: fundo do card recorta o trecho da borda atrás dele.
-                         Laranja (BrushAcento): marca o group box e o distingue do
-                         formsecao (azul) das seções de topo. -->
+                         Laranja (BrushAcento): padrão único de título de seção, igual ao formsecao. -->
                     <Border Background="{DynamicResource BrushFundoCard}"
                             Margin="10,0,0,0" Padding="4,0"
                             HorizontalAlignment="Left" VerticalAlignment="Top">
@@ -491,17 +511,19 @@
     <!-- GOTCHA FluentTheme: nos estados (pointerover/pressed) o tema sobrescreve o Foreground do
          ContentPresenter e "apaga" o texto. Fixar Foreground = secundário no ContentPresenter em
          TODOS os estados (a aba ativa reescreve para primário abaixo). -->
+    <!-- Títulos das abas em azul médio (BrushPrimario), inclusive as inativas. A ativa
+         distingue-se por negrito + barra de sublinhado, não por cor diferente. -->
     <Style Selector="Button.aba /template/ ContentPresenter">
         <Setter Property="Background" Value="Transparent" />
-        <Setter Property="Foreground" Value="{DynamicResource BrushTextoSecundario}" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushPrimario}" />
     </Style>
     <Style Selector="Button.aba:pointerover /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource BrushFundoHover}" />
-        <Setter Property="Foreground" Value="{DynamicResource BrushTextoSecundario}" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushPrimario}" />
     </Style>
     <Style Selector="Button.aba:pressed /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource BrushFundoHover}" />
-        <Setter Property="Foreground" Value="{DynamicResource BrushTextoSecundario}" />
+        <Setter Property="Foreground" Value="{DynamicResource BrushPrimario}" />
     </Style>
     <!-- Aba ativa: texto primário em destaque, fixado também no ContentPresenter (todos os estados). -->
     <Style Selector="Button.aba.ativo">
@@ -636,9 +658,9 @@
          TABELA VIRTUALIZADA (ListBox.tabela) — listagem de cadastro
          Substitui o "Grid único code-behind" nas listas com volume real (Produto).
          O ListBox traz virtualização (só renderiza linhas visíveis), seleção, hover,
-         teclado (↑/↓) e scroll de graça. Cores e barra de seleção seguem o PADRÃO de
-         "Seleção por teclado nas listas de cadastro" (fundo #DBEAFE + barra 3px #3B82F6,
-         hover #EFF6FF). Enter/duplo-clique → AbrirCommand é ligado no code-behind.
+         teclado (↑/↓) e scroll de graça. Cores no padrão laranja Cofap: seleção
+         BrushSelecaoLinha (#FCD9C2) + barra lateral 3px laranja, hover BrushSelecaoHover
+         (#FDEFE6, pêssego claro). Enter/duplo-clique → AbrirCommand é ligado no code-behind.
          =================================================================== -->
     <Style Selector="ListBox.tabela">
         <Setter Property="Background" Value="Transparent" />
@@ -666,14 +688,14 @@
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
     </Style>
     <!-- Fundo dos estados (o FluentTheme aplica cores próprias que destoam do padrão):
-         hover #EFF6FF (passageiro), seleção #DBEAFE (marca). Fixar no /template/ Border
+         hover #FDEFE6 (passageiro), seleção #FCD9C2 (marca). Fixar no /template/ Border
          interno do ContentPresenter do ListBoxItem para vencer o tema sem flicker. -->
     <Style Selector="ListBox.tabela ListBoxItem /template/ ContentPresenter#PART_ContentPresenter">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="Padding" Value="0" />
     </Style>
     <Style Selector="ListBox.tabela ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource BrushFundoSelecionado}" />
+        <Setter Property="Background" Value="{DynamicResource BrushSelecaoHover}" />
     </Style>
     <Style Selector="ListBox.tabela ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource BrushSelecaoLinha}" />

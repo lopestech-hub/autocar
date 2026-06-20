@@ -146,13 +146,15 @@
                     </HeaderedContentControl>
 
                     <!-- ===== CLASSIFICAÇÃO (group box) ===== -->
+                    <!-- Grade de 6 colunas: rótulo/campo em pares, com os rótulos Posição e Lado
+                         alinhados nas colunas (col2/col4), não flutuando colados ao campo. -->
                     <HeaderedContentControl Classes="grupo" Header="CLASSIFICAÇÃO"
                                             Width="800" HorizontalAlignment="Left" Margin="0,0,0,8">
-                    <Grid RowSpacing="6" ColumnDefinitions="90,380,100,200">
+                    <Grid RowSpacing="6" ColumnDefinitions="90,130,75,150,55,140">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" /><!-- 0: Categoria | Marca -->
-                            <RowDefinition Height="Auto" /><!-- 1: Unidade | Posição | Lado (linha própria) -->
-                            <RowDefinition Height="Auto" /><!-- 2: Fornecedor -->
+                            <RowDefinition Height="Auto" /><!-- 0: Categoria | Grupo -->
+                            <RowDefinition Height="Auto" /><!-- 1: Unidade | Posição | Lado -->
+                            <RowDefinition Height="Auto" /><!-- 2: Fornecedor | Marca -->
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Row="0" Grid.Column="0" Classes="formlabel" Text="Categoria" />
@@ -161,49 +163,50 @@
                                   SelectedItem="{Binding CategoriaSelecionada}"
                                   ItemTemplate="{StaticResource OpcaoTemplate}"
                                   IsEnabled="{Binding !ModoVisualizacao}"
-                                  HorizontalAlignment="Left" Width="260" />
+                                  HorizontalAlignment="Left" Width="130" />
                         <TextBlock Grid.Row="0" Grid.Column="2" Classes="formlabel" Text="Grupo" />
                         <ComboBox Grid.Row="0" Grid.Column="3"
                                   ItemsSource="{Binding Grupos}"
                                   SelectedItem="{Binding GrupoSelecionado}"
                                   ItemTemplate="{StaticResource OpcaoTemplate}"
                                   IsEnabled="{Binding !ModoVisualizacao}"
-                                  HorizontalAlignment="Left" Width="200" />
+                                  HorizontalAlignment="Left" Width="150" />
 
                         <TextBlock Grid.Row="1" Grid.Column="0" Classes="formlabel" Text="Unidade" />
-                        <StackPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3"
-                                    Orientation="Horizontal" Spacing="8">
-                            <ComboBox ItemsSource="{Binding Unidades}"
-                                      SelectedItem="{Binding Unidade}"
-                                      IsEnabled="{Binding !ModoVisualizacao}"
-                                      Width="100" />
-                            <TextBlock Classes="formlabel" Text="Posição" VerticalAlignment="Center" />
-                            <ComboBox ItemsSource="{Binding Posicoes}"
-                                      SelectedItem="{Binding PosicaoSelecionada}"
-                                      ItemTemplate="{StaticResource OpcaoTemplate}"
-                                      IsEnabled="{Binding !ModoVisualizacao}"
-                                      Width="130" />
-                            <TextBlock Classes="formlabel" Text="Lado" VerticalAlignment="Center" />
-                            <ComboBox ItemsSource="{Binding Lados}"
-                                      SelectedItem="{Binding LadoSelecionado}"
-                                      ItemTemplate="{StaticResource OpcaoTemplate}"
-                                      IsEnabled="{Binding !ModoVisualizacao}"
-                                      Width="130" />
-                        </StackPanel>
+                        <ComboBox Grid.Row="1" Grid.Column="1"
+                                  ItemsSource="{Binding Unidades}"
+                                  SelectedItem="{Binding Unidade}"
+                                  IsEnabled="{Binding !ModoVisualizacao}"
+                                  HorizontalAlignment="Left" Width="100" />
+                        <TextBlock Grid.Row="1" Grid.Column="2" Classes="formlabel" Text="Posição" />
+                        <ComboBox Grid.Row="1" Grid.Column="3"
+                                  ItemsSource="{Binding Posicoes}"
+                                  SelectedItem="{Binding PosicaoSelecionada}"
+                                  ItemTemplate="{StaticResource OpcaoTemplate}"
+                                  IsEnabled="{Binding !ModoVisualizacao}"
+                                  HorizontalAlignment="Left" Width="150" />
+                        <TextBlock Grid.Row="1" Grid.Column="4" Classes="formlabel" Text="Lado" />
+                        <ComboBox Grid.Row="1" Grid.Column="5"
+                                  ItemsSource="{Binding Lados}"
+                                  SelectedItem="{Binding LadoSelecionado}"
+                                  ItemTemplate="{StaticResource OpcaoTemplate}"
+                                  IsEnabled="{Binding !ModoVisualizacao}"
+                                  HorizontalAlignment="Left" Width="140" />
+
                         <TextBlock Grid.Row="2" Grid.Column="0" Classes="formlabel" Text="Fornecedor" />
                         <ComboBox Grid.Row="2" Grid.Column="1"
                                   ItemsSource="{Binding Fornecedores}"
                                   SelectedItem="{Binding FornecedorSelecionado}"
                                   ItemTemplate="{StaticResource OpcaoTemplate}"
                                   IsEnabled="{Binding !ModoVisualizacao}"
-                                  HorizontalAlignment="Left" Width="200" />
+                                  HorizontalAlignment="Left" Width="130" />
                         <TextBlock Grid.Row="2" Grid.Column="2" Classes="formlabel" Text="Marca" />
                         <ComboBox Grid.Row="2" Grid.Column="3"
                                   ItemsSource="{Binding Marcas}"
                                   SelectedItem="{Binding MarcaSelecionada}"
                                   ItemTemplate="{StaticResource OpcaoTemplate}"
                                   IsEnabled="{Binding !ModoVisualizacao}"
-                                  HorizontalAlignment="Left" Width="200" />
+                                  HorizontalAlignment="Left" Width="150" />
                     </Grid>
                     </HeaderedContentControl>
 
@@ -255,20 +258,13 @@
                     <Grid ColumnDefinitions="140,150,60,60,90,110,*,28" Width="920" HorizontalAlignment="Left"
                           Margin="0,0,0,2"
                           IsVisible="{Binding Aplicacoes.Count}">
-                        <TextBlock Grid.Column="0" Classes="formsecao" Text="Montadora" FontSize="10"
-                                   Foreground="{DynamicResource BrushTextoSecundario}" />
-                        <TextBlock Grid.Column="1" Classes="formsecao" Text="Modelo" FontSize="10"
-                                   Foreground="{DynamicResource BrushTextoSecundario}" />
-                        <TextBlock Grid.Column="2" Classes="formsecao" Text="Ano ini" FontSize="10"
-                                   Foreground="{DynamicResource BrushTextoSecundario}" />
-                        <TextBlock Grid.Column="3" Classes="formsecao" Text="Ano fim" FontSize="10"
-                                   Foreground="{DynamicResource BrushTextoSecundario}" />
-                        <TextBlock Grid.Column="4" Classes="formsecao" Text="Motor" FontSize="10"
-                                   Foreground="{DynamicResource BrushTextoSecundario}" />
-                        <TextBlock Grid.Column="5" Classes="formsecao" Text="Combustível" FontSize="10"
-                                   Foreground="{DynamicResource BrushTextoSecundario}" />
-                        <TextBlock Grid.Column="6" Classes="formsecao" Text="Observação" FontSize="10"
-                                   Foreground="{DynamicResource BrushTextoSecundario}" />
+                        <TextBlock Grid.Column="0" Classes="colheader" Text="Montadora" />
+                        <TextBlock Grid.Column="1" Classes="colheader" Text="Modelo" />
+                        <TextBlock Grid.Column="2" Classes="colheader" Text="Ano ini" />
+                        <TextBlock Grid.Column="3" Classes="colheader" Text="Ano fim" />
+                        <TextBlock Grid.Column="4" Classes="colheader" Text="Motor" />
+                        <TextBlock Grid.Column="5" Classes="colheader" Text="Combustível" />
+                        <TextBlock Grid.Column="6" Classes="colheader" Text="Observação" />
                     </Grid>
 
                     <!-- Linhas editáveis -->
@@ -345,14 +341,10 @@
                     <Grid ColumnDefinitions="160,160,*,90,28" Width="920" HorizontalAlignment="Left"
                           Margin="0,0,0,2"
                           IsVisible="{Binding Similares.Count}">
-                        <TextBlock Grid.Column="0" Classes="formsecao" Text="Marca" FontSize="10"
-                                   Foreground="{DynamicResource BrushTextoSecundario}" />
-                        <TextBlock Grid.Column="1" Classes="formsecao" Text="Referência" FontSize="10"
-                                   Foreground="{DynamicResource BrushTextoSecundario}" />
-                        <TextBlock Grid.Column="2" Classes="formsecao" Text="Observação" FontSize="10"
-                                   Foreground="{DynamicResource BrushTextoSecundario}" />
-                        <TextBlock Grid.Column="3" Classes="formsecao" Text="Estoque" FontSize="10"
-                                   Foreground="{DynamicResource BrushTextoSecundario}" />
+                        <TextBlock Grid.Column="0" Classes="colheader" Text="Marca" />
+                        <TextBlock Grid.Column="1" Classes="colheader" Text="Referência" />
+                        <TextBlock Grid.Column="2" Classes="colheader" Text="Observação" />
+                        <TextBlock Grid.Column="3" Classes="colheader" Text="Estoque" />
                     </Grid>
 
                     <!-- Linhas editáveis -->

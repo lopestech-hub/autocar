@@ -169,8 +169,10 @@ Um perfil por usuário. Admin vê tudo.
 
 ## Próximos Passos
 
-> **Em andamento:** auditoria de consistência de UI tela por tela (Shell + Listagens ✅; faltam
-> Formulários, Janelas-documento, Seletores, Diálogos). Checklist: `.design-engineer/checklist-auditoria-ui.md`.
+> **Em andamento:** auditoria de consistência de UI tela por tela (Shell ✅, Listagens ✅, Formulários ✅,
+> barra de título nas 14 janelas ✅, group box criado ✅). **Falta propagar** o group box (molduras) e o
+> padrão "abrir em janela" (`ProdutoWindow`) aos **demais cadastros** (Cliente/Fornecedor/Marca/Categoria/
+> Grupo/Posição/Lado/Serviço/Mecânico). Checklist: `.design-engineer/checklist-auditoria-ui.md`.
 
 1. **Cancelar** na UI da Pré-venda (o domínio já tem `Cancelar()`; falta botão — cancelar NÃO mexe em estoque).
 2. Implementar a busca global de verdade (atalho "Buscar" hoje é placeholder)
@@ -192,6 +194,7 @@ Um perfil por usuário. Admin vê tudo.
 
 | Data | Mudança |
 | --- | --- |
+| 2026-06-19 | **Barra de título customizada + group box + Produto em janela** (`bffe004`): barra de título própria nas **14 janelas** via `ExtendClientAreaToDecorationsHint` (controle reutilizável `BarraTituloJanela` + `WindowStateIconConverter`) — **shell azul, modais laranja suave** (`#D9773B`), hover branco translúcido, arrastar/min/max/fechar próprios. Novo **group box** `HeaderedContentControl.grupo` (moldura + título laranja embutido, padding configurável) aplicado em MovimentoEstoque e na aba Dados do Produto. **Produto passa a abrir em janela separada** (`ProdutoWindow`, factory `Func<ProdutoFormViewModel>`, não-modal — padrão do estoque), não mais embutido na listagem. Auditoria de UI dos **formulários**: headers de tabela embutida via `Classes=th` (corrige contraste pós-Cofap em MovimentoEstoque/Devolução), traços (—) removidos de combos/converters (Produto/Grupo/Combustível/VínculoSimilar) |
 | 2026-06-19 | **Auditoria de consistência de UI** (`d2d786c`): contador das listagens vira **laranja-claro** (acento Cofap `#FDE3D1/#F86518/#C24E0F`) e exibe **só o número** (15 ViewModels: `switch`→`Count.ToString()`); Catálogo alinhado ao `Border.contador`; **login** migrado à paleta Cofap (Auto azul/Car laranja + ERP/USUÁRIO/SENHA preto Medium); ProdutosView sem traço em Grupo/Posição/Lado (célula vazia). Checklist em `.design-engineer/checklist-auditoria-ui.md` |
 | 2026-06-18 | **Paleta Cofap global** (`94817a5`): promove a identidade do Catálogo para todo o sistema — `ColorPrimario` #3B82F6→**#1E5CA5** + novo `ColorAcento` **#F86518** (laranja). Cores hardcoded centralizadas em tokens (classe `Border.contador`, `BrushSelecaoLinha`, trio do contador). Header de tabela e barra de status: **faixa azul + texto branco**. Seleção de linha unificada no **laranja-claro #FCD9C2** + barra lateral laranja. Logo: Auto(azul) Car(laranja). Legendas/menu/labels em **preto Medium**. Converters migrados (semânticos verde/vermelho/âmbar preservados). Grep confirma zero azul antigo fora do Tema |
 | 2026-06-17 | Catálogo estilo Cofap (`13347ba`): layout **mestre-detalhe** (tabela + painel Nº Conversão/Aplicação agrupada por montadora/Foto fixa); `CatalogoItemDto` ganha listas estruturadas (sem N+1, reusa projeção do `Mapear`); abre em **janela própria** maximizada (`ItemMenu.FlgAbreEmJanela` + evento no shell; `CatalogoSeletorWindow` com modo Consulta/AdicionarNaVenda, F2 da pré-venda intacto); foto contida + `ImagemAmpliadaWindow` (600×500); **copiar por clique direito** nas células; texto global **preto** (`ColorTexto #000000`). Paleta Cofap ainda **local** à View (migração global é o próximo passo) |

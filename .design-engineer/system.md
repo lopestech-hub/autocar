@@ -21,7 +21,7 @@ laranja acento (paleta Cofap).
 | `BrushFundo` | #F0F2F5 | tela principal |
 | `BrushFundoCard` | #FFFFFF | cards, formulários, menu/toolbar |
 | `BrushFundoHover` | #F8FAFC | hover de linha/botão |
-| `BrushFundoHeader` | #F8FAFC | barra de status, header de tabela |
+| `BrushFundoHeader` | **#1E5CA5** | header de tabela + barra de status (faixa azul Cofap, texto branco) |
 | `BrushPrimario` | **#1E5CA5** | botão primário, foco, marca ("Auto"), ícone da toolbar |
 | `BrushAcento` | **#F86518** | acento laranja: barra de seleção de linha, marca ("Car"), rótulos |
 | `BrushBorda` | #1E293B | borda padrão de campo (repouso) — forte/bem definida; foco vira azul Cofap |
@@ -31,6 +31,7 @@ laranja acento (paleta Cofap).
 | `BrushErro` | #EF4444 | mensagens de erro, botão Sair |
 | `BrushContadorFundo/Borda/Texto` | #FDE3D1 / #F86518 / #C24E0F | badge contador laranja (classe `Border.contador`) |
 | `BrushSelecaoLinha` | **#FCD9C2** | fundo da linha selecionada nas listagens (laranja-claro Cofap) |
+| `BrushBarraTitulo` | **#D9773B** | barra de título customizada das janelas (laranja suave); o shell sobrescreve p/ azul (`ColorFundoHeader`) |
 
 > Os tokens `BrushFundoSidebar*` ainda existem no Tema.axaml mas **não são mais usados** (o layout
 > deixou de ter sidebar escura). Podem ser removidos numa limpeza futura.
@@ -128,6 +129,22 @@ CornerRadius: controles 2px · cards 6px · ícone-marcador 3px.
 - **Valor calculado read-only** (ex: Margem % do Produto = `(venda-custo)/custo`) como `TextBlock` em
   `FonteMono`, cinza, ao lado dos campos de valor. Recalcula via `OnXChanged` no ViewModel; "—" sem base.
 
+### Group box (moldura com título embutido) — PADRÃO
+
+> Agrupa um cluster de campos numa **moldura fechada** com o título sobre a linha superior da borda
+> (estilo ERP clássico, ref. ERP Bezerra). Alternativa "fechada" ao `formsecao` (título + linha).
+> **Coexistem:** `formsecao` (azul) para seções de topo do form; group box (laranja) para clusters
+> densos/fiscais. Aprovado pelo Julio (2026-06-19).
+
+- Classe **`HeaderedContentControl.grupo`** (Tema.axaml): moldura `BrushBorda` 1px, radius 3, com o
+  título **laranja acento** (`BrushAcento`) embutido na linha de cima, recortado pelo fundo do card.
+- **Padding configurável** por instância (default `12,14,12,12`). Tabela **rente à moldura** usa
+  `Padding="0,12,0,0"` — sem borda dupla (a moldura vira o quadro da tabela; `ClipToBounds` arredonda
+  os cantos do header azul). Ver `MovimentoEstoqueFormView` (seção HISTÓRICO).
+- Uso: `<HeaderedContentControl Classes="grupo" Header="DADOS FISCAIS"><Grid>…campos…</Grid></HeaderedContentControl>`.
+- Para **alinhar as bordas** de vários group boxes empilhados, dar a mesma `Width` (ex: 800).
+- Referência: `ProdutoFormView` (aba Dados: IDENTIFICAÇÃO/CLASSIFICAÇÃO/VALORES) e `MovimentoEstoqueFormView`.
+
 ### Seletor de item (lista para ESCOLHER, não para abrir) — PADRÃO
 
 > Estabelecido no Catálogo aberto via F2 na Pré-venda. Para qualquer lista cujo objetivo é **escolher
@@ -181,6 +198,32 @@ CornerRadius: controles 2px · cards 6px · ícone-marcador 3px.
   ViewModel da listagem recebe `Func<FormViewModel>` (form novo por janela, sem estado compartilhado).
 - **F2** na janela abre o **seletor de peça** (Catálogo) via `KeyBinding` → comando do ViewModel.
 - Vendedor (usuário logado) aparece read-only no cabeçalho.
+- **O mesmo padrão (factory + evento + `Show(dono)`) vale para CADASTROS que abrem em janela** — o
+  Produto migrou para `ProdutoWindow` (2026-06-19), saindo do embed na listagem. Ver "Barra de título".
+
+### Barra de título customizada (BarraTituloJanela) — PADRÃO
+
+> Toda `Window` desenha a **própria barra de título** (chrome do Windows substituído) para identidade
+> Cofap e **contraste de camadas**. Controle único reutilizável — nunca recriar por janela. (2026-06-19)
+
+- Controle **`Views/Shared/BarraTituloJanela`** + `WindowStateIconConverter`. A janela ativa
+  `ExtendClientAreaToDecorationsHint="True"` + `ExtendClientAreaChromeHints="NoChrome"` +
+  `ExtendClientAreaTitleBarHeightHint="-1"`, e envolve o conteúdo num
+  `Grid RowDefinitions="Auto,*" Margin="{Binding $parent[Window].OffScreenMargin}"` com o controle na
+  linha 0. `OffScreenMargin` evita corte do conteúdo ao **maximizar**.
+- O controle acha a janela-mãe sozinho (`TopLevel.GetTopLevel`) e cuida de **arrastar** (`BeginMoveDrag`),
+  **duplo-clique = maximizar/restaurar**, minimizar, maximizar (**some** quando `CanResize=False`) e
+  fechar. `MostrarMinimizar="False"` em diálogos modais.
+- **Cor = camada:** **shell azul** (`BrushFundoHeader`) × **janelas/modais laranja suave**
+  (`BrushBarraTitulo` #D9773B) — assim o modal "descola" do shell ao abrir por cima. O shell sobrescreve
+  o token localmente (`Window.Resources` com `BrushBarraTitulo` = `ColorFundoHeader`). Hover dos botões =
+  **branco translúcido** (`#33FFFFFF`, funciona sobre qualquer cor de barra); hover do **fechar** vermelho
+  (`BrushErro`). Texto e ícones brancos (`BrushTextoInverso`).
+- ⚠️ Binding de StyledProperty própria do controle (ex: `MostrarMinimizar`) precisa de
+  `RelativeSource AncestorType=local:BarraTituloJanela` — usar o tipo base `UserControl` quebra o
+  compiled binding com **AVLN2000** ("Unable to resolve property ... on UserControl").
+- Aplicado nas **14 janelas**: shell, login, documentos (PreVenda/Compra/OS/Devolução), estoque, produto,
+  5 seletores e 2 diálogos. Estilo dos botões: `Button.janelaBtn` (+ `.fechar`) no Tema.
 
 ### Confirmação de ação irreversível (ConfirmacaoWindow) — PADRÃO
 

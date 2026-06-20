@@ -118,12 +118,12 @@ public partial class ProdutoFormViewModel : ViewModelBase
 
     public string Titulo => _id is null ? "Novo Produto" : $"Produto {Descricao}";
 
-    /// <summary>Margem sobre o custo: (venda - custo) / custo. Texto somente leitura ("—" sem base).</summary>
+    /// <summary>Margem sobre o custo: (venda - custo) / custo. Somente leitura; em branco sem base de custo.</summary>
     public string MargemTexto
     {
         get
         {
-            if (VlrCusto <= 0) return "—";
+            if (VlrCusto <= 0) return "";
             var margem = (VlrVenda - VlrCusto) / VlrCusto * 100m;
             return margem.ToString("N1", PtBr) + "%";
         }
