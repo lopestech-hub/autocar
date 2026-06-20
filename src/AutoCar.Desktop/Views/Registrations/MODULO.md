@@ -256,7 +256,8 @@ estoque NÃO mora aqui** — fica no módulo de Estoque (Fase 3).
   `AbrirFormularioSolicitado`; a `ProdutosView` (code-behind) abre a janela e recarrega a listagem ao
   **Salvo**. Não é mais embutido na listagem (`FormularioAtivo` removido).
   A aba **Dados** usa **group box** (molduras `HeaderedContentControl.grupo`, título laranja embutido)
-  nas seções IDENTIFICAÇÃO/CLASSIFICAÇÃO/VALORES. Padrão a replicar nos demais cadastros.
+  nas seções IDENTIFICAÇÃO/CLASSIFICAÇÃO/VALORES. Padrão **replicado em todos os 9 cadastros**
+  (2026-06-19, commit `1046de4`) — ver "Padrão único dos cadastros" abaixo.
   Na seção CLASSIFICAÇÃO: **grade de 6 colunas** (rótulo/campo em pares) com os rótulos Posição e Lado
   alinhados nas colunas (não flutuando colados ao campo). **Categoria | Grupo** lado a lado (grupo é
   **combo dependente** — trocar a categoria recarrega os grupos e zera a seleção); Posição e Lado são
@@ -338,6 +339,21 @@ global `/design-engineer-desktop`):
 - **Botão remover de linha (mini-grids):** `Button Classes="remover"` (no `Tema.axaml`) — ícone de
   lixeira (`fa-solid fa-trash`) vermelho, sem borda/fundo, hover com fundo vermelho-claro. Usado nas
   linhas de Aplicações e Equivalências.
+- **Padrão único dos cadastros — form em janela + group box (2026-06-19, `1046de4`):** todos os 9
+  cadastros (Cliente, Fornecedor, Marca, Categoria, Grupo, Posição, Lado, Serviço, Mecânico) seguem o
+  mesmo molde do Produto:
+  - **Form em janela própria não-modal** (`XWindow`: `BarraTituloJanela` laranja + `XFormView`), fecha
+    ao salvar/cancelar. O `XsViewModel` recebe **`Func<XFormViewModel>`** (form novo por janela, sem
+    estado compartilhado) e dispara o evento **`AbrirFormularioSolicitado`**; o code-behind da `XsView`
+    abre a janela e recarrega a lista no `Salvo` via `RecarregarAsync`. O overlay embutido
+    (`FormularioAtivo`/`MostrarFormulario`/`ContentControl`) **foi removido**. A factory é registrada no
+    `Bootstrap` (`AddTransient<Func<XFormViewModel>>`).
+  - **Group box** envolvendo o corpo: header **DADOS** nos enxutos; **DADOS GERAIS / ENDEREÇO /
+    OBSERVAÇÃO** nos densos (Cliente/Fornecedor — as antigas `formsecao` viraram molduras). Janelas
+    enxutas ~480×300/340; densas ~860×620/660 (group boxes `Width=780`).
+  - ⚠️ Não confundir com o padrão **módulo-em-janela-maximizada** do shell (`ItemMenu.FlgAbreEmJanela`,
+    usado só pelo Catálogo): aquele abre o módulo inteiro sem o menu; este abre **só o formulário** de
+    um cadastro cuja listagem continua no shell.
 
 ## Catálogo (consulta peça → veículo)
 
