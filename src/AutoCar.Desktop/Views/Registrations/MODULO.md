@@ -250,23 +250,26 @@ estoque NÃO mora aqui** — fica no módulo de Estoque (Fase 3).
 - **Desktop:** `ProdutosViewModel` (listagem) + `ProdutoFormViewModel` (form em blocos de seção,
   combos de FK selecionados por Id, margem % calculada). `ProdutosView` (`ListBox.tabela`:
   CÓDIGO · DESCRIÇÃO · CATEGORIA · **GRUPO** · MARCA · UN · POSIÇÃO · LADO · VENDA · STATUS) + `ProdutoFormView`. Rota `produtos`.
-  **O form abre em janela separada** (`ProdutoWindow`, não-modal) — padrão do Estoque/Pré-venda:
-  `ProdutosViewModel` recebe `Func<ProdutoFormViewModel>` (form **novo por janela**, sem estado
-  compartilhado) e dispara `AbrirFormularioSolicitado`; a `ProdutosView` (code-behind) abre a janela e
-  recarrega a listagem ao **Salvo**. Não é mais embutido na listagem (`FormularioAtivo` removido).
+  **O form abre em janela separada** (`ProdutoWindow`, não-modal, **850×550**, título fixo "Produto" —
+  não duplica o nome do card) — padrão do Estoque/Pré-venda: `ProdutosViewModel` recebe
+  `Func<ProdutoFormViewModel>` (form **novo por janela**, sem estado compartilhado) e dispara
+  `AbrirFormularioSolicitado`; a `ProdutosView` (code-behind) abre a janela e recarrega a listagem ao
+  **Salvo**. Não é mais embutido na listagem (`FormularioAtivo` removido).
   A aba **Dados** usa **group box** (molduras `HeaderedContentControl.grupo`, título laranja embutido)
   nas seções IDENTIFICAÇÃO/CLASSIFICAÇÃO/VALORES. Padrão a replicar nos demais cadastros.
-  Na seção CLASSIFICAÇÃO: **Categoria | Grupo** lado a lado (grupo é **combo dependente** — trocar a
-  categoria recarrega os grupos e zera a seleção); Posição e Lado são combos com item nulo "—".
-  Todos via `OpcaoDto` (Id+descrição); os converters de enum `PosicaoPecaConverter`/`LadoPecaConverter`
-  foram **removidos** (a descrição vem da navegação).
+  Na seção CLASSIFICAÇÃO: **grade de 6 colunas** (rótulo/campo em pares) com os rótulos Posição e Lado
+  alinhados nas colunas (não flutuando colados ao campo). **Categoria | Grupo** lado a lado (grupo é
+  **combo dependente** — trocar a categoria recarrega os grupos e zera a seleção); Posição e Lado são
+  combos com item nulo em branco. Todos via `OpcaoDto` (Id+descrição); os converters de enum
+  `PosicaoPecaConverter`/`LadoPecaConverter` foram **removidos** (a descrição vem da navegação).
+  Os mini-grids de Aplicações/Equivalências usam a classe **`colheader`** (rótulo de coluna preto).
 
 ### Regras de Negócio
 
 - **Categoria obrigatória** (validada no service via `ObterPorIdAsync`); Marca e Fornecedor opcionais.
 - **cod_barras único quando informado** — checado no service (`ExisteCodBarrasAsync`) + índice parcial.
 - Descrição obrigatória; valores não-negativos; unidade do enum.
-- **Margem %** = `(venda - custo) / custo` exibida na tela (somente leitura; "—" sem custo).
+- **Margem %** = `(venda - custo) / custo` exibida na tela (somente leitura; **em branco** sem custo).
 - Inativar em vez de excluir (`flg_ativo`).
 
 ### Aplicação por veículo (tabela `produto_aplicacao`)
@@ -320,8 +323,8 @@ global `/design-engineer-desktop`):
   na coluna de label do Grid.
 - **FluentTheme:** cores de ComboBox/Menu corrigidas via resource-keys no `Tema.axaml` (não `/template/`
   em `:pointerover`, que causa flicker). Altura de campo 24px exige `MinHeight=24`.
-- **Seções de formulário:** título em **azul primário** (`TextBlock.formsecao`) + **linha divisória**
-  (`Border.formsecaoLinha`) que preenche a largura ao lado. Dois jeitos de montar conforme o layout:
+- **Seções de formulário:** título em **laranja acento** (`TextBlock.formsecao`, unificado com o
+  cabeçalho do group box desde `6cd7d4f`) + **linha divisória** (`Border.formsecaoLinha`) ao lado. Dois jeitos de montar conforme o layout:
   `DockPanel` (Grid único — Cliente/Fornecedor) ou `Grid Auto,*` (blocos — Produto). Detalhes e a
   variante "formulário em blocos de seção" no `system.md` da Luna.
 - **Abas (tabs) em formulários densos:** quando o form tem muitas seções ou mini-grids/listas filhas,
