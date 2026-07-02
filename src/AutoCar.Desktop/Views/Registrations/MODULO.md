@@ -234,6 +234,9 @@ estoque NÃO mora aqui** — fica no módulo de Estoque (Fase 3).
 - `id_categoria` (FK **obrigatória** → `categoria_produto`, `Restrict`)
 - `id_marca`, `id_fornecedor` (FKs **opcionais** → `marca`/`fornecedor`, `Restrict`)
   > Hierarquia do catálogo: **Categoria → Grupo → Produto**. Grupo é opcional e depende da categoria.
+- `id_fonte` (FK **opcional** → `fonte_dado`, `Restrict`). Procedência do dado (de qual catálogo/método a
+  peça de referência foi extraída). Populado pelo `automacao_catalogo`; sem UI no form. Migration
+  `CadastroFonteDado` (aditiva). Ver "Fonte do dado (procedência)" abaixo.
 - `flg_ativo`, `dat_criacao`, `dat_atualizacao` (UTC), `xmin` (concorrência)
 - Índices: `ix_produto_cod` (único), `ix_produto_cod_barras` (único parcial), `ix_produto_descricao`,
   + os de FK. Migration: `CadastroProduto`.
@@ -310,6 +313,24 @@ normalizado de montadora/modelo). Sem `cod_` (registro filho). Migration: `Aplic
   no projeto** (todos os cadastros, movimentos e os 5 seletores F2–F5). Ver memória local
   `feedback-padrao-listagem`. A **query** ainda não pagina (`ListarAsync` sem `LIMIT`) — dívida
   separada, só relevante quando o volume crescer muito.
+
+### Fonte do dado (procedência) — tabela `fonte_dado`
+
+Cadastro mestre **auxiliar do Produto** (FK opcional `id_fonte`), criado em 2026-07-02. Registra **de qual
+catálogo e por qual método** cada peça de referência foi extraída — NÃO confundir com `marca` (marca =
+fabricante da peça; fonte = origem/procedência do dado). Base para auditoria de origem e para a futura
+busca por IA do AutoCar Expert (que herdaria o campo na cópia do catálogo).
+
+- `id_fonte` (uuid PK), `cod_fonte` (int identity), `descricao` (varchar 80 — nome do catálogo: COFAP,
+  HIPPER FREIOS), `sistema` (varchar 100 — método/motor: `CATALOGO EXPRESSO (IDEIA2001)`, `PROPRIO`),
+  `observacao` (varchar 300, opcional), `flg_ativo`, `dat_criacao`/`dat_atualizacao` (UTC), `xmin`.
+- **Único composto `(descricao, sistema)`** (`ix_fonte_dado_descricao_sistema`) — a identidade da fonte é
+  catálogo **+** método, então "COFAP" via `CATALOGO EXPRESSO` e via `PROPRIO` coexistem sem colidir
+  (difere da Marca, única só na `descricao`). Migration `CadastroFonteDado` (aditiva). Índice `ix_fonte_dado_cod`.
+- **Camadas:** só `Domain` (`FonteDado` — molde de `Marca` + `Sistema`/`Observacao`, CAIXA ALTA em
+  descrição/sistema) + `Infrastructure` (`FonteDadoConfiguration`, DbSet `FontesDado`). **Sem
+  Application/UI no MVP** — o `automacao_catalogo` popula direto no banco; o Produto expõe
+  `DefinirFonte(idFonte)` para vínculo isolado em lote (espelha `DefinirGrupo`). Sem service/DTO/tela por ora.
 
 ## Decisões Técnicas (UI do módulo)
 

@@ -95,6 +95,12 @@ public class Produto : EntidadeBase
     /// Cadastro editável (ver <see cref="LadoPeca"/>).</summary>
     public Guid? IdLado { get; protected set; }
 
+    /// <summary>Fonte/procedência do dado desta peça de referência (de qual catálogo e por qual método
+    /// foi extraída — ver <see cref="FonteDado"/>). Opcional. NÃO confundir com marca (fabricante da
+    /// peça): a fonte diz de onde o dado veio. Populada pelo carregador do automacao_catalogo; sem UI
+    /// no formulário do Produto por ora.</summary>
+    public Guid? IdFonte { get; protected set; }
+
     // Navegações (carregadas só quando necessário, ex: exibição com nomes).
     public CategoriaProduto? Categoria { get; protected set; }
     public Marca? Marca { get; protected set; }
@@ -102,6 +108,7 @@ public class Produto : EntidadeBase
     public GrupoProduto? Grupo { get; protected set; }
     public PosicaoPeca? Posicao { get; protected set; }
     public LadoPeca? Lado { get; protected set; }
+    public FonteDado? Fonte { get; protected set; }
 
     // Aplicações por veículo (1:N). Backing field para expor como somente leitura.
     private readonly List<ProdutoAplicacao> _aplicacoes = new();
@@ -175,6 +182,14 @@ public class Produto : EntidadeBase
     public void DefinirGrupo(Guid? idGrupo)
     {
         IdGrupo = idGrupo;
+        MarcarAtualizada();
+    }
+
+    /// <summary>Define (ou limpa) a fonte/procedência do dado isoladamente — útil para atribuir a origem
+    /// em lote na carga do catálogo sem reenviar os demais campos.</summary>
+    public void DefinirFonte(Guid? idFonte)
+    {
+        IdFonte = idFonte;
         MarcarAtualizada();
     }
 

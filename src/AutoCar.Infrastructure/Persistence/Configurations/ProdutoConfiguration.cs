@@ -82,6 +82,9 @@ public class ProdutoConfiguration : IEntityTypeConfiguration<Produto>
         builder.Property(p => p.IdLado)
             .HasColumnName("id_lado");
 
+        builder.Property(p => p.IdFonte)
+            .HasColumnName("id_fonte");
+
         builder.Property(p => p.FlgAtivo)
             .HasColumnName("flg_ativo")
             .IsRequired();
@@ -133,6 +136,13 @@ public class ProdutoConfiguration : IEntityTypeConfiguration<Produto>
         builder.HasOne(p => p.Lado)
             .WithMany()
             .HasForeignKey(p => p.IdLado)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired(false);
+
+        // Fonte/procedência do dado opcional. Restrict evita apagar fonte com produtos vinculados.
+        builder.HasOne(p => p.Fonte)
+            .WithMany()
+            .HasForeignKey(p => p.IdFonte)
             .OnDelete(DeleteBehavior.Restrict)
             .IsRequired(false);
 

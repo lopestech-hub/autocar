@@ -21,6 +21,8 @@ public class AppDbContext : DbContext
 
     public DbSet<Marca> Marcas => Set<Marca>();
 
+    public DbSet<FonteDado> FontesDado => Set<FonteDado>();
+
     public DbSet<CategoriaProduto> Categorias => Set<CategoriaProduto>();
 
     public DbSet<GrupoProduto> GruposProduto => Set<GrupoProduto>();
